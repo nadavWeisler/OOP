@@ -1,0 +1,15 @@
+#EX1:
+
+#folders
+ex1/.idea/
+ex1/out/
+
+#extentions
+*.pdf
+*.iml
+
+#files
+ex1/src/BookTest.java
+ex1/src/LibTest.java
+ex1/src/PatronTest.java
+ex1/src/test_ex1.java

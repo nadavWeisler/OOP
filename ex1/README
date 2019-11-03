@@ -1,0 +1,28 @@
+weisler
+
+Nadav Weisler
+
+=============================
+=      File description     =
+=============================
+Book.java - Contains "Book" class
+Patron.java - Contains "Patron" class
+Library.java - Contains "Library" class
+
+
+=============================
+=          Design           =
+=============================
+most if the design desicion where made in the given api, i did decised that each book will have an id in the book class,
+but the patrons id will be saved in the library class
+
+
+=============================
+=  Implementation details   =
+=============================
+
+
+
+=============================
+=    Answers to questions   =
+=============================
