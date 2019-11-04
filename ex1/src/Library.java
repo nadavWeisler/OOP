@@ -43,7 +43,7 @@ class Library {
                 if (firstBlank == -1) {
                     firstBlank = i;
                 }
-            } else if (this.books[i].stringRepresentation().equals(book.stringRepresentation())) {
+            } else if (this.books[i].equals(book)) {
                 return i;
             }
         }
@@ -60,7 +60,10 @@ class Library {
      * @return Boolean represent if book Id is valid
      */
     boolean isBookIdValid(int bookId) {
-        return this.books[bookId] != null;
+        if (bookId < this.books.length && bookId >= 0) {
+            return this.books[bookId] != null;
+        }
+        return false;
     }
 
     /**
@@ -71,8 +74,7 @@ class Library {
      */
     int getBookId(Book book) {
         for (int i = 0; i < this.books.length; i++) {
-            if (this.books[i] != null &&
-                    this.books[i].stringRepresentation().equals(book.stringRepresentation())) {
+            if (this.books[i] != null && this.books[i].equals(book)) {
                 return i;
             }
         }
@@ -103,7 +105,7 @@ class Library {
                 if (firstBlank == -1) {
                     firstBlank = i;
                 }
-            } else if (this.patrons[i].stringRepresentation().equals(patron.stringRepresentation())) {
+            } else if (this.patrons[i].equals(patron)) {
                 return i;
             }
         }
@@ -120,7 +122,10 @@ class Library {
      * @return Boolean represent if patron Id is valid
      */
     boolean isPatronIdValid(int patronId) {
-        return this.patrons[patronId] != null;
+        if (patronId < this.patrons.length && patronId >= 0) {
+            return this.patrons[patronId] != null;
+        }
+        return false;
     }
 
     /**
@@ -132,7 +137,7 @@ class Library {
     int getPatronId(Patron patron) {
         for (int i = 0; i < this.patrons.length; i++) {
             if (this.patrons[i] != null &&
-                    this.patrons[i].stringRepresentation().equals(patron.stringRepresentation())) {
+                    this.patrons[i].equals(patron)) {
                 return i;
             }
         }

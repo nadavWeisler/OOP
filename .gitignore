@@ -13,3 +13,8 @@ ex1/src/BookTest.java
 ex1/src/LibTest.java
 ex1/src/PatronTest.java
 ex1/src/test_ex1.java
+ex1/src/test_ex1_updatd_sh.java
+ex1/src/Tester.java
+ex1/src/tester_updated4.java
+*.jar
+*.zip

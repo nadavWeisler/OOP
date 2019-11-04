@@ -87,6 +87,6 @@ class Patron {
      * @return Boolean that represent if patron will enjoy given book
      */
     boolean willEnjoyBook(Book book) {
-        return getBookScore(book) >= this.enjoymentThreshold;
+        return getBookScore(book) > this.enjoymentThreshold;
     }
 }
