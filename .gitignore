@@ -2,14 +2,18 @@
 
 #folders
 ex1/.idea/
+ex2/.idea/
 ex1/out/
 HujiGit/
 
 #extentions
 *.pdf
 *.iml
+*.jar
+*.zip
 
 #files
+#EX1
 ex1/src/BookTest.java
 ex1/src/LibTest.java
 ex1/src/PatronTest.java
@@ -17,5 +21,6 @@ ex1/src/test_ex1.java
 ex1/src/test_ex1_updatd_sh.java
 ex1/src/Tester.java
 ex1/src/tester_updated4.java
-*.jar
-*.zip
+#EX2
+ex2/src/SpaceWars.java
+ex2/src/SpaceWars.java
