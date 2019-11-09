@@ -1,6 +1,6 @@
-import java.util.ArrayList;
-
 import oop.ex2.*;
+
+import java.util.ArrayList;
 
 /**
  * This class acts as the driver for the Space Wars game. It is part of Ex57
