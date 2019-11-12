@@ -23,7 +23,7 @@ public class AggressiveSpaceShip extends SpaceShip {
      */
     @Override
     public void doAction(SpaceWars game) {
-        this.GetCloseOrAwayNearestShip(game, game.getClosestShipTo(this), true);
+        this.GetCloseOrAwayNearestShip(game.getClosestShipTo(this), true);
 
         if (this.physics.distanceFrom(game.getClosestShipTo(this).physics) < 0.21) {
             this.fire(game);

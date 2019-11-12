@@ -68,11 +68,10 @@ public abstract class SpaceShip {
     /**
      * Move closer, away or strait from closest spaceship
      *
-     * @param game        SpaceWars object
      * @param closestShip Closest space ship, SpaceShip object
      * @param near        Boolean represent if going forward or backward
      */
-    void GetCloseOrAwayNearestShip(SpaceWars game, SpaceShip closestShip, boolean near) {
+    void GetCloseOrAwayNearestShip(SpaceShip closestShip, boolean near) {
         int turn = 0;
 
         if ((this.physics.angleTo(closestShip.physics) < 0)) {
@@ -103,7 +102,13 @@ public abstract class SpaceShip {
      * This method is called every time a collision with this ship occurs
      */
     public void collidedWithAnotherShip() {
+        //Bashing
+        if(this.isShieldOn) {
+            this.maxEnergy += 18;
+            this.currentEnergy += 18;
+        }
 
+        this.gotHit();
     }
 
     /**

@@ -28,7 +28,7 @@ public class SpecialSpaceShip extends SpaceShip {
         if (closestSpaceShip.toString().equals("BasherSpaceShip") ||
                 closestSpaceShip.toString().equals("AggressiveSpaceShip")) {
             //Move
-            this.GetCloseOrAwayNearestShip(game, closestSpaceShip, true);
+            this.GetCloseOrAwayNearestShip(closestSpaceShip, true);
 
             //Fire
             if (this.physics.angleTo(closestSpaceShip.physics) < 0.1) {
@@ -37,7 +37,7 @@ public class SpecialSpaceShip extends SpaceShip {
                 }
             }
         } else {
-            this.GetCloseOrAwayNearestShip(game, closestSpaceShip, false);
+            this.GetCloseOrAwayNearestShip(closestSpaceShip, false);
         }
     }
 
@@ -46,6 +46,8 @@ public class SpecialSpaceShip extends SpaceShip {
      */
     @Override
     public void gotHit() {
-        health += 1;
+        if(this.health < 22 && this.roundCount % 5 == 0){
+            health += 1;
+        }
     }
 }

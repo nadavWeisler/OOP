@@ -29,7 +29,7 @@ public class RunnerSpaceShip extends SpaceShip {
             teleport();
         }
 
-        this.GetCloseOrAwayNearestShip(game, game.getClosestShipTo(this), false);
+        this.GetCloseOrAwayNearestShip(game.getClosestShipTo(this), false);
 
         this.RegenerationAndAddToRoundCount();
     }
