@@ -33,21 +33,18 @@ public class SpecialSpaceShip extends SpaceShip {
             //Fire
             if (this.physics.angleTo(closestSpaceShip.physics) < 0.1) {
                 for (int i = 0; i < 5; i++) {
+                    this.lastShotRound = -7;
                     this.fire(game);
                 }
             }
         } else {
             this.GetCloseOrAwayNearestShip(closestSpaceShip, false);
         }
-    }
 
-    /**
-     * Override original gotHit - get 1 health
-     */
-    @Override
-    public void gotHit() {
         if(this.health < 22 && this.roundCount % 5 == 0){
             health += 1;
         }
+
+        this.RegenerationAndAddToRoundCount();
     }
 }
