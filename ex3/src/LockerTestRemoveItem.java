@@ -1,0 +1,2 @@
+public class LockerTestRemoveItem {
+}
