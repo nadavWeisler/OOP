@@ -3,8 +3,21 @@ import oop.ex3.spaceship.Item;
 import java.util.Map;
 
 public class LongTermStorage implements Storage {
-    public LongTermStorage(){
+    /**
+     *
+     */
+    private final int START_CAPACITY = 1000;
 
+    /**
+     *
+     */
+    private int current_capacity;
+
+    /**
+     *
+     */
+    public LongTermStorage(){
+        this.current_capacity = 0;
     }
 
     /**
