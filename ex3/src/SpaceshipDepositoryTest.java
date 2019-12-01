@@ -1,2 +1,2 @@
-public class SpaceshipDepositoryTest {
+public class SpaceshipDepositoryTest  {
 }
