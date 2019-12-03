@@ -1,6 +1,4 @@
 import oop.ex3.spaceship.Item;
-
-import java.util.Iterator;
 import java.util.Set;
 
 public class Utils {
@@ -43,6 +41,16 @@ public class Utils {
 
     static String GenerateTestString(int count, String obj, String func) {
         return obj + ": " + "Function: " + func + " Test " + count + " failed.";
+    }
+
+    static double[] DoubleSetToArray(Set<Double> doubleSet){
+        double[] result = new double[doubleSet.size()];
+        int count = 0;
+        for (Double num : doubleSet) {
+            result[count] = num;
+            count++;
+        }
+        return result;
     }
 
     static int[] IntSetToArray(Set<Integer> intSet){

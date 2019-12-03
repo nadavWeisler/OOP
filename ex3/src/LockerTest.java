@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class LockerTest extends StorageTest {
     /**
-     *
+     * Reset locker
      */
     private void resetLocker(int _capacity, boolean resetLongTerm) {
         if (resetLongTerm) {
@@ -17,7 +17,6 @@ public class LockerTest extends StorageTest {
     }
 
     @Before
-    @Override
     public void PrepareTest() {
         super.PrepareTest();
         resetLocker(10, true);
@@ -28,9 +27,10 @@ public class LockerTest extends StorageTest {
     public void AddItemTest() {
         int count = 1;
 
+        resetLocker(10, true);
         //Locker AddItemTest Test 1
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
-                1,
+                0,
                 this.storage.addItem(this.item_football, 1));
         count++;
 
@@ -45,27 +45,21 @@ public class LockerTest extends StorageTest {
         //Locker AddItemTest Test 3
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
                 -2,
-                this.storage.addItem(this.baseballBat, 1));
+                this.storage.addItem(this.item_baseballBat, 1));
         count++;
 
         resetLocker(9, false);
 
         //Locker AddItemTest Test 4
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
-                1,
-                this.storage.addItem(this.sporesEngine, 1));
+                -1,
+                this.storage.addItem(this.item_sporesEngine, 1));
         count++;
 
         //Locker AddItemTest Test 5
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
                 0,
                 this.storage.addItem(this.item_helmet1, 1));
-        count++;
-
-        //Locker AddItemTest Test 6
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
-                -1,
-                this.storage.addItem(this.item_football, 1));
     }
 
     @Test
@@ -106,7 +100,8 @@ public class LockerTest extends StorageTest {
     @Test
     public void RemoveItemTest() {
         int count = 1;
-        Locker locker = (Locker) this.storage;
+
+        Locker locker = new Locker(new LongTermStorage(), 10, ItemFactory.getConstraintPairs());
 
         //Locker RemoveItemTest Test 1
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "RemoveItemTest"),
@@ -114,8 +109,7 @@ public class LockerTest extends StorageTest {
                 locker.removeItem(this.item_football, 1));
         count++;
 
-        locker.addItem(item_helmet1, 2);
-
+        locker.addItem(this.item_helmet1, 2);
         //Locker RemoveItemTest Test 2
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "RemoveItemTest") ,
                 0,
@@ -126,14 +120,6 @@ public class LockerTest extends StorageTest {
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "RemoveItemTest"),
                 -1,
                 locker.removeItem(this.item_helmet1, 2));
-        count++;
-
-        locker.addItem(item_helmet1, 1);
-
-        //Locker RemoveItemTest Test 4
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "RemoveItemTest") ,
-                0,
-                locker.removeItem(this.item_helmet1, 2));
     }
 
     @Test
@@ -141,7 +127,7 @@ public class LockerTest extends StorageTest {
         super.GetInventoryTest();
 
         Locker locker = (Locker) this.storage;
-        HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
+        HashMap<String, Integer> returnValue = new HashMap<>();
         int count = 0;
 
         locker.removeItem(this.item_helmet1, 1);
@@ -162,37 +148,31 @@ public class LockerTest extends StorageTest {
         //Locker GetAvailableCapacityTest Test 1
         this.resetLocker(10, true);
         Locker locker = (Locker)this.storage;
-        locker.addItem(this.baseballBat, 1);
+        locker.addItem(this.item_baseballBat, 1);
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
-                10 - this.baseballBat.getVolume(),
+                10 - this.item_baseballBat.getVolume(),
                 locker.getAvailableCapacity());
         count++;
 
         //Locker GetAvailableCapacityTest Test 2
-        locker.removeItem(this.baseballBat, 1);
+        locker.removeItem(this.item_baseballBat, 1);
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
                 10,
                 locker.getAvailableCapacity());
         count++;
 
         //Locker GetAvailableCapacityTest Test 3
-        locker.addItem(this.baseballBat, 2);
+        locker.addItem(this.item_baseballBat, 2);
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
-                10 - this.baseballBat.getVolume() * 2,
+                10 - this.item_baseballBat.getVolume() * 2,
                 locker.getAvailableCapacity());
         count++;
 
         //Locker GetAvailableCapacityTest Test 4
-        locker.removeItem(this.baseballBat, 1);
+        locker.removeItem(this.item_baseballBat, 1);
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
-                10 - this.baseballBat.getVolume(),
+                10 - this.item_baseballBat.getVolume(),
                 locker.getAvailableCapacity());
         count++;
-
-        //Locker GetAvailableCapacityTest Test 5
-        locker.addItem(this.item_helmet1, 2);
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
-                10 - this.baseballBat.getVolume(),
-                locker.getAvailableCapacity());
     }
 }

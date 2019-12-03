@@ -1,7 +1,6 @@
 import oop.ex3.spaceship.Item;
 import oop.ex3.spaceship.ItemFactory;
 import org.junit.Assert;
-import org.junit.Before;
 
 import java.util.HashMap;
 
@@ -11,40 +10,54 @@ public abstract class StorageTest {
      *
      */
     protected Storage storage;
+
+    /**
+     *
+     */
     protected LongTermStorage longTermStorage;
+
     /**
      *
      */
     protected Item item_football;
+
     /**
      *
      */
     protected Item item_helmet1;
+
     /**
      *
      */
     protected Item item_helmet2;
-    /**
-     *
-     */
-    protected Item sporesEngine;
-    /**
-     *
-     */
-    protected Item baseballBat;
 
+    /**
+     *
+     */
+    protected Item item_sporesEngine;
+
+    /**
+     *
+     */
+    protected Item item_baseballBat;
+
+    /**
+     *
+     */
     protected Item[] legalItems;
 
+    /**
+     *
+     */
     protected String currentClass;
 
-    @Before
     public void PrepareTest() {
         this.currentClass = "Storage";
         this.item_football = ItemFactory.createSingleItem("football");
         this.item_helmet1 = ItemFactory.createSingleItem("helmet, size 1");
         this.item_helmet2 = ItemFactory.createSingleItem("helmet, size 3");
-        this.sporesEngine = ItemFactory.createSingleItem("spores engine");
-        this.baseballBat = ItemFactory.createSingleItem("baseball bat");
+        this.item_sporesEngine = ItemFactory.createSingleItem("spores engine");
+        this.item_baseballBat = ItemFactory.createSingleItem("baseball bat");
         this.legalItems = ItemFactory.createAllLegalItems();
         this.longTermStorage = new LongTermStorage();
     }
@@ -89,7 +102,7 @@ public abstract class StorageTest {
         count++;
 
         this.storage.addItem(this.item_helmet1, 1);
-        HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
+        HashMap<String, Integer> returnValue = new HashMap<>();
         returnValue.put(this.item_helmet1.getType(), 1);
 
         //Storage GetInventoryTest Test 2
@@ -125,7 +138,7 @@ public abstract class StorageTest {
                 this.storage.getCapacity());
         count++;
 
-        this.storage.addItem(this.sporesEngine, 1);
+        this.storage.addItem(this.item_sporesEngine, 1);
 
         //Storage GetCapacityTest Test 3
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),

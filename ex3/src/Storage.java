@@ -49,29 +49,29 @@ public abstract class Storage {
     }
 
     /**
-     * @param item
-     * @param n
-     * @return
+     * @param item Add Item to Storage
+     * @param n Item count to add
+     * @return result int
      */
     public abstract int addItem(Item item, int n);
 
     /**
-     * @param type
-     * @return
+     * @param type Item type
+     * @return Item count int
      */
     public int getItemCount(String type){
         return this.inventory.getOrDefault(type, 0);
     }
 
     /**
-     * @return
+     * @return Get storage capacity int
      */
     public int getCapacity() {
         return this.capacity;
     }
 
     /**
-     * @return
+     * @return Get available capacity int
      */
     public int getAvailableCapacity() {
         int count = this.capacity;
@@ -83,7 +83,7 @@ public abstract class Storage {
     }
 
     /**
-     * @return
+     * @return Return inventory hash map
      */
     public Map<String, Integer> getInventory() {
         return this.inventory;
