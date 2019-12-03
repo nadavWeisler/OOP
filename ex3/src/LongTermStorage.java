@@ -5,83 +5,55 @@ import java.util.Map;
 
 public class LongTermStorage extends Storage {
     /**
-     *
+     * Default capacity of long term storage
      */
     private final int DEFAULT_CAPACITY = 1000;
 
-    public LongTermStorage() {
-
-    }
-
     /**
-     * @param item
-     * @param n
-     * @return
+     * LongTermStorage Constructor
      */
-    @Override
-    public int addItem(Item item, int n) {
-        if (this.getAvailableCapacity() < item.getVolume() * n) {
-            if (this.items.containsKey(item.getType())) {
-                this.inventory.put(item.getType(), this.inventory.get(item.getType()) + n);
-            } else {
-                this.items.put(item.getType(), item);
-                this.inventory.put(item.getType(), n);
-            }
-            return 0;
-        } else {
-            return -1;
-        }
-    }
-
-    /**
-     *
-     */
-    public void resetInventory() {
-        for (String key :
-                this.inventory.keySet()) {
-            if (this.items.containsKey(key) && this.inventory.get(key) > 0) {
-                return;
-            }
-        }
+    LongTermStorage() {
+        super();
+        this.capacity = DEFAULT_CAPACITY;
         this.inventory = new HashMap<>();
         this.items = new HashMap<>();
     }
 
     /**
-     * @param type
-     * @return
+     * Add new item for Long Term Storage
+     *
+     * @param item Item to add
+     * @param n    Amount of items to add
+     * @return int
      */
     @Override
-    public int getItemCount(String type) {
-        return this.inventory.getOrDefault(type, 0);
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public int getCapacity() {
-        return this.DEFAULT_CAPACITY;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public int getAvailableCapacity() {
-        int count = this.DEFAULT_CAPACITY;
-        for (String key :
-                this.items.keySet()) {
-            count -= this.items.get(key).getVolume() * this.inventory.get(key);
+    public int addItem(Item item, int n) {
+        int result = 0;
+        if (n < 0) {
+            result = -1;
+        } else {
+            if (this.getAvailableCapacity() >= item.getVolume() * n) {
+                if (this.items.containsKey(item.getType())) {
+                    this.inventory.put(item.getType(), this.inventory.get(item.getType()) + n);
+                } else {
+                    this.items.put(item.getType(), item);
+                    this.inventory.put(item.getType(), n);
+                }
+            } else {
+                result = -1;
+            }
         }
-        return count;
+        if (result != 0) {
+            System.out.println(this.GenerateError(result, "addItem", item.getType(), n));
+        }
+        return result;
     }
 
     /**
-     * @return
+     * Reset inventory and items
      */
-    @Override
-    public Map<String, Integer> getInventory() {
-        return this.inventory;
+    public void resetInventory() {
+        this.inventory = new HashMap<>();
+        this.items = new HashMap<>();
     }
 }

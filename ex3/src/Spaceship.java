@@ -12,7 +12,7 @@ public class Spaceship {
      * @param crewIDs      Crew IDs array
      * @param numOfLockers Number of lockers in spaceship
      */
-    public Spaceship(String name, int[] crewIDs, int numOfLockers) {
+    Spaceship(String name, int[] crewIDs, int numOfLockers) {
         this.longTermStorage = new LongTermStorage();
         this.spaceshipName = name;
         this.crews = crewIDs;
@@ -28,23 +28,6 @@ public class Spaceship {
      */
     public LongTermStorage getLongTermStorage() {
         return this.longTermStorage;
-    }
-
-    /**
-     * Return true if int array contains int
-     *
-     * @param num      int
-     * @param numArray int array
-     * @return boolean
-     */
-    private boolean IntInIntArray(int num, int[] numArray) {
-        for (int n :
-                numArray) {
-            if (n == num) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -69,7 +52,7 @@ public class Spaceship {
      * @return int
      */
     public int createLocker(int crewID, int capacity) {
-        if (this.IntInIntArray(crewID, this.crews)) {
+        if (Utils.IntInIntArray(crewID, this.crews)) {
             int emptySlot = this.getEmptyLockerSlot();
             if (emptySlot == -1) {
                 return -3;
@@ -87,7 +70,7 @@ public class Spaceship {
      * Get crew IDs array
      * @return int array
      */
-    public int[] getCrewIDs() {
+    int[] getCrewIDs() {
         return this.crews;
     }
 

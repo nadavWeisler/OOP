@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Storage {
-    protected HashMap<String, Item> items;
-    protected HashMap<String, Integer> inventory;
+    HashMap<String, Item> items;
+    HashMap<String, Integer> inventory;
+    int capacity;
 
-    protected String GenerateError(int result, String func, String type, int n) {
+    String GenerateError(int result, String func, String type, int n) {
         String resultString = "";
         switch (func) {
             case "addItem":
@@ -42,8 +43,9 @@ public abstract class Storage {
 
     }
 
-
     protected Storage() {
+        this.items = new HashMap<>();
+        this.inventory = new HashMap<>();
     }
 
     /**
@@ -57,20 +59,33 @@ public abstract class Storage {
      * @param type
      * @return
      */
-    public abstract int getItemCount(String type);
+    public int getItemCount(String type){
+        return this.inventory.getOrDefault(type, 0);
+    }
 
     /**
      * @return
      */
-    public abstract int getCapacity();
+    public int getCapacity() {
+        return this.capacity;
+    }
 
     /**
      * @return
      */
-    public abstract int getAvailableCapacity();
+    public int getAvailableCapacity() {
+        int count = this.capacity;
+        for (String key :
+                this.items.keySet()) {
+            count -= this.items.get(key).getVolume() * this.inventory.get(key);
+        }
+        return count;
+    }
 
     /**
      * @return
      */
-    public abstract Map<String, Integer> getInventory();
+    public Map<String, Integer> getInventory() {
+        return this.inventory;
+    }
 }

@@ -8,87 +8,126 @@ import java.util.HashMap;
 public class LongTermStorageTest extends StorageTest {
     @Override
     public void PrepareTest() {
-
+        super.PrepareTest();
+        this.currentClass = "LongTermStorage";
     }
 
     @Test
     public void AddItemTest() {
+        int count = 1;
+        this.storage = new LongTermStorage();
 
+        //LongTermStorage AddItemTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
+                0,
+                this.storage.addItem(this.item_football, 1));
+
+        //LongTermStorage AddItemTest Test 2
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
+                0,
+                this.storage.addItem(this.item_football, 50));
+
+        this.storage = new LongTermStorage();
+
+        //LongTermStorage AddItemTest Test 3
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
+                -1,
+                this.storage.addItem(this.baseballBat, 1000));
+
+        //LongTermStorage AddItemTest Test 4
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "AddItemTest"),
+                -1,
+                this.storage.addItem(this.baseballBat, -1));
     }
 
     @Test
     public void GetCapacityTest() {
+        this.storage = new LongTermStorage();
         super.GetCapacityTest();
+        int count = 1;
+
+        this.storage.addItem(this.item_football, 1);
+        LongTermStorage longTermStorage = (LongTermStorage) this.storage;
+        longTermStorage.resetInventory();
+
+        //LongTermStorage GetCapacityTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),
+                longTermStorage.capacity,
+                longTermStorage.getCapacity());
     }
 
     @Test
     public void GetItemCountTest() {
-        Assert.assertEquals("Test 1 - should return 0", 0,
-                this.storage.getItemCount(this.item_football.getType()));
+        this.storage = new LongTermStorage();
+        super.GetItemCountTest();
+        int count = 1;
+        LongTermStorage longTermStorage = (LongTermStorage) this.storage;
 
-        this.storage.addItem(this.item_helmet1, 1);
+        longTermStorage.resetInventory();
 
-        Assert.assertEquals("Test 1 - should return 0", 0,
-                this.storage.getItemCount(this.item_football.getType()));
-
-        Assert.assertEquals("Test 1 - should return 1", 1,
-                this.storage.getItemCount(this.item_helmet1.getType()));
-
-        this.storage.addItem(this.item_helmet1, 2);
-
-        Assert.assertEquals("Test 1 - should return 2", 3,
-                this.storage.getItemCount(this.item_helmet1.getType()));
-
-        Locker locker = (Locker) this.storage;
-
-        locker.removeItem(this.item_helmet1, 2);
-
-        Assert.assertEquals("Test 1 - should return 1", 1,
-                locker.getItemCount(this.item_helmet1.getType()));
-
-        locker.removeItem(this.item_helmet1, 2);
-
-        Assert.assertEquals("Test 1 - should return 1", 1,
-                locker.getItemCount(this.item_helmet1.getType()));
-
-        locker.removeItem(this.item_helmet1, 1);
-
-        Assert.assertEquals("Test 1 - should return 0", 0,
-                locker.getItemCount(this.item_helmet1.getType()));
+        //LongTermStorage GetItemCountTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetItemCountTest"),
+                0,
+                longTermStorage.getItemCount(this.item_helmet1.getType()));
     }
 
     @Test
     public void GetAvailableCapacityTest() {
+        this.storage = new LongTermStorage();
+        super.GetAvailableCapacityTest();
+        int count = 1;
 
+        this.storage.addItem(this.item_football, 1);
+        LongTermStorage longTermStorage = (LongTermStorage) this.storage;
+        longTermStorage.resetInventory();
+
+        //LongTermStorage GetAvailableCapacityTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
+                longTermStorage.getCapacity(),
+                longTermStorage.getAvailableCapacity());
     }
 
     @Test
     public void GetInventoryTest() {
-        Assert.assertEquals("Test 1 - should return empty map", new HashMap<String, Integer>(),
-                this.storage.getInventory());
+        this.storage = new LongTermStorage();
+        super.GetInventoryTest();
+        int count = 1;
 
-        this.storage.addItem(this.item_helmet1, 1);
+        LongTermStorage longTermStorage1 = (LongTermStorage) this.storage;
+        longTermStorage1.resetInventory();
 
-        HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
-        returnValue.put(this.item_helmet1.getType(), 1);
-        Assert.assertEquals("Test 2 - should return 1 helmet size 1", returnValue,
-                this.storage.getInventory());
-
-        this.storage.addItem(this.item_helmet1, 1);
-        returnValue.replace(this.item_helmet1.getType(), 2);
-        Assert.assertEquals("Test 3 - should return 2 helmet size 1", returnValue,
-                this.storage.getInventory());
-
-        Locker locker = (Locker) this.storage;
-
-        locker.removeItem(this.item_helmet1, 1);
-        returnValue.replace(this.item_helmet1.getType(), 1);
-        Assert.assertEquals("Test 3 - should return 1 helmet size 1", returnValue,
-                locker.getInventory());
+        //LongTermStorage GetInventoryTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetInventoryTest"),
+                0,
+                this.storage.getItemCount(this.item_helmet1.getType()));
     }
 
     @Test
-    public void ResetInventoryTest(){
+    public void ResetInventoryTest() {
+        int count = 1;
+        this.storage = new LongTermStorage();
+        this.storage.addItem(this.item_helmet1, 3);
 
+        LongTermStorage longTermStorage = (LongTermStorage) this.storage;
+        longTermStorage.resetInventory();
+
+        //LongTermStorage ResetInventoryTest Test 1
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "ResetInventoryTest"),
+                longTermStorage.getCapacity(),
+                longTermStorage.getAvailableCapacity());
+
+        //LongTermStorage ResetInventoryTest Test 2
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "ResetInventoryTest"),
+                longTermStorage.getCapacity(),
+                longTermStorage.getAvailableCapacity());
+
+        this.longTermStorage.addItem(this.item_helmet1, 3);
+        this.longTermStorage.addItem(this.item_football, 5);
+        this.longTermStorage.resetInventory();
+
+        //LongTermStorage ResetInventoryTest Test 3
+        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "ResetInventoryTest"),
+                longTermStorage.getCapacity(),
+                longTermStorage.getAvailableCapacity());
     }
 }
