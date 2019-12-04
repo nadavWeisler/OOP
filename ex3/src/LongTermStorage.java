@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LongTermStorage extends Storage {
+
     /**
      * Default capacity of long term storage
      */

@@ -159,10 +159,17 @@ public class BoopingSite {
                 Math.pow((hotel.getLongitude() - longitude), 2));
     }
 
+    /**
+     * Get hotel arrays from one city sorted by proximity
+     * @param latitude X
+     * @param longitude Y
+     * @param city City string
+     * @return Hotel array
+     */
     public Hotel[] getHotelsByProximityAndCity(double latitude, double longitude, String city) {
         HashMap<Double, Hotel[]> hashMap = new HashMap<>();
         int hotelsCount = 0;
-        double currentDistance = 0;
+        double currentDistance;
         for (Hotel hotel :
                 this.hotels) {
             if (!city.isEmpty() && !city.equals(hotel.getCity())) {

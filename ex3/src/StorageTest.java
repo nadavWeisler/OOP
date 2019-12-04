@@ -7,170 +7,165 @@ import java.util.HashMap;
 public abstract class StorageTest {
 
     /**
-     *
+     * Storage object
      */
-    protected Storage storage;
+    protected static Storage storage;
 
     /**
-     *
+     *  LongTermStorage object
      */
-    protected LongTermStorage longTermStorage;
+    protected static LongTermStorage longTermStorage;
 
     /**
-     *
+     *  Football item
      */
-    protected Item item_football;
+    protected static Item item_football;
 
     /**
-     *
+     * Helmet1 item
      */
-    protected Item item_helmet1;
+    protected static Item item_helmet1;
 
     /**
-     *
+     * Helmet2 item
      */
-    protected Item item_helmet2;
+    protected static Item item_helmet2;
 
     /**
-     *
+     *  Spore Engine item
      */
-    protected Item item_sporesEngine;
+    protected static Item item_sporesEngine;
 
     /**
-     *
+     *  Baseball bat item
      */
-    protected Item item_baseballBat;
+    protected static Item item_baseballBat;
 
     /**
-     *
+     *  Current class string for tests
      */
-    protected Item[] legalItems;
+    protected static String currentClass;
 
     /**
-     *
+     * Prepare storage tests
      */
-    protected String currentClass;
-
-    public void PrepareTest() {
-        this.currentClass = "Storage";
-        this.item_football = ItemFactory.createSingleItem("football");
-        this.item_helmet1 = ItemFactory.createSingleItem("helmet, size 1");
-        this.item_helmet2 = ItemFactory.createSingleItem("helmet, size 3");
-        this.item_sporesEngine = ItemFactory.createSingleItem("spores engine");
-        this.item_baseballBat = ItemFactory.createSingleItem("baseball bat");
-        this.legalItems = ItemFactory.createAllLegalItems();
-        this.longTermStorage = new LongTermStorage();
+    public static void PrepareTest() {
+        currentClass = "Storage";
+        item_football = ItemFactory.createSingleItem("football");
+        item_helmet1 = ItemFactory.createSingleItem("helmet, size 1");
+        item_helmet2 = ItemFactory.createSingleItem("helmet, size 3");
+        item_sporesEngine = ItemFactory.createSingleItem("spores engine");
+        item_baseballBat = ItemFactory.createSingleItem("baseball bat");
+        longTermStorage = new LongTermStorage();
     }
 
-    protected void GetItemCountTest() {
+    /**
+     * Test getItemCount method
+     */
+    protected static void GetItemCountTest() {
         int count = 1;
 
         //Storage GetItemCountTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetItemCountTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetItemCountTest"),
                 0,
-                this.storage.getItemCount(this.item_football.getType()));
+                storage.getItemCount(item_football.getType()));
         count++;
 
         //Storage GetItemCountTest Test 2
-        this.storage.addItem(this.item_helmet1, 1);
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetItemCountTest"),
+        storage.addItem(item_helmet1, 1);
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetItemCountTest"),
                 0,
-                this.storage.getItemCount(this.item_football.getType()));
-        count++;
-
-        //Storage GetItemCountTest Test 3
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetItemCountTest"),
-                1,
-                this.storage.getItemCount(this.item_helmet1.getType()));
-        count++;
-
-        this.storage.addItem(this.item_helmet1, 2);
-
-        //Storage GetItemCountTest Test 4
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetItemCountTest"),
-                3,
-                this.storage.getItemCount(this.item_helmet1.getType()));
+                storage.getItemCount(item_football.getType()));
     }
 
-    protected void GetInventoryTest() {
+    /**
+     * Test getInventory method
+     */
+    protected static void GetInventoryTest() {
         int count = 1;
 
         //Storage GetInventoryTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetInventoryTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetInventoryTest"),
                 new HashMap<String, Integer>(),
-                this.storage.getInventory());
+                storage.getInventory());
         count++;
 
-        this.storage.addItem(this.item_helmet1, 1);
+        storage.addItem(item_helmet1, 1);
         HashMap<String, Integer> returnValue = new HashMap<>();
-        returnValue.put(this.item_helmet1.getType(), 1);
+        returnValue.put(item_helmet1.getType(), 1);
 
         //Storage GetInventoryTest Test 2
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetInventoryTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetInventoryTest"),
                 returnValue,
-                this.storage.getInventory());
+                storage.getInventory());
         count++;
 
-        this.storage.addItem(this.item_helmet1, 1);
-        returnValue.put(this.item_helmet1.getType(), 2);
+        storage.addItem(item_helmet1, 1);
+        returnValue.put(item_helmet1.getType(), 2);
 
         //Storage GetInventoryTest Test 3
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetInventoryTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetInventoryTest"),
                 returnValue,
-                this.storage.getInventory());
+                storage.getInventory());
     }
 
-    protected void GetCapacityTest() {
+    /**
+     * Test getCapacity method
+     */
+    protected static void GetCapacityTest() {
         int count = 1;
-        int current_capacity = this.storage.getCapacity();
+        int current_capacity = storage.getCapacity();
 
         //Storage GetCapacityTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetCapacityTest"),
                 current_capacity,
-                this.storage.getCapacity());
+                storage.getCapacity());
         count++;
 
-        this.storage.addItem(this.item_helmet1, 4);
+        storage.addItem(item_helmet1, 4);
 
         //Storage GetCapacityTest Test 2
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetCapacityTest"),
                 current_capacity,
-                this.storage.getCapacity());
+                storage.getCapacity());
         count++;
 
-        this.storage.addItem(this.item_sporesEngine, 1);
+        storage.addItem(item_sporesEngine, 1);
 
         //Storage GetCapacityTest Test 3
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetCapacityTest"),
                 current_capacity,
-                this.storage.getCapacity());
+                storage.getCapacity());
         count++;
 
-        this.storage.addItem(this.item_football, 189);
+        storage.addItem(item_football, 189);
 
         //Storage GetCapacityTest Test 4
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetCapacityTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetCapacityTest"),
                 current_capacity,
-                this.storage.getCapacity());
+                storage.getCapacity());
 
     }
 
-    protected void GetAvailableCapacityTest() {
+    /**
+     * Test getAvailableCapacity method
+     */
+    protected static void GetAvailableCapacityTest() {
         int count = 1;
-        int current_capacity = this.storage.getCapacity();
+        int current_capacity = storage.getCapacity();
 
         //Storage GetAvailableCapacityTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetAvailableCapacityTest"),
                 current_capacity,
-                this.storage.getAvailableCapacity());
+                storage.getAvailableCapacity());
         count++;
 
         //Storage GetAvailableCapacityTest Test 2
-        this.storage.addItem(this.item_helmet1, 1);
-        current_capacity -= this.item_helmet1.getVolume();
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetAvailableCapacityTest"),
+        storage.addItem(item_helmet1, 1);
+        current_capacity -= item_helmet1.getVolume();
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetAvailableCapacityTest"),
                 current_capacity,
-                this.storage.getAvailableCapacity());
+                storage.getAvailableCapacity());
 
     }
 }

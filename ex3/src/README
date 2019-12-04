@@ -1,0 +1,46 @@
+nina.kollman
+
+weisler
+
+Nadav Weisler
+
+=============================
+=      File description     =
+=============================
+BoopingSite.java - booping site implantation.
+BoopingSiteTest.java - BoopingSite tests.
+Locker.java - Locker implantation.
+LockerTest.java - Locker tests.
+Spaceship.java - Spaceship implantation,
+SpaceshipDepository.java - All spaceship connected tests(Locker, LongTermStorage and Spaceship)
+SpaceshipTest.java - Spaceship tests.
+Storage.java - Abstract class for storage.
+StorageTest.java - Storage tests.
+TestRunner.java - All ex3 tests.
+Utils.java - Extra useful function.
+
+=============================
+=          Design           =
+=============================
+In both Locker and LongTermStorage classes I created abstract "Storage" class to prevent
+duplicate code.
+I chose to store my information in 2 hash maps with item type as key.
+One hash map for the item objects and one for the inventory.
+The use in this two hash maps gave me well organize way to store both count and Item object of
+specific type.
+
+In BoopingSite tests i tests same tests for each dataset to see that it works for each.
+
+getHotelsInCityByRating - In this function first i put all the hotels from the given city in hash map
+    with rating as key and hotels array as value. afterward i loop on each rate and sorted his array
+    by alphabet order that add it to the result list.
+
+getHotelsByProximity - Same as getHotelsInCityByRating but with distance and point of interest.
+
+getHotelsInCityByProximity - Same as getHotelsByProximity but with city restriction.
+
+I used "HashMap" all over the code. I used it because its accessible as we learn at the course.
+
+=============================
+
+"Must go, must go" Oded Paz

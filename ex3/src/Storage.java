@@ -4,10 +4,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Storage {
+    /**
+     * Items hash map
+     */
     HashMap<String, Item> items;
+
+    /**
+     * Inventory hash map
+     */
     HashMap<String, Integer> inventory;
+
+    /**
+     * Capacity
+     */
     int capacity;
 
+    /**
+     * Generate error
+     * @param result test result
+     * @param func function string
+     * @param type type string
+     * @param n n count
+     * @return Error string
+     */
     String GenerateError(int result, String func, String type, int n) {
         String resultString = "";
         switch (func) {

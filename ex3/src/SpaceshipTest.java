@@ -7,91 +7,108 @@ import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 
 public class SpaceshipTest {
-    private Spaceship spaceship;
-    private String currentClass = "Spaceship";
+    /**
+     * Spaceship object
+     */
+    private static Spaceship spaceship;
+
+    /**
+     * Current class for tests
+     */
+    private static String currentClass = "Spaceship";
 
     /**
      * Reset class spaceship
      */
-    private void resetSpaceship() {
-        this.spaceship = new Spaceship("Millennium Falcon",
+    private static void resetSpaceship() {
+        spaceship = new Spaceship("Millennium Falcon",
                 new int[]{1, 2, 3},
                 5);
     }
 
-    @Before
-    public void PrepareTest() {
+    /**
+     *  Prepare tests
+     */
+    private static void PrepareTest() {
         resetSpaceship();
     }
 
-    @Test
-    public void GetLongTermStorageTest() {
+    /**
+     *  Test getLongTermStorage method
+     */
+    private static void GetLongTermStorageTest() {
         int count = 1;
         LongTermStorage returnValue = new LongTermStorage();
 
         //Spaceship GetLongTermStorageTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "GetLongTermStorageTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "GetLongTermStorageTest"),
                 returnValue.getInventory(),
-                this.spaceship.getLongTermStorage().getInventory());
+                spaceship.getLongTermStorage().getInventory());
     }
 
-    @Test
-    public void createLockerTest() {
-        this.resetSpaceship();
+    /**
+     * Test createLocker method
+     */
+    private static void createLockerTest() {
+        resetSpaceship();
         int count = 1;
 
         Locker[] lockers = new Locker[] {null, null, null, null, null};
-        Locker[] getLockerResult = this.spaceship.getLockers();
+        Locker[] getLockerResult = spaceship.getLockers();
 
         //Spaceship createLockerTest Test 1
-        Assert.assertTrue(Utils.GenerateTestString(count, this.currentClass, "getLockers"),
+        Assert.assertTrue(Utils.GenerateTestString(count, currentClass, "getLockers"),
                 CompareLockerArrays(lockers, getLockerResult));
     }
 
-    @Test
-    public void getCrewIDsTest() {
-        this.resetSpaceship();
+    /**
+     *  Test getCrewIDs method
+     */
+    private static void getCrewIDsTest() {
+        resetSpaceship();
         int count = 1;
 
         //Spaceship getCrewIDsTest Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "getCrewIDsTest"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "getCrewIDsTest"),
                 Arrays.toString(new int[]{1, 2, 3}),
-                Arrays.toString(this.spaceship.getCrewIDs()));
+                Arrays.toString(spaceship.getCrewIDs()));
     }
 
-    @Test
-    public void getLockers() {
-        this.resetSpaceship();
+    /**
+     *  Test getLockers method
+     */
+    private static void getLockers() {
+        resetSpaceship();
         int count = 1;
 
         //Spaceship getLockers Test 1
-        Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "getLockers"),
+        Assert.assertEquals(Utils.GenerateTestString(count, currentClass, "getLockers"),
                 Arrays.toString(new Locker[]{null, null, null, null, null}),
-                Arrays.toString(this.spaceship.getLockers()));
+                Arrays.toString(spaceship.getLockers()));
         count++;
 
         Locker[] lockers = new Locker[]{
-                new Locker(this.spaceship.getLongTermStorage(), 5, null),
+                new Locker(spaceship.getLongTermStorage(), 5, null),
                 null, null, null, null};
-        this.spaceship.createLocker(1, 5);
-        Locker[] getLockerResult = this.spaceship.getLockers();
+        spaceship.createLocker(1, 5);
+        Locker[] getLockerResult = spaceship.getLockers();
 
         //Spaceship getLockers Test 2
-        Assert.assertTrue(Utils.GenerateTestString(count, this.currentClass, "getLockers"),
+        Assert.assertTrue(Utils.GenerateTestString(count, currentClass, "getLockers"),
                 CompareLockerArrays(lockers, getLockerResult));
 
         lockers = new Locker[]{
-                new Locker(this.spaceship.getLongTermStorage(), 5, null),
-                new Locker(this.spaceship.getLongTermStorage(), 10, null),
-                new Locker(this.spaceship.getLongTermStorage(), 28, null),
+                new Locker(spaceship.getLongTermStorage(), 5, null),
+                new Locker(spaceship.getLongTermStorage(), 10, null),
+                new Locker(spaceship.getLongTermStorage(), 28, null),
                 null, null};
 
-        this.spaceship.createLocker(2, 10);
-        this.spaceship.createLocker(2, 28);
-        getLockerResult = this.spaceship.getLockers();
+        spaceship.createLocker(2, 10);
+        spaceship.createLocker(2, 28);
+        getLockerResult = spaceship.getLockers();
 
         //Spaceship getLockers Test 3
-        Assert.assertTrue(Utils.GenerateTestString(count, this.currentClass, "getLockers"),
+        Assert.assertTrue(Utils.GenerateTestString(count, currentClass, "getLockers"),
                 CompareLockerArrays(lockers, getLockerResult));
 
     }
@@ -102,7 +119,7 @@ public class SpaceshipTest {
      * @param getLockerResult Locker array
      * @return Boolean
      */
-    private boolean CompareLockerArrays(Locker[] lockers, Locker[] getLockerResult) {
+    private static boolean CompareLockerArrays(Locker[] lockers, Locker[] getLockerResult) {
         boolean result = true;
         for (int i = 0; i < lockers.length; i++) {
             if(lockers[i] == null){
@@ -120,6 +137,17 @@ public class SpaceshipTest {
             }
         }
         return result;
+    }
+
+    /**
+     *  Test all Spaceship methods
+     */
+    public static void TestAllSpaceship() {
+        PrepareTest();
+        GetLongTermStorageTest();
+        getCrewIDsTest();
+        getLockers();
+        createLockerTest();
     }
 }
 

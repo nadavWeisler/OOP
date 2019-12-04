@@ -3,7 +3,14 @@ import oop.ex3.spaceship.Item;
 import java.util.HashMap;
 
 public class Locker extends Storage {
+    /**
+     * LongTermStorage object
+     */
     private LongTermStorage longTermStorage;
+
+    /**
+     * Items constraints
+     */
     private Item[][] constraints;
 
     /**
@@ -47,7 +54,7 @@ public class Locker extends Storage {
             }
         }
         if (result != -2) {
-            if (item.getVolume() > this.capacity) {
+            if (item.getVolume() * n > this.capacity) {
                 result = -1;
             } else {
                 int all_item_units = n * item.getVolume();
