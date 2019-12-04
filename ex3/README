@@ -1,0 +1,66 @@
+nina.kollman
+
+weisler
+
+Nadav Weisler
+
+=============================
+=      File description     =
+=============================
+SpaceShipFactory.java - Return an array of game spaceships to the main method by users arguments.
+SpaceShip.java - Implements the SpaceShip class, abstract class.
+HumanSpaceShip.java - Represent a spaceship controlled by the user.
+AggressiveSpaceShip.java - Represent a computer controlled spaceship that follows after other spaceships
+and try to fire at them
+RunnerSpaceShip.java - Represent a computer controlled spaceship that try to run away from all other spaceships
+BasherSpaceShip.java - Represent a computer controlled spaceship that try to collide with other spaceships
+DrunkardSpaceShip.java Represent a computer controlled space ship that get one turn side on creation and always
+accelerate only in this direction, also try to shield on every 9 turns and fire every 11 turns.
+SpecialSpaceShip.java - Represent a computer controlled "vigilante" spaceship which try to get down only
+basher and aggressive spaceships, also gain 1 health every 5 turns.
+
+=============================
+=          Design           =
+=============================
+In both Locker and LongTermStorage classes I created abstract "Storage" class to prevent
+duplicate code.
+I chose to store my information in 2 hash maps with item type as key.
+One hash map for the item objects and one for the inventory.
+The use in this two hash maps gave me well organize way to store both count and Item object of
+specific type.
+
+
+
+=============================
+=  Implementation details   =
+=============================
+In SpaceShipFactory we create an array of all the different types of spaceships the user choose.
+The user must provide at least 2 types of spaceships from the following option:
+    h - Human
+	d - Drunkard
+	r - Runner
+	a - Aggressive
+	b - Basher
+	s - Special
+
+If the user provides the wrong arguments then the SpaceShipFactory will return a null
+representation of the array for the main game method.
+
+The Drunkard space ship behavior is implemented by using random function for the turn property.
+
+The special spaceship follow only basher and aggressive spaceships, fire at them 5 shots if
+ it less than 0.1 angle units and gain health every 5 rounds.
+
+=============================
+=    Answers to questions   =
+=============================
+
+Explaining in detail my design:
+
+Extensibility - It is easy to create and update new spaceships. most of the methods and properties
+are inherit automatic.
+
+Modularity - Each component are mostly separated and contains lowest amount of logic as needed.
+
+Intuitiveness and understandability - The program is well documented and contains valid and detailed
+methods, properties and class names.

@@ -1,3 +1,4 @@
+import oop.ex3.spaceship.ItemFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +10,9 @@ public class SpaceshipTest {
     private Spaceship spaceship;
     private String currentClass = "Spaceship";
 
+    /**
+     * Reset class spaceship
+     */
     private void resetSpaceship() {
         this.spaceship = new Spaceship("Millennium Falcon",
                 new int[]{1, 2, 3},
@@ -53,7 +57,6 @@ public class SpaceshipTest {
         Assert.assertEquals(Utils.GenerateTestString(count, this.currentClass, "getCrewIDsTest"),
                 Arrays.toString(new int[]{1, 2, 3}),
                 Arrays.toString(this.spaceship.getCrewIDs()));
-
     }
 
     @Test
@@ -86,12 +89,19 @@ public class SpaceshipTest {
         this.spaceship.createLocker(2, 10);
         this.spaceship.createLocker(2, 28);
         getLockerResult = this.spaceship.getLockers();
+
         //Spaceship getLockers Test 3
         Assert.assertTrue(Utils.GenerateTestString(count, this.currentClass, "getLockers"),
                 CompareLockerArrays(lockers, getLockerResult));
 
     }
 
+    /**
+     * Compare lockers array
+     * @param lockers Lockers array
+     * @param getLockerResult Locker array
+     * @return Boolean
+     */
     private boolean CompareLockerArrays(Locker[] lockers, Locker[] getLockerResult) {
         boolean result = true;
         for (int i = 0; i < lockers.length; i++) {
