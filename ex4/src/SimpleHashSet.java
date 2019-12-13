@@ -14,6 +14,8 @@ public abstract class SimpleHashSet implements SimpleSet {
      */
     protected static final int INITIAL_CAPACITY = 16;
 
+    public Object[] hashSet;
+
     /**
      *
      */
@@ -42,6 +44,17 @@ public abstract class SimpleHashSet implements SimpleSet {
     SimpleHashSet(float upperLoadFactor, float lowerLoadFactor) {
         this.upperLoadFactor = upperLoadFactor;
         this.lowerLoadFactor = lowerLoadFactor;
+        if(upperLoadFactor >= lowerLoadFactor) {
+            this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
+            this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
+        } else {
+            if(upperLoadFactor > 1 || upperLoadFactor < 0) {
+                this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
+            }
+            if(lowerLoadFactor < 0) {
+                this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
+            }
+        }
     }
 
     /**
@@ -49,7 +62,9 @@ public abstract class SimpleHashSet implements SimpleSet {
      *
      * @return The current capacity (number of cells) of the table.
      */
-    abstract int capacity();
+    public int capacity() {
+        return this.hashSet.length;
+    }
 
     /**
      * Clamps hashing indices to fit within the current table capacity
@@ -57,7 +72,9 @@ public abstract class SimpleHashSet implements SimpleSet {
      * @param index The index before clamping
      * @return An index properly clamped
      */
-    abstract int clamp(int index);
+    protected int clamp(int index) {
+        return index & this.hashSet.length - 1;
+    }
 
     /**
      * Get lower load factor
@@ -70,6 +87,7 @@ public abstract class SimpleHashSet implements SimpleSet {
 
     /**
      * Get upper load factor
+     *
      * @return The higher load factor of the table
      */
     protected float getUpperLoadFactor() {

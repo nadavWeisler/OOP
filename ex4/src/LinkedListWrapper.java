@@ -2,11 +2,9 @@ import java.util.LinkedList;
 
 public class LinkedListWrapper {
     private LinkedList<String> linkedList;
-    private boolean isEmpty;
 
     LinkedListWrapper() {
         this.linkedList = new LinkedList<>();
-        this.isEmpty = false;
     }
 
     public LinkedList<String> GetLinkedList(){
@@ -14,10 +12,19 @@ public class LinkedListWrapper {
     }
 
     public boolean IsEmpty() {
-        return this.isEmpty;
+        return this.GetLinkedList().isEmpty();
     }
 
     public void AddToLinkList(String val) {
         this.linkedList.add(val);
+    }
+
+    public boolean RemoveFromLinkList(String val) {
+        if(this.linkedList.contains(val)) {
+            this.linkedList.remove(val);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
