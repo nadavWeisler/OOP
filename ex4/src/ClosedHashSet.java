@@ -4,7 +4,7 @@ public class ClosedHashSet extends SimpleHashSet {
     /**
      * A default constructor
      */
-    ClosedHashSet() {
+    public ClosedHashSet() {
         super();
         this.hashSet = new StringWrapper[INITIAL_CAPACITY];
     }
@@ -15,7 +15,7 @@ public class ClosedHashSet extends SimpleHashSet {
      * @param upperLoadFactor The upper load factor before rehashing
      * @param lowerLoadFactor The lower load factor before rehashing
      */
-    ClosedHashSet(float upperLoadFactor, float lowerLoadFactor) {
+    public ClosedHashSet(float upperLoadFactor, float lowerLoadFactor) {
         super(upperLoadFactor, lowerLoadFactor);
         this.hashSet = new String[INITIAL_CAPACITY];
     }
@@ -25,16 +25,16 @@ public class ClosedHashSet extends SimpleHashSet {
      *
      * @param data Values to add to the set.
      */
-    ClosedHashSet(String[] data) {
+    public ClosedHashSet(String[] data) {
         super();
-        this.hashSet = new String[INITIAL_CAPACITY];
+        this.hashSet = new StringWrapper[INITIAL_CAPACITY];
         if (data == null) {
             return;
         }
 
         for (int i = 0; i < this.hashSet.length; i++) {
             if (data[i] != null && data[i].isEmpty()) {
-                this.hashSet[i] = EMPTY_STRING;
+                this.hashSet[i] = new StringWrapper(EMPTY_STRING);
             } else {
                 this.add(data[i]);
             }
@@ -53,7 +53,7 @@ public class ClosedHashSet extends SimpleHashSet {
             return false;
         }
         int i = getFreeIndex(newValue.hashCode());
-        this.hashSet[i] = newValue;
+        this.hashSet[i] = new StringWrapper(newValue);
         resize(true);
         return true;
     }
@@ -66,19 +66,19 @@ public class ClosedHashSet extends SimpleHashSet {
      */
     private int getFreeIndex(int hashVal) {
         int i = 0;
-        while (this.hashSet[clamp(hashVal + i + Math.abs(i)) / 2] != null &&
-                !((String) this.hashSet[clamp(hashVal + i + Math.abs(i)) / 2]).isEmpty() &&
+        while (this.hashSet[clamp(hashVal + (i + Math.abs(i) / 2))] != null &&
+                ((StringWrapper) this.hashSet[clamp(hashVal + (i + Math.abs(i) / 2))]).getString() != null &&
                 i < this.hashSet.length) {
             i++;
         }
-        return i;
+        return clamp(hashVal + ((i + Math.abs(i)) / 2));
     }
 
     /**
      * Resize hash set if needed (By 2 or by 0.5)
      */
     private void resize(boolean up) {
-        if(!up && this.hashSet.length == 1){
+        if (!up && this.hashSet.length == 1) {
             return;
         }
         double num;
@@ -90,7 +90,7 @@ public class ClosedHashSet extends SimpleHashSet {
             return;
         }
         StringWrapper[] tempHash = (StringWrapper[]) this.hashSet.clone();
-        this.hashSet = new String[(int) (tempHash.length * num)];
+        this.hashSet = new StringWrapper[(int) (tempHash.length * num)];
         for (int i = 0; i < tempHash.length; i++) {
             if (tempHash[i] != null) {
                 if (tempHash[i].getString().isEmpty()) {
@@ -122,9 +122,7 @@ public class ClosedHashSet extends SimpleHashSet {
     public int getIndexOf(String val) {
         int i = 0;
         int hash = val.hashCode();
-        while (clamp(hash + i) < this.capacity() &&
-                this.hashSet[hash + clamp(hash + i)] != null &&
-                !((String) this.hashSet[clamp(hash + i)]).isEmpty()) {
+        while (clamp(hash + i) < this.capacity() && this.hashSet[clamp(hash + i)] != null) {
             if (this.hashSet[clamp(hash + i)].equals(val)) {
                 return clamp(hash + i);
             }
@@ -159,7 +157,7 @@ public class ClosedHashSet extends SimpleHashSet {
         int count = 0;
         for (StringWrapper item :
                 (StringWrapper[]) this.hashSet) {
-            if (item == null || item.getString().isEmpty()) {
+            if (item != null && !item.getString().isEmpty()) {
                 count++;
             }
         }

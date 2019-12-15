@@ -1,0 +1,47 @@
+weisler
+
+Nadav Weisler
+
+=============================
+=      File description     =
+=============================
+ClosedHashSet.java - ClosedHashSet implantation.
+OpenHashSet.java - OpenHashSet tests.
+CollectionFacadeSet.java - CollectionFacadeSet implantation.
+LinkedListWrapper.java - LinkedList wrapper.
+SimpleHashSet.java - Abstract class for hash set implantation.
+SimpleSetPerformanceAnalyzer.java - Performance analyzer for different hashes
+StringWrapper.java - Wrapper for String.
+
+=============================
+=         Questions         =
+=============================
+
+What will happen if when deleting a value, we simply put null in its place?
+
+We will miss the values added after him. for example, if we will add a value on with clamp value 2,
+and than we will add another one with the same hash value, and it will store on index 4.
+If we will delete the first value and put null instead of an empty sign we will never get to the second value.
+This because we will abort as soon we get null value.
+
+
+=============================
+=          Design           =
+=============================
+How you implemented OpenHashSet's table?
+
+How you implemented the deletion mechanism in ClosedHashSet?
+
+Discuss the results of the analysis in depth:
+* Account, in separate, for OpenHashSet's and ClosedHashSet's bad results for data1.txt
+* Summarize the strengths and weaknesses of each of the data structures as reected by
+    the results. Which would you use for which purposes?
+* How did your two implementations compare between themselves?
+* How did your implementations compare to Java's built in HashSet?
+* Did you nd java's HashSet performance on data1.txt surprising? Can you explain it?
+
+=============================
+
+
+
+"Must go, must go" Oded Paz

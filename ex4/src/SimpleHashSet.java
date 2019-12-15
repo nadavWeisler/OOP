@@ -14,15 +14,18 @@ public abstract class SimpleHashSet implements SimpleSet {
      */
     protected static final int INITIAL_CAPACITY = 16;
 
+    /**
+     * Object array
+     */
     public Object[] hashSet;
 
     /**
-     *
+     * Upper load factor (Default 0.75f)
      */
     protected float upperLoadFactor;
 
     /**
-     *
+     * Lower load factor (Default 0.25f)
      */
     protected float lowerLoadFactor;
 
@@ -44,14 +47,14 @@ public abstract class SimpleHashSet implements SimpleSet {
     SimpleHashSet(float upperLoadFactor, float lowerLoadFactor) {
         this.upperLoadFactor = upperLoadFactor;
         this.lowerLoadFactor = lowerLoadFactor;
-        if(upperLoadFactor >= lowerLoadFactor) {
+        if (upperLoadFactor >= lowerLoadFactor) {
             this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
             this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
         } else {
-            if(upperLoadFactor > 1 || upperLoadFactor < 0) {
+            if (upperLoadFactor > 1 || upperLoadFactor < 0) {
                 this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
             }
-            if(lowerLoadFactor < 0) {
+            if (lowerLoadFactor < 0) {
                 this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
             }
         }

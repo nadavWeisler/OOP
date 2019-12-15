@@ -7,7 +7,7 @@ public class OpenHashSet extends SimpleHashSet {
      * @param upperLoadFactor The upper load factor before rehashing
      * @param lowerLoadFactor The lower load factor before rehashing
      */
-    OpenHashSet(float upperLoadFactor, float lowerLoadFactor) {
+    public OpenHashSet(float upperLoadFactor, float lowerLoadFactor) {
         super(upperLoadFactor, lowerLoadFactor);
         this.hashSet = new LinkedListWrapper[INITIAL_CAPACITY];
     }
@@ -17,7 +17,7 @@ public class OpenHashSet extends SimpleHashSet {
      * Constructs a new, empty table with default initial capacity (16),
      * upper load factor (0.75) and lower load factor (0.25).
      */
-    OpenHashSet() {
+    public OpenHashSet() {
         super();
         this.hashSet = new LinkedListWrapper[INITIAL_CAPACITY];
     }
@@ -30,8 +30,9 @@ public class OpenHashSet extends SimpleHashSet {
      *
      * @param data Values to add to the set.
      */
-    OpenHashSet(String[] data) {
+    public OpenHashSet(String[] data) {
         this();
+        this.hashSet = new LinkedListWrapper[INITIAL_CAPACITY];
     }
 
     /**
@@ -63,6 +64,10 @@ public class OpenHashSet extends SimpleHashSet {
                 return false;
             }
         }
+
+        if(this.hashSet[clamped] == null) {
+            this.hashSet[clamped] = new LinkedListWrapper();
+        }
         ((LinkedListWrapper) this.hashSet[clamped]).AddToLinkList(newValue);
         resize(true);
         return true;
@@ -77,7 +82,8 @@ public class OpenHashSet extends SimpleHashSet {
     @Override
     public boolean contains(String searchVal) {
         int stringHash = searchVal.hashCode();
-        if (!((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).IsEmpty()) {
+        if (this.hashSet[this.clamp(stringHash)] != null &&
+                !((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).IsEmpty()) {
             for (String str :
                     ((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).GetLinkedList()) {
                 if (str.equals(searchVal)) {
@@ -105,8 +111,12 @@ public class OpenHashSet extends SimpleHashSet {
         return ((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).RemoveFromLinkList(toDelete);
     }
 
+    /**
+     * Resize array
+     * @param up Resize up or down boolean
+     */
     private void resize(boolean up) {
-        if(!up && this.hashSet.length == 1){
+        if (!up && this.hashSet.length == 1) {
             return;
         }
         double num;
@@ -118,7 +128,8 @@ public class OpenHashSet extends SimpleHashSet {
             return;
         }
         LinkedListWrapper[] tempHash = (LinkedListWrapper[]) this.hashSet.clone();
-        this.hashSet = new String[(int) (tempHash.length * num)];
+
+        this.hashSet = new LinkedListWrapper[(int) (tempHash.length * num)];
         for (LinkedListWrapper linkedListWrapper : tempHash) {
             if (!linkedListWrapperNullOrEmpty(linkedListWrapper)) {
                 for (String str :
