@@ -3,7 +3,7 @@ import java.util.LinkedList;
 public class LinkedListWrapper {
     private LinkedList<String> linkedList;
 
-    LinkedListWrapper() {
+    public LinkedListWrapper() {
         this.linkedList = new LinkedList<>();
     }
 
@@ -12,7 +12,7 @@ public class LinkedListWrapper {
     }
 
     public boolean IsEmpty() {
-        return this.GetLinkedList().isEmpty();
+        return !this.GetLinkedList().isEmpty();
     }
 
     public void AddToLinkList(String val) {

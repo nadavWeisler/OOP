@@ -30,18 +30,49 @@ This because we will abort as soon we get null value.
 =============================
 How you implemented OpenHashSet's table?
 
+I implementeds the OpenHashSet's table as an array of LinkedListWrapper object.
+this object contains a LinkList and some relevant functions.
+
 How you implemented the deletion mechanism in ClosedHashSet?
+
+The deletion mechanism search the string index in the array (iterate i and calculate the clamp).
+Afterwards I initionalize the StringWrapper object there. I used StringWrapper class to make a
+diffrence between null value and null String in StringWrapper so I will be able to see the diffrence
+between deleted value to one that not initionlize.
 
 Discuss the results of the analysis in depth:
 * Account, in separate, for OpenHashSet's and ClosedHashSet's bad results for data1.txt
-* Summarize the strengths and weaknesses of each of the data structures as reected by
+
+Open hashSet functions is inefficient with data1 because an extremely long linked list is
+created. Each time the program searches this long linked list for duplicates, which takes O(n).
+Closed hash functions is inefficient with data1 because it takes a lot of time to find
+an empty cell when adding, because all the items have the same hashcode.
+
+* Summarize the strengths and weaknesses of each of the data structures as reflected by
     the results. Which would you use for which purposes?
+
+The hashSets I created, and the linked list, preform badly in all of the analysis.
+I didn't use my implementations for any programming work at the future. I will
+used linked list if there were not any search and no duplicate issues.
+In all other cases I will use hash/tree sets, which have about the same results.
+
 * How did your two implementations compare between themselves?
+
+My hashSets have about the same results, but Open hashSet is better adding data1 while
+Closed hashSet is better adding data2, so in general cases, when we expect even distribution,
+closed hashing is better.
+
 * How did your implementations compare to Java's built in HashSet?
-* Did you nd java's HashSet performance on data1.txt surprising? Can you explain it?
+
+In the adding tests, my implementations preformed absolutely horrible.
+However, in the search tests they were actually fine and had running
+times very similar to those of java sets.
+
+* Did you find java's HashSet performance on data1.txt surprising? Can you explain it?
+
+The HashSet performance were absolutely great, I was surprise because I guessed it will be similar to
+my implementations (more or less). I couldn't be more wrong.
 
 =============================
-
-
 
 "Must go, must go" Oded Paz

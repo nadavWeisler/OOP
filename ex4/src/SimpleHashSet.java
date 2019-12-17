@@ -10,14 +10,29 @@ public abstract class SimpleHashSet implements SimpleSet {
     protected static final float DEFAULT_LOWER_CAPACITY = 0.25f;
 
     /**
+     * Up resize constant
+     */
+    protected final double UP_RESIZE = 2;
+
+    /**
+     * Low resize constant
+     */
+    protected final double LOW_RESIZE = 0.5;
+
+    /**
      * Describes the capacity of a newly created hash set
      */
     protected static final int INITIAL_CAPACITY = 16;
 
     /**
+     * Constant for clamping
+     */
+    protected static final float CLAMP_CONSTANT = 0.5f;
+
+    /**
      * Object array
      */
-    public Object[] hashSet;
+    protected Object[] hashSet;
 
     /**
      * Upper load factor (Default 0.75f)
@@ -33,7 +48,7 @@ public abstract class SimpleHashSet implements SimpleSet {
      * Constructs a new hash set with the default capacities given
      * in DEFAULT_LOWER_CAPACITY and DEFAULT_HIGHER_CAPACITY
      */
-    SimpleHashSet() {
+    public SimpleHashSet() {
         this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
         this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
     }
@@ -44,10 +59,10 @@ public abstract class SimpleHashSet implements SimpleSet {
      * @param upperLoadFactor The upper load factor before rehashing
      * @param lowerLoadFactor The lower load factor before rehashing
      */
-    SimpleHashSet(float upperLoadFactor, float lowerLoadFactor) {
+    public SimpleHashSet(float upperLoadFactor, float lowerLoadFactor) {
         this.upperLoadFactor = upperLoadFactor;
         this.lowerLoadFactor = lowerLoadFactor;
-        if (upperLoadFactor >= lowerLoadFactor) {
+        if (upperLoadFactor <= lowerLoadFactor) {
             this.upperLoadFactor = DEFAULT_HIGHER_CAPACITY;
             this.lowerLoadFactor = DEFAULT_LOWER_CAPACITY;
         } else {

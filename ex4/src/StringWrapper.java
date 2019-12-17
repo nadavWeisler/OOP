@@ -1,8 +1,12 @@
 public class StringWrapper {
     private String string;
 
-    StringWrapper(String val) {
+    public StringWrapper(String val) {
         this.string = val;
+    }
+
+    public StringWrapper() {
+        this.string = null;
     }
 
     public String getString() {

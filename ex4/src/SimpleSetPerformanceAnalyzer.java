@@ -5,7 +5,8 @@ import java.util.TreeSet;
 public class SimpleSetPerformanceAnalyzer {
     private final String DATA1 = "data1.txt";
     private final String DATA2 = "data2.txt";
-    private SimpleSet[] allDataStructures;
+    private SimpleSet[] allDataStructuresData1;
+    private SimpleSet[] allDataStructuresData2;
     private final String[] ALL_STRINGS_DATA_1 = Ex4Utils.file2array(DATA1);
     private final String[] ALL_STRINGS_DATA_2 = Ex4Utils.file2array(DATA2);
     private final String TEST_CONTAIN_WORD_NOT_EXIST_DATA_1 = "hi";
@@ -13,8 +14,11 @@ public class SimpleSetPerformanceAnalyzer {
     private final String TEST_CONTAIN_WORD_NOT_EXIST_DATA_2 = "hi";
     private final String TEST_CONTAIN_WORD_EXIST_DATA_2 = "23";
     private final double NANOSECOND_TO_MILLISECOND_CONVERSION = 0.000001;
-    private final int WARM_COUNT = 70000;
+    private final int WARM_COUNT = 500000;
     private final int WARM_COUNT_LINKED_LIST = 7000;
+    private final int TEST_COUNT = 70000;
+    private final int TEST_COUNT_LINKED_LIST = 7000;
+
 
     /**
      * Constructor
@@ -27,7 +31,14 @@ public class SimpleSetPerformanceAnalyzer {
      * Reset structures array
      */
     private void resetStructure() {
-        this.allDataStructures = new SimpleSet[]{
+        this.allDataStructuresData1 = new SimpleSet[]{
+                new OpenHashSet(),
+                new ClosedHashSet(),
+                new CollectionFacadeSet(new TreeSet<>()),
+                new CollectionFacadeSet(new LinkedList<>()),
+                new CollectionFacadeSet(new HashSet<>())
+        };
+        this.allDataStructuresData2 = new SimpleSet[]{
                 new OpenHashSet(),
                 new ClosedHashSet(),
                 new CollectionFacadeSet(new TreeSet<>()),
@@ -42,12 +53,9 @@ public class SimpleSetPerformanceAnalyzer {
      * @param warmUpCount Warm up number
      * @param word        Word to check contain
      */
-    private void warmUp(int warmUpCount, String word) {
+    private void warmUp(int warmUpCount, String word, SimpleSet dataStructure) {
         for (int i = 0; i < warmUpCount; i++) {
-            for (SimpleSet dataStructure :
-                    allDataStructures) {
-                dataStructure.contains(word);
-            }
+            dataStructure.contains(word);
         }
     }
 
@@ -59,31 +67,30 @@ public class SimpleSetPerformanceAnalyzer {
      * @return Average result
      */
     private double TestAdd(String[] stringArray, SimpleSet dataStructure) {
-        double count = 0;
+        double startTime = System.nanoTime();
         for (String str :
                 stringArray) {
-            double startTime = System.nanoTime();
             dataStructure.add(str);
-            count += System.nanoTime() - startTime;
         }
-        return count / stringArray.length * this.NANOSECOND_TO_MILLISECOND_CONVERSION;
+        return ((System.nanoTime() - startTime) / stringArray.length) *
+                this.NANOSECOND_TO_MILLISECOND_CONVERSION;
     }
 
     /**
      * Test contain function
      *
-     * @param stringArray   Strings array
      * @param dataStructure Data structure
      * @param word          Word to check contain
      * @param warmCount     Warm up count
      * @return Average result
      */
-    private double TestContain(String[] stringArray, SimpleSet dataStructure, String word, int warmCount) {
-        TestAdd(stringArray, dataStructure);
-        this.warmUp(warmCount, this.TEST_CONTAIN_WORD_NOT_EXIST_DATA_2);
-        double count = 0;
-        dataStructure.contains(word);
-        return count / stringArray.length;
+    private double TestContain(SimpleSet dataStructure, String word, int warmCount, int testCount) {
+        this.warmUp(warmCount, this.TEST_CONTAIN_WORD_NOT_EXIST_DATA_2, dataStructure);
+        double startTime = System.nanoTime();
+        for (int i = 0; i < testCount; i++) {
+            dataStructure.contains(word);
+        }
+        return (System.nanoTime() - startTime) / testCount;
     }
 
     /**
@@ -99,6 +106,21 @@ public class SimpleSetPerformanceAnalyzer {
             warmCount = analyzer.WARM_COUNT_LINKED_LIST;
         }
         return warmCount;
+    }
+
+    /**
+     * Get test out count by index
+     *
+     * @param analyzer analyzer object
+     * @param i        Index
+     * @return Warm up count
+     */
+    private static int getTestCount(SimpleSetPerformanceAnalyzer analyzer, int i) {
+        int count = analyzer.TEST_COUNT;
+        if (i == 3) {
+            count = analyzer.TEST_COUNT_LINKED_LIST;
+        }
+        return count;
     }
 
     /**
@@ -127,6 +149,7 @@ public class SimpleSetPerformanceAnalyzer {
 
     /**
      * Main function
+     *
      * @param args Argument
      */
     public static void main(String[] args) {
@@ -135,54 +158,54 @@ public class SimpleSetPerformanceAnalyzer {
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             assert analyzer.ALL_STRINGS_DATA_1 != null;
-            System.out.println(analyzer.TestAdd(analyzer.ALL_STRINGS_DATA_1, analyzer.allDataStructures[i]));
+            System.out.println(analyzer.TestAdd(analyzer.ALL_STRINGS_DATA_1, analyzer.allDataStructuresData1[i]));
         }
-        analyzer.resetStructure();
+
         System.out.println("Data2 - add:");
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             assert analyzer.ALL_STRINGS_DATA_2 != null;
-            System.out.println(analyzer.TestAdd(analyzer.ALL_STRINGS_DATA_2, analyzer.allDataStructures[i]));
+            System.out.println(analyzer.TestAdd(analyzer.ALL_STRINGS_DATA_2, analyzer.allDataStructuresData2[i]));
         }
-        analyzer.resetStructure();
+
         System.out.println("Data1 - contain word that not exist':");
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             int warmCount = getWarmCount(analyzer, i);
-            System.out.println(analyzer.TestContain(analyzer.ALL_STRINGS_DATA_1,
-                    analyzer.allDataStructures[i],
+            int testCount = getTestCount(analyzer, i);
+            System.out.println(analyzer.TestContain(analyzer.allDataStructuresData1[i],
                     analyzer.TEST_CONTAIN_WORD_NOT_EXIST_DATA_1,
-                    warmCount));
+                    warmCount, testCount));
         }
-        analyzer.resetStructure();
+
         System.out.println("Data1 - contain word that exist':");
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             int warmCount = getWarmCount(analyzer, i);
-            System.out.println(analyzer.TestContain(analyzer.ALL_STRINGS_DATA_1,
-                    analyzer.allDataStructures[i],
+            int testCount = getTestCount(analyzer, i);
+            System.out.println(analyzer.TestContain(analyzer.allDataStructuresData1[i],
                     analyzer.TEST_CONTAIN_WORD_EXIST_DATA_1,
-                    warmCount));
+                    warmCount, testCount));
         }
-        analyzer.resetStructure();
+
         System.out.println("Data2 - contain word that exist:");
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             int warmCount = getWarmCount(analyzer, i);
-            System.out.println(analyzer.TestContain(analyzer.ALL_STRINGS_DATA_2,
-                    analyzer.allDataStructures[i],
+            int testCount = getTestCount(analyzer, i);
+            System.out.println(analyzer.TestContain(analyzer.allDataStructuresData2[i],
                     analyzer.TEST_CONTAIN_WORD_EXIST_DATA_2,
-                    warmCount));
+                    warmCount, testCount));
         }
-        analyzer.resetStructure();
+
         System.out.println("Data2 - contain word that not exist:");
         for (int i = 0; i < 5; i++) {
             printDataStructure(i);
             int warmCount = getWarmCount(analyzer, i);
-            System.out.println(analyzer.TestContain(analyzer.ALL_STRINGS_DATA_2,
-                    analyzer.allDataStructures[i],
+            int testCount = getTestCount(analyzer, i);
+            System.out.println(analyzer.TestContain(analyzer.allDataStructuresData2[i],
                     analyzer.TEST_CONTAIN_WORD_NOT_EXIST_DATA_2,
-                    warmCount));
+                    warmCount, testCount));
         }
     }
 }

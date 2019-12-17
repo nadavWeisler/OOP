@@ -1,5 +1,4 @@
 public class ClosedHashSet extends SimpleHashSet {
-    private final String EMPTY_STRING = "";
 
     /**
      * A default constructor
@@ -17,7 +16,7 @@ public class ClosedHashSet extends SimpleHashSet {
      */
     public ClosedHashSet(float upperLoadFactor, float lowerLoadFactor) {
         super(upperLoadFactor, lowerLoadFactor);
-        this.hashSet = new String[INITIAL_CAPACITY];
+        this.hashSet = new StringWrapper[INITIAL_CAPACITY];
     }
 
     /**
@@ -26,19 +25,52 @@ public class ClosedHashSet extends SimpleHashSet {
      * @param data Values to add to the set.
      */
     public ClosedHashSet(String[] data) {
-        super();
-        this.hashSet = new StringWrapper[INITIAL_CAPACITY];
+        this();
         if (data == null) {
             return;
         }
 
-        for (int i = 0; i < this.hashSet.length; i++) {
-            if (data[i] != null && data[i].isEmpty()) {
-                this.hashSet[i] = new StringWrapper(EMPTY_STRING);
-            } else {
-                this.add(data[i]);
+        for (String datum : data) {
+            if (datum != null) {
+                this.add(datum);
             }
         }
+    }
+
+    /**
+     * Get free index of hash set
+     *
+     * @param hashVal Hashed string
+     * @return index
+     */
+    private int getFreeIndex(int hashVal) {
+        if (this.size() == this.capacity()) {
+            return -1;
+        }
+        int i = 0;
+
+        int clampVal = getClampValue(i, hashVal);
+        while (this.hashSet[clampVal] != null &&
+                (((StringWrapper) this.hashSet[clampVal]).getString()) != null) {
+            i++;
+            clampVal = getClampValue(i, hashVal);
+        }
+
+        return clampVal;
+    }
+
+    /**
+     * Resize hash set if needed (By 2 or by 0.5)
+     */
+    private void resize(double num) {
+        StringWrapper[] tempHash = (StringWrapper[]) this.hashSet.clone();
+        this.hashSet = new StringWrapper[(int) (tempHash.length * num)];
+        for (StringWrapper hash : tempHash) {
+            if (hash != null && hash.getString() != null) {
+                this.add(hash.getString());
+            }
+        }
+
     }
 
     /**
@@ -53,53 +85,16 @@ public class ClosedHashSet extends SimpleHashSet {
             return false;
         }
         int i = getFreeIndex(newValue.hashCode());
+        if (i == -1) {
+            return false;
+        }
         this.hashSet[i] = new StringWrapper(newValue);
-        resize(true);
+
+        if (this.size() > this.upperLoadFactor * this.capacity()) {
+            resize(this.UP_RESIZE);
+        }
+
         return true;
-    }
-
-    /**
-     * Get free index of hash set
-     *
-     * @param hashVal Hashed string
-     * @return index
-     */
-    private int getFreeIndex(int hashVal) {
-        int i = 0;
-        while (this.hashSet[clamp(hashVal + (i + Math.abs(i) / 2))] != null &&
-                ((StringWrapper) this.hashSet[clamp(hashVal + (i + Math.abs(i) / 2))]).getString() != null &&
-                i < this.hashSet.length) {
-            i++;
-        }
-        return clamp(hashVal + ((i + Math.abs(i)) / 2));
-    }
-
-    /**
-     * Resize hash set if needed (By 2 or by 0.5)
-     */
-    private void resize(boolean up) {
-        if (!up && this.hashSet.length == 1) {
-            return;
-        }
-        double num;
-        if (up && this.size() > upperLoadFactor * this.capacity()) {
-            num = 2;
-        } else if (!up && this.size() < this.lowerLoadFactor * capacity()) {
-            num = 0.5;
-        } else {
-            return;
-        }
-        StringWrapper[] tempHash = (StringWrapper[]) this.hashSet.clone();
-        this.hashSet = new StringWrapper[(int) (tempHash.length * num)];
-        for (int i = 0; i < tempHash.length; i++) {
-            if (tempHash[i] != null) {
-                if (tempHash[i].getString().isEmpty()) {
-                    this.hashSet[i] = EMPTY_STRING;
-                } else {
-                    this.add(tempHash[i].getString());
-                }
-            }
-        }
     }
 
     /**
@@ -114,24 +109,6 @@ public class ClosedHashSet extends SimpleHashSet {
     }
 
     /**
-     * Get index of string in hash
-     *
-     * @param val String
-     * @return Index if exist, -1 else
-     */
-    public int getIndexOf(String val) {
-        int i = 0;
-        int hash = val.hashCode();
-        while (clamp(hash + i) < this.capacity() && this.hashSet[clamp(hash + i)] != null) {
-            if (this.hashSet[clamp(hash + i)].equals(val)) {
-                return clamp(hash + i);
-            }
-            i++;
-        }
-        return -1;
-    }
-
-    /**
      * Remove the input element from the set.
      *
      * @param toDelete Value to delete
@@ -143,8 +120,10 @@ public class ClosedHashSet extends SimpleHashSet {
         if (index == -1) {
             return false;
         } else {
-            this.hashSet[index] = EMPTY_STRING;
-            resize(false);
+            this.hashSet[index] = new StringWrapper();
+            if (this.size() > 1 && this.size() < this.capacity() * this.lowerLoadFactor) {
+                resize(this.LOW_RESIZE);
+            }
             return true;
         }
     }
@@ -157,10 +136,33 @@ public class ClosedHashSet extends SimpleHashSet {
         int count = 0;
         for (StringWrapper item :
                 (StringWrapper[]) this.hashSet) {
-            if (item != null && !item.getString().isEmpty()) {
+            if (item != null && item.getString() != null) {
                 count++;
             }
         }
         return count;
+    }
+
+    /**
+     * Get index of string in hash
+     *
+     * @param val String
+     * @return Index if exist, -1 else
+     */
+    public int getIndexOf(String val) {
+        int i = 0;
+        int clampValue = getClampValue(i, val.hashCode());
+        while (this.hashSet[clampValue] != null) {
+            if (((StringWrapper) this.hashSet[clampValue]).getString().equals(val)) {
+                return clampValue;
+            }
+            i++;
+            clampValue = getClampValue(i, val.hashCode());
+        }
+        return -1;
+    }
+
+    private int getClampValue(int i, int hashCode) {
+        return this.clamp((int) ((hashCode + ((i + Math.pow(i, 2)) * CLAMP_CONSTANT))));
     }
 }

@@ -32,7 +32,12 @@ public class OpenHashSet extends SimpleHashSet {
      */
     public OpenHashSet(String[] data) {
         this();
-        this.hashSet = new LinkedListWrapper[INITIAL_CAPACITY];
+        for (String str :
+                data) {
+            if (str != null) {
+                this.add(str);
+            }
+        }
     }
 
     /**
@@ -42,7 +47,25 @@ public class OpenHashSet extends SimpleHashSet {
      * @return true if null or empty, false else
      */
     private boolean linkedListWrapperNullOrEmpty(LinkedListWrapper linkedListWrapper) {
-        return linkedListWrapper == null || linkedListWrapper.IsEmpty();
+        return linkedListWrapper != null && linkedListWrapper.IsEmpty();
+    }
+
+    /**
+     * Resize array
+     *
+     * @param num Resize up or down int
+     */
+    private void resize(double num) {
+        LinkedListWrapper[] tempHash = (LinkedListWrapper[]) this.hashSet.clone();
+        this.hashSet = new LinkedListWrapper[(int) (tempHash.length * num)];
+        for (LinkedListWrapper linkedListWrapper : tempHash) {
+            if (linkedListWrapperNullOrEmpty(linkedListWrapper)) {
+                for (String str :
+                        linkedListWrapper.GetLinkedList()) {
+                    this.add(str);
+                }
+            }
+        }
     }
 
     /**
@@ -59,17 +82,19 @@ public class OpenHashSet extends SimpleHashSet {
 
         int stringHash = newValue.hashCode();
         int clamped = this.clamp(stringHash);
-        if (!linkedListWrapperNullOrEmpty((LinkedListWrapper) this.hashSet[clamped])) {
+        if (linkedListWrapperNullOrEmpty((LinkedListWrapper) this.hashSet[clamped])) {
             if (((LinkedListWrapper) this.hashSet[clamped]).GetLinkedList().contains(newValue)) {
                 return false;
             }
         }
 
-        if(this.hashSet[clamped] == null) {
+        if (this.hashSet[clamped] == null) {
             this.hashSet[clamped] = new LinkedListWrapper();
         }
         ((LinkedListWrapper) this.hashSet[clamped]).AddToLinkList(newValue);
-        resize(true);
+        if (this.size() > this.capacity() * this.upperLoadFactor) {
+            resize(this.UP_RESIZE);
+        }
         return true;
     }
 
@@ -83,13 +108,9 @@ public class OpenHashSet extends SimpleHashSet {
     public boolean contains(String searchVal) {
         int stringHash = searchVal.hashCode();
         if (this.hashSet[this.clamp(stringHash)] != null &&
-                !((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).IsEmpty()) {
-            for (String str :
-                    ((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).GetLinkedList()) {
-                if (str.equals(searchVal)) {
-                    return true;
-                }
-            }
+                ((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).IsEmpty()) {
+            return ((LinkedListWrapper)
+                    this.hashSet[this.clamp(stringHash)]).GetLinkedList().contains(searchVal);
         }
         return false;
     }
@@ -107,37 +128,10 @@ public class OpenHashSet extends SimpleHashSet {
         }
 
         int stringHash = toDelete.hashCode();
-        resize(false);
+        if (this.size() > 1 && this.lowerLoadFactor * this.capacity() > this.size()) {
+            resize(this.LOW_RESIZE);
+        }
         return ((LinkedListWrapper) this.hashSet[this.clamp(stringHash)]).RemoveFromLinkList(toDelete);
-    }
-
-    /**
-     * Resize array
-     * @param up Resize up or down boolean
-     */
-    private void resize(boolean up) {
-        if (!up && this.hashSet.length == 1) {
-            return;
-        }
-        double num;
-        if (up && this.size() > upperLoadFactor * this.capacity()) {
-            num = 2;
-        } else if (!up && this.size() < this.lowerLoadFactor * capacity()) {
-            num = 0.5;
-        } else {
-            return;
-        }
-        LinkedListWrapper[] tempHash = (LinkedListWrapper[]) this.hashSet.clone();
-
-        this.hashSet = new LinkedListWrapper[(int) (tempHash.length * num)];
-        for (LinkedListWrapper linkedListWrapper : tempHash) {
-            if (!linkedListWrapperNullOrEmpty(linkedListWrapper)) {
-                for (String str :
-                        linkedListWrapper.GetLinkedList()) {
-                    this.add(str);
-                }
-            }
-        }
     }
 
     /**
@@ -148,7 +142,7 @@ public class OpenHashSet extends SimpleHashSet {
         int count = 0;
         for (LinkedListWrapper linkedList :
                 ((LinkedListWrapper[]) this.hashSet)) {
-            if (linkedList != null && !linkedList.IsEmpty()) {
+            if (linkedList != null && linkedList.IsEmpty()) {
                 count += linkedList.GetLinkedList().size();
             }
         }
