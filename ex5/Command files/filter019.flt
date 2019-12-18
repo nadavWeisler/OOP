@@ -1,0 +1,4 @@
+FILTER
+smaller_than#0.01#NOT
+ORDER
+abs

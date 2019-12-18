@@ -1,0 +1,4 @@
+FILTER
+greater_than#0
+ORDER
+abs
