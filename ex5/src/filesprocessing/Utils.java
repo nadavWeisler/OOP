@@ -33,8 +33,6 @@ public class Utils {
     public static final String Yes = "YES";
     public static final String No = "NO";
 
-    public static final String IOExceptionMessage = "Problem in reading or writing to file";
-
     /**
      * Check if string is integer
      *

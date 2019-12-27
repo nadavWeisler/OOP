@@ -1,52 +1,46 @@
 package filesprocessing;
 
-import filesprocessing.Exceptions.ErrorException;
+import filesprocessing.Exceptions.ErrorException.ErrorException;
+import filesprocessing.Exceptions.ErrorException.IOProblemException;
+import filesprocessing.Exceptions.ErrorException.InvalidUsageException;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class DirectoryProcessor {
-    private static boolean TestArgs(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Less than two args");
-            return false;
-        }
-
-        if (args.length > 2) {
-            System.out.println("More than two args");
-            return false;
+    private static void TestArgs(String[] args) throws ErrorException {
+        if (args.length != 2) {
+            throw new InvalidUsageException();
         }
 
         File dir = new File(args[0]);
         File file = new File(args[1]);
 
-        if (!dir.isDirectory() || dir.exists()) {
+        if (!dir.isDirectory() || !file.isFile()) {
             System.out.println("Not valid directory");
-            return false;
+            throw new InvalidUsageException();
         }
 
-        if (!file.isFile() || file.exists()) {
+        if (dir.exists() || file.exists()) {
             System.out.println("Not valid file");
-            return false;
+            throw new IOProblemException();
         }
-
-        return true;
     }
 
     /**
-     *
      * @param args
      */
-    public static void main(String[] args) throws ErrorException {
-        if (!TestArgs(args)) {
-            throw new ErrorException();
+    public static void main(String[] args) {
+        try {
+            TestArgs(args);
+            ArrayList<Section> sections = Parser.CreateSectionsFromFileName(args[1]);
+
+            for (Section section : sections) {
+                section.PrintSection(args[0]);
+            }
+
+        } catch (ErrorException err) {
+            System.out.println(err.getMessage());
         }
-
-        File dir = new File(args[0]);
-        File file = new File(args[1]);
-
-
-
     }
-
-
 }

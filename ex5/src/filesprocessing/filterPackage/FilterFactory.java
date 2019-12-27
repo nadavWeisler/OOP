@@ -8,8 +8,9 @@ import java.util.Arrays;
 public class FilterFactory {
     /**
      * Create filter by commend
+     *
      * @param filterCommend Filter commend
-     * @param lineNumber Line number in file
+     * @param lineNumber    Line number in file
      * @return Filter
      */
     public static Filter CreateFilter(String filterCommend, int lineNumber) {
@@ -70,7 +71,11 @@ public class FilterFactory {
                     } else if (!(command[0].equals(Utils.Yes) || command[0].equals(Utils.No))) {
                         throw new WarningException(lineNumber);
                     } else {
-                        return new Filter(filterType, not);
+                        if (command[0].equals(Utils.Yes)) {
+                            return new Filter(filterType, not, true);
+                        } else {
+                            return new Filter(filterType, not, false);
+                        }
                     }
 
                 default:

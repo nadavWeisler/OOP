@@ -1,0 +1,31 @@
+weisler
+
+Nadav Weisler
+
+=============================
+=      File description     =
+=============================
+Book.java - Contains "Book" class
+Patron.java - Contains "Patron" class
+Library.java - Contains "Library" class
+
+
+=============================
+=          Design           =
+=============================
+Most of my code design depends on the given API.
+I decided that the book / patron ID will be his index on his books / patrons array.
+Because of that I didn't need to save an index property and each one of the books and patrons
+got his own uniq ID
+
+
+
+=============================
+=  Implementation details   =
+=============================
+
+
+
+=============================
+=    Answers to questions   =
+=============================
