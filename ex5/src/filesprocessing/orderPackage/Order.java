@@ -1,23 +1,47 @@
-package filesprocessing;
+package filesprocessing.orderPackage;
+
+import filesprocessing.Utils;
 
 import java.io.File;
 import java.util.*;
 
 public class Order {
+    private String orderType;
+    private boolean reverse;
 
-    public ArrayList<String> OrderList(String orderType, boolean reverse) {
-        ArrayList<String> result = new ArrayList<>();
-        switch (orderType) {
-            case "abs":
+    /**
+     * Constructor
+     *
+     * @param orderType Order type
+     * @param reverse   Reverse
+     */
+    public Order(String orderType, boolean reverse) {
+        this.orderType = orderType;
+        this.reverse = reverse;
+    }
+
+    /**
+     * Order list
+     *
+     * @param filesList Files list
+     * @return Ordered file array list
+     */
+    public ArrayList<File> OrderList(ArrayList<File> filesList) {
+        ArrayList<File> result = new ArrayList<>();
+        switch (this.orderType) {
+            case Utils.ABS_ORDER:
+                result = this.AbsOrder(filesList);
                 break;
-            case "size":
+            case Utils.SIZE_ORDER:
+                result = this.SizeOrder(filesList);
                 break;
-            case "type":
+            case Utils.TYPE_ORDER:
+                result = this.TypeOrder(filesList);
                 break;
         }
 
-        if (reverse) {
-            Collections.reverse(result);
+        if (this.reverse) {
+            Utils.reverseFilesArrayList(result);
         }
 
         return result;
@@ -48,7 +72,7 @@ public class Order {
         HashMap<String, ArrayList<File>> result = new HashMap<>();
         for (File file :
                 files) {
-            String ext = Utils.GetFileExtension(file.getName());
+            String ext = Utils.getFileExtension(file.getName());
             ArrayList<File> toAdd = new ArrayList<>();
             toAdd.add(file);
             if (result.containsKey(ext)) {
@@ -87,10 +111,10 @@ public class Order {
      */
     private ArrayList<File> AbsOrder(ArrayList<File> files) {
         HashMap<String, File> allNames = this.GetAbsolutePathList(files);
-        LinkedHashSet<String> sortedSet = new LinkedHashSet<String>(allNames.keySet());
+        String[] sortedArray = (String[]) allNames.keySet().toArray();
+        Utils.sortStringArray(sortedArray);
         ArrayList<File> result = new ArrayList<>();
-        for (String name :
-                sortedSet) {
+        for (String name : sortedArray) {
             result.add(allNames.get(name));
         }
         return result;
@@ -105,9 +129,9 @@ public class Order {
     private ArrayList<File> TypeOrder(ArrayList<File> files) {
         HashMap<String, ArrayList<File>> allTypes = this.GetFilesHashTypes(files);
         ArrayList<File> result = new ArrayList<>();
-        LinkedHashSet<String> sortedSet = new LinkedHashSet<String>(allTypes.keySet());
-        for (String type :
-                sortedSet) {
+        String[] sortedArray = (String[]) allTypes.keySet().toArray();
+        Utils.sortStringArray(sortedArray);
+        for (String type : sortedArray) {
             result.addAll(allTypes.get(type));
         }
         return result;
@@ -122,9 +146,9 @@ public class Order {
     private ArrayList<File> SizeOrder(ArrayList<File> files) {
         ArrayList<File> result = new ArrayList<>();
         HashMap<Long, ArrayList<File>> allFilesBySize = this.GetFilesHashSize(files);
-        LinkedHashSet<Long> sortedSet = new LinkedHashSet<>(allFilesBySize.keySet());
-        for (Long size :
-                sortedSet) {
+        Long[] sortedArray = (Long[]) allFilesBySize.keySet().toArray();
+        Utils.longBubbleSort(sortedArray);
+        for (Long size : sortedArray) {
             result.addAll(allFilesBySize.get(size));
         }
         return result;
