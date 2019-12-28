@@ -2,30 +2,43 @@ weisler
 
 Nadav Weisler
 
+Nina Kollman
+
 =============================
 =      File description     =
 =============================
-Book.java - Contains "Book" class
-Patron.java - Contains "Patron" class
-Library.java - Contains "Library" class
+Package filesprocessing
+* DirectoryProcessor.java - Include the main function which start the whole program
+* Section.java - Implement of Section class
+* Utils.java - General static functions for package use
+* Package Exceptions
+* * WarningException.java - Implement WarningException (type one) class, extends from Exception
+* * Package ErrorException (type 2)
+* * * ErrorException.java - Implement general ErrorException class, extends Exception
+* * * BadFormatException.java - Implement BadFormatException class, extends ErrorException
+* * * InvalidUsageException.java - Implement InvalidUsageException class, extends ErrorException
+* * * IOProblemException.java - Implement IOProblemException class, extends ErrorException
+* * * MissedSubSectionException.java - Implement MissedSubSectionException class, extends ErrorException
+* * Package orderPackage
+* * * Order.java - Implement Order class
+* * * OrderFactory.java - Implement OrderFactory class
+* * Package filterPackage
+* * * Filter.java - Implement Filter class
+* * * FilterFactory.java - Implement FilterFactory class
 
 
 =============================
 =          Design           =
 =============================
-Most of my code design depends on the given API.
-I decided that the book / patron ID will be his index on his books / patrons array.
-Because of that I didn't need to save an index property and each one of the books and patrons
-got his own uniq ID
+
+In my code I used the factory design pattern. this choice make my code cleared and
+more understandable, that because in all of my code there was no difference between each
+filter or order, only the factory made the difference. That choice base on the single choice
+principle.
+
+I used in static methods and final constants for most of my actions, this use made the modularity of my
+code. That because in one place we are able to change the whole code.
 
 
-
-=============================
-=  Implementation details   =
-=============================
-
-
-
-=============================
-=    Answers to questions   =
-=============================
+"Must go, Must go"
+Oded Paz
