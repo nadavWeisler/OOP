@@ -22,21 +22,24 @@ public class OrderFactory {
 
             boolean reverse = command[command.length - 1].equals(Utils.REVERSE_SUFFIX);
             String orderType = command[0];
+
             if (reverse) {
-                command = Arrays.copyOfRange(command, 0, command.length - 1);
+                command = Arrays.copyOfRange(command, 1, command.length - 1);
             } else {
-                command = Arrays.copyOfRange(command, 0, command.length);
+                command = Arrays.copyOfRange(command, 1, command.length);
             }
 
             if (command.length != 0) {
                 throw new WarningException(lineNumber);
+            } else if (!orderType.equals(Utils.ABS_ORDER)
+                    && !orderType.equals(Utils.TYPE_ORDER)
+                    && !orderType.equals(Utils.SIZE_ORDER)) {
+                throw new WarningException(lineNumber);
             } else {
                 return new Order(orderType, reverse);
             }
-
-
         } catch (WarningException exp) {
-            System.out.println(exp.getMessage());
+            System.err.println(exp.getMessage());
             return new Order(Utils.ABS_ORDER, false);
         }
     }

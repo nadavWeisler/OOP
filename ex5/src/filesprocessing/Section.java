@@ -5,6 +5,8 @@ import filesprocessing.orderPackage.Order;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Section {
     private Filter filter;
@@ -22,15 +24,23 @@ public class Section {
     }
 
     /**
-     * @param dirPath
+     * @param dirPath Directory path
      */
     public void PrintSection(String dirPath) {
         File dir = new File(dirPath);
         ArrayList<File> sortedFiles;
-        sortedFiles = this.filter.FilterFile(dir.listFiles());
-        sortedFiles = this.order.OrderList(sortedFiles);
+        if (dir.listFiles() != null) {
+            sortedFiles = this.filter.FilterFile(dir.listFiles());
+            sortedFiles = this.order.OrderList(sortedFiles);
+            IterateSection(sortedFiles);
+        }
+    }
+
+    private void IterateSection(ArrayList<File> sortedFiles) {
         for (File file : sortedFiles) {
-            System.out.println(file.getName());
+            if (!file.isDirectory()) {
+                System.out.println(file.getName());
+            }
         }
     }
 }

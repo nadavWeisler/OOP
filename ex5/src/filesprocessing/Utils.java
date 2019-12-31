@@ -1,9 +1,6 @@
 package filesprocessing;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class Utils {
@@ -42,7 +39,9 @@ public class Utils {
     public static boolean isDouble(String str) {
         try {
             Double.parseDouble(str);
-        } catch (NumberFormatException | NullPointerException e) {
+        } catch (NullPointerException e) {
+            return false;
+        } catch (NumberFormatException e) {
             return false;
         }
         return true;
@@ -106,14 +105,17 @@ public class Utils {
      *
      * @param strArray String array
      */
-    public static void sortStringArray(String[] strArray) {
+    public static void BubbleSortStringArray(String[] strArray) {
         String temp;
-        for (int i = 0; i < strArray.length - 1; i++) {
-            for (int j = i + 1; j < strArray.length; j++) {
-                if (strArray[i].compareToIgnoreCase(strArray[j]) > 0) {
-                    temp = strArray[i];
-                    strArray[i] = strArray[j];
-                    strArray[j] = temp;
+        boolean switched = true;
+        for (int i = 0; i < strArray.length - 1 && switched; ++i) {
+            switched = false;
+            for (int j = 0; j < strArray.length - i - 1; ++j) {
+                if (strArray[j].compareTo(strArray[j + 1]) > 0) {
+                    temp = strArray[j];
+                    strArray[j] = strArray[j + 1];
+                    strArray[j + 1] = temp;
+                    switched = true;
                 }
             }
         }
@@ -146,16 +148,20 @@ public class Utils {
      * @return String array list
      */
     public static ArrayList<String> fileToArrayList(String fileName) {
-        ArrayList<String> result = new ArrayList<>();
+        ArrayList<String> result = new ArrayList<String>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
             while (br.ready()) {
                 result.add(br.readLine());
             }
+
+            return result;
+        } catch (FileNotFoundException e) {
+            return new ArrayList<String>();
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<String>();
         }
-        return result;
     }
 
 }

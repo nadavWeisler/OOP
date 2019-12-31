@@ -18,14 +18,19 @@ public class DirectoryProcessor {
         File file = new File(args[1]);
 
         if (!dir.isDirectory() || !file.isFile()) {
-            System.out.println("Not valid directory");
             throw new InvalidUsageException();
         }
 
-        if (dir.exists() || file.exists()) {
-            System.out.println("Not valid file");
+        if (!(dir.exists() && file.exists())) {
             throw new IOProblemException();
         }
+    }
+
+    private enum fileState {
+        waitForFILTER,
+        waitForFilterData,
+        waitForORDER,
+        waitForOrderData
     }
 
     /**
@@ -36,54 +41,50 @@ public class DirectoryProcessor {
      * @throws ErrorException Error
      */
     public static ArrayList<Section> CreateSectionsFromFileName(String fileName) throws ErrorException {
-        ArrayList<Section> result = new ArrayList<>();
+        ArrayList<Section> result = new ArrayList<Section>();
         ArrayList<String> fileList = Utils.fileToArrayList(fileName);
         Filter newFilter = null;
-        boolean doneOrder = true;
-        boolean inFilter = false;
-        boolean inOrder = false;
+        String line;
+        fileState state = fileState.waitForFILTER;
         for (int i = 0; i < fileList.size(); i++) {
-            if (fileList.get(i).equals(Utils.FILTER_SECTION)) {
-                if (inOrder) {
-                    inFilter = true;
-                    inOrder = false;
-                    result.add(new Section(newFilter, OrderFactory.CreateOrder("", i)));
-                } else if (inFilter) {
-                    inFilter = false;
-                    newFilter = FilterFactory.CreateFilter("", i);
-                } else {
-                    if(doneOrder) {
-                        inFilter = true;
-                        doneOrder = false;
+            line = fileList.get(i);
+            switch (state) {
+                case waitForFILTER:
+                    if (!line.equals(Utils.FILTER_SECTION)) {
+                        throw new BadFormatException();
                     } else {
-                        throw new MissedSubSectionException();
+                        state = fileState.waitForFilterData;
                     }
-                }
-            } else if (fileList.get(i).equals(Utils.ORDER_SECTION)) {
-                if (inFilter) {
-                    newFilter = FilterFactory.CreateFilter("", i);
-                    inFilter = false;
-                    inOrder = true;
-                } else if (inOrder) {
-                    result.add(new Section(newFilter, OrderFactory.CreateOrder("", i)));
-                    inOrder = false;
-                } else {
-                    inOrder = true;
-                }
-            } else {
-                if (inFilter) {
-                    newFilter = FilterFactory.CreateFilter(fileList.get(i), i);
-                    inFilter = false;
-                } else if (inOrder) {
-                    result.add(new Section(newFilter, OrderFactory.CreateOrder(fileList.get(i), i)));
-                    newFilter = null;
-                    doneOrder = true;
-                } else {
-                    throw new BadFormatException();
-                }
+                    break;
+                case waitForFilterData:
+                    newFilter = FilterFactory.CreateFilter(line, i + 1);
+                    state = fileState.waitForORDER;
+                    break;
+                case waitForORDER:
+                    if (!line.equals(Utils.ORDER_SECTION)) {
+                        throw new BadFormatException();
+                    } else {
+                        state = fileState.waitForOrderData;
+                    }
+                    break;
+                case waitForOrderData:
+                    if (line.equals(Utils.FILTER_SECTION)) {
+                        result.add(new Section(newFilter,
+                                OrderFactory.CreateOrder(Utils.ABS_ORDER, i + 1)));
+                        state = fileState.waitForFilterData;
+                    } else {
+                        result.add(new Section(newFilter, OrderFactory.CreateOrder(line, i + 1)));
+                        state = fileState.waitForFILTER;
+                    }
+                    break;
             }
         }
 
+        if (state.equals(fileState.waitForOrderData)) {
+            result.add(new Section(newFilter, OrderFactory.CreateOrder(Utils.ABS_ORDER, 0)));
+        } else if (!state.equals(fileState.waitForFILTER)) {
+            throw new BadFormatException();
+        }
         return result;
     }
 
@@ -100,7 +101,7 @@ public class DirectoryProcessor {
             }
 
         } catch (ErrorException err) {
-            System.out.println(err.getMessage());
+            System.err.println(err.getMessage());
         }
     }
 }
