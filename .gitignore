@@ -23,4 +23,11 @@ ex1/src/Tester.java
 ex1/src/tester_updated4.java
 #EX2
 ex2/src/SpaceWars.java
-#EX3
+#EX5
+ex5/META-INF/
+ex5/tester_files/
+ex5/tests/
+ex5/evyatar_tester/
+ex5/tester_README.txt
+*.AAC
+*.bat
