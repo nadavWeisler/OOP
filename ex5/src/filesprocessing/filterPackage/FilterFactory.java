@@ -27,7 +27,8 @@ public class FilterFactory {
             } else {
                 command = Arrays.copyOfRange(command, 1, command.length);
             }
-            if (Utils.GREATER_THEN_FILTER.equals(filterType) || Utils.SMALLER_THAN_FILTER.equals(filterType)) {
+            if (Utils.GREATER_THEN_FILTER.equals(filterType) ||
+                    Utils.SMALLER_THAN_FILTER.equals(filterType)) {
                 if (command.length != 1) {
                     throw new WarningException(lineNumber);
                 } else if (!Utils.isDouble(command[0])) {
@@ -50,7 +51,10 @@ public class FilterFactory {
                     return new Filter(filterType, not_suffix,
                             Double.parseDouble(command[0]), Double.parseDouble(command[1]));
                 }
-            } else if (Utils.FILE_FILTER.equals(filterType) || Utils.CONTAINS_FILTER.equals(filterType) || Utils.PREFIX_FILTER.equals(filterType) || Utils.SUFFIX_FILTER.equals(filterType)) {
+            } else if (Utils.FILE_FILTER.equals(filterType) ||
+                    Utils.CONTAINS_FILTER.equals(filterType) ||
+                    Utils.PREFIX_FILTER.equals(filterType) ||
+                    Utils.SUFFIX_FILTER.equals(filterType)) {
                 if (command.length != 1) {
                     throw new WarningException(lineNumber);
                 } else {
