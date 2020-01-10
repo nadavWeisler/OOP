@@ -193,7 +193,7 @@ public class Parser {
         }
     }
 
-    private boolean propertyExist(String propertyType, String name) {
+    public boolean propertyExist(String propertyType, String name) {
         if (this.properties.containsKey(propertyType)) {
             Set<String> propertiesKeySet = this.properties.keySet();
             return propertiesKeySet.contains(name);

@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 public class Block {
 
     private enum blockType {IF_CONDITION, WHILE_LOOP}
-
     private blockType type;
     private String conditionLine;
 
@@ -46,11 +45,11 @@ public class Block {
                     }
                 }
                 // The condition does not end with a closing bracket
-                throw new oop.ex6.exceptions.BadFormatException("The block condition is invalid");
+                throw new BadFormatException("The block condition is invalid");
             }
         }
         //The line does not have an opening condition bracket
-        throw new oop.ex6.exceptions.BadFormatException("The block condition is invalid");
+        throw new BadFormatException("The block condition is invalid");
     }
 
     /**
