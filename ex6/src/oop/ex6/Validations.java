@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class Validations {
     private static Validations validations = new Validations();
 
-    boolean isInteger(String s) {
+    public boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
         } catch (NumberFormatException | NullPointerException e) {
@@ -19,7 +19,7 @@ public class Validations {
         return true;
     }
 
-    boolean isDouble(String s) {
+    public boolean isDouble(String s) {
         try {
             Double.parseDouble(s);
         } catch (NumberFormatException | NullPointerException e) {
