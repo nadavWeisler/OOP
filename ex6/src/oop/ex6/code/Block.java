@@ -1,6 +1,7 @@
 package oop.ex6.code;
 
-import oop.ex6.Parser;
+import oop.ex6.Utils;
+import oop.ex6.parsers.FileParser;
 import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
 
@@ -9,9 +10,16 @@ import java.util.regex.Pattern;
 
 public class Block {
 
-    private enum blockType {IF_CONDITION, WHILE_LOOP}
-    private blockType type;
+    private Utils.blockType type;
     private String conditionLine;
+
+    public Utils.blockType getType() {
+        return type;
+    }
+
+    public boolean addLine(String line) {
+        return false;
+    }
 
     /**
      * Constructor for Block
@@ -22,9 +30,9 @@ public class Block {
     public Block(boolean isWhile, String conditionLine) {
 
         if (isWhile) {
-            type = blockType.WHILE_LOOP;
+            type = Utils.blockType.WHILE_LOOP;
         } else {
-            type = blockType.IF_CONDITION;
+            type = Utils.blockType.IF_CONDITION;
         }
 
         this.conditionLine = conditionLine;
@@ -106,9 +114,9 @@ public class Block {
                     // if the parameter is no the saved words 'true' 'false'
                     if (!(parameter.equals("true") || parameter.equals("false"))) {
                         // if the parameter does not exist as a boolean,int or double
-                        if (!(Parser.getInstance().propertyExist("boolean", parameter) ||
-                                Parser.getInstance().propertyExist("int", parameter) ||
-                                Parser.getInstance().propertyExist("double", parameter))) {
+                        if (!(FileParser.getInstance().propertyExist("boolean", parameter) ||
+                                FileParser.getInstance().propertyExist("int", parameter) ||
+                                FileParser.getInstance().propertyExist("double", parameter))) {
                             throw new BadFormatException("The block condition is invalid");
                         }
                     }
