@@ -1,11 +1,9 @@
 package oop.ex6.parsers;
 
-import oop.ex6.Utils;
 import oop.ex6.code.Block;
 import oop.ex6.code.Method;
 import oop.ex6.exceptions.BadFormatException;
 
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 
 public class MethodParser extends Parser {

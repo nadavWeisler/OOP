@@ -110,6 +110,27 @@ public class PropertyFactory {
         return null;
     }
 
+    public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal) {
+        switch (propertyType) {
+            case STRING_TYPE:
+                return new StringProperty(propertyName,
+                        propertyType, isFinal, true, null);
+            case INT_TYPE:
+                return new IntProperty(propertyName,
+                        propertyType, isFinal, true, null);
+            case DOUBLE_TYPE:
+                return new DoubleProperty(propertyName,
+                        propertyType, isFinal, true, null);
+            case BOOLEAN_TYPE:
+                return new BooleanProperty(propertyName,
+                        propertyType, isFinal, true, null);
+            case CHAR_TYPE:
+                return new CharProperty(propertyName,
+                        propertyType, isFinal, true, null);
+        }
+        return null;
+    }
+
     public Property updatePropertyFromString(Property oldProperty, String value) throws BadFormatException {
         Property newProperty = oldProperty;
         try {

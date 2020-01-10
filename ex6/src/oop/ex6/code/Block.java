@@ -5,11 +5,9 @@ import oop.ex6.parsers.FileParser;
 import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
 
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Block {
-
     private Utils.blockType type;
     private String conditionLine;
 
@@ -28,13 +26,11 @@ public class Block {
      * @param conditionLine the given conditionLine for the block
      */
     public Block(boolean isWhile, String conditionLine) {
-
         if (isWhile) {
             type = Utils.blockType.WHILE_LOOP;
         } else {
             type = Utils.blockType.IF_CONDITION;
         }
-
         this.conditionLine = conditionLine;
     }
 
@@ -126,6 +122,4 @@ public class Block {
             throw new BadFormatException("The block condition is invalid");
         }
     }
-
-
 }

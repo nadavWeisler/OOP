@@ -3,15 +3,16 @@ package oop.ex6.code;
 import oop.ex6.Utils;
 import oop.ex6.Validations;
 import oop.ex6.code.properties.Property;
+import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Method {
     protected String methodLine;
     protected String methodName;
-    protected ArrayList<Property> parameters;
-    protected ArrayList<Property> properties;
+    protected HashMap<String, HashMap<String, Property>> properties;
     protected ArrayList<Method> executeMethods;
     protected ArrayList<Block> methodBlocks;
     private static final String BAD_METHOD_LINE = "The method line is invalid";
@@ -28,7 +29,7 @@ public class Method {
      */
     public Method(String methodLine) throws BadFormatException {
         this.methodLine = methodLine;
-        this.properties = new ArrayList<>();
+        this.properties = new HashMap<>();
         this.executeMethods = new ArrayList<>();
         extractMethodName();
         verifyMethodLine();
@@ -107,6 +108,7 @@ public class Method {
         String[] singleParameters = methodParameters.split(",");
 
         for (String parameter : singleParameters) {
+            boolean isFinal = false;
             String[] currentParameter = parameter.split(" ");
             if (currentParameter.length > 3 || currentParameter.length == 1) {
                 throw new BadFormatException(BAD_METHOD_LINE);
@@ -114,10 +116,15 @@ public class Method {
                 if ((!currentParameter[0].equals("final"))) {
                     throw new BadFormatException(BAD_METHOD_LINE);
                 }
+                isFinal = true;
                 verifyTypeName(currentParameter[1], currentParameter[2]);
+                currentParameter = new String[]{currentParameter[1], currentParameter[2]}
             } else { // currentParameter.length == 2
                 verifyTypeName(currentParameter[0], currentParameter[1]);
             }
+            Property newProperty = PropertyFactory.getInstance().createMethodProperty(currentParameter[0],
+                    currentParameter[1], isFinal);
+            this.properties.(newProperty);
         }
     }
 }
