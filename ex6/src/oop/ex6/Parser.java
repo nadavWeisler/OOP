@@ -11,16 +11,18 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class Parser {
-    public static HashMap<String, ArrayList<Property>> properties;
+    private HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
     private ArrayList<Method> methods;
     private static Parser parser = new Parser();
 
     private final String STRING_TYPE = "String";
     private final String INT_TYPE = "int";
+    private final String DOUBLE_TYPE = "double";
+    private final String CHAR_TYPE = "char";
+    private final String BOOLEAN_TYPE = "boolean";
 
     private Parser() {
-        this.properties = new ArrayList<>();
-        this.methods = new ArrayList<>();
+
     }
 
     public static Parser getInstance() {
@@ -53,6 +55,10 @@ public class Parser {
 
                 Validations.getValidations().hasCodeSuffix(line);
 
+                if(line.startsWith("void ")) {
+                    getPropertyFromLine(line.substring(5));
+                }
+
 
             }
         } catch (BadFormatException exp) {
@@ -72,10 +78,9 @@ public class Parser {
 
     private boolean propertyExist(String propertyType, String name) {
         if (this.properties.containsKey(propertyType)) {
-            for (Property property : this.properties.get(propertyType)) {
-                if (property.getName().equals(name)) {
-                    return true;
-                }
+            Set<String> propertiesKeySet = this.properties.keySet();
+            if (propertiesKeySet.contains(name)) {
+                return true;
             }
         }
         return false;
@@ -106,12 +111,12 @@ public class Parser {
         return true;
     }
 
-    private Property getPropertyFromLine(String line) throws BadFormatException {
+    private void getPropertyFromLine(String line) throws BadFormatException {
         String[] splitLine = line.split(",");
         String currentType = null;
         boolean currentFinal = false;
         String currentName;
-        String currentValue;
+        String currentValue = null;
         for (int i = 0; i < splitLine.length; i++) {
             String arg = splitLine[i];
             String currentArg = arg;
@@ -150,18 +155,65 @@ public class Parser {
                     currentValue = splitArgs[1];
                 }
             }
-        }
 
+            addProperty(currentType,
+                    createProperty(currentType, currentName, currentValue, currentFinal));
+        }
+    }
+
+    public boolean validValue(String type, String value) {
+        switch (type) {
+            case STRING_TYPE:
+                if (!value.startsWith("\"") || value.endsWith("\"")) {
+                    return false;
+                }
+            case INT_TYPE:
+                if (!Validations.getValidations().isInteger(value)) {
+                    return false;
+                }
+            case DOUBLE_TYPE:
+                if (!Validations.getValidations().isDouble(value)) {
+                    return false;
+                }
+            case CHAR_TYPE:
+                if ((!value.startsWith("'") || value.endsWith("'")) &&
+                        value.length() == 3) {
+                    return false;
+                }
+            case BOOLEAN_TYPE:
+                if (!(value.equals("true") ||
+                        value.equals("false") ||
+                        Validations.getValidations().isDouble(value))) {
+                    return false;
+                }
+        }
+        return true;
     }
 
     private Property createProperty(String propertyType, String propertyName,
                                     String propertyValue, boolean isFinal) throws BadFormatException {
-        if(!isPropertyType(propertyType)) {
+        if (!isPropertyType(propertyType) ||
+                !validParameterName(propertyName) || !validValue(propertyType, propertyValue)) {
             throw new BadFormatException("b");
         }
         switch (propertyType) {
-            case "String"
+            case STRING_TYPE:
+                return new StringProperty(propertyName,
+                        propertyType, isFinal, false, propertyValue);
+            case INT_TYPE:
+                return new IntProperty(propertyName,
+                        propertyType, isFinal, false, Integer.parseInt(propertyValue));
+            case DOUBLE_TYPE:
+                return new DoubleProperty(propertyName,
+                        propertyType, isFinal, false, Double.parseDouble(propertyValue));
+            case BOOLEAN_TYPE:
+                return new BooleanProperty(propertyName,
+                        propertyType, isFinal, false, Boolean.parseBoolean(propertyValue));
+            case CHAR_TYPE:
+                return new CharProperty(propertyName,
+                        propertyType, isFinal, false, propertyValue.charAt(1));
         }
+        return null;
     }
 
     private void AddPropertyByType(String prevType, boolean prevFinal, String propertyName) {
