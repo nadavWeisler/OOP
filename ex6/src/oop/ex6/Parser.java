@@ -76,7 +76,7 @@ public class Parser {
                 str.equals("char");
     }
 
-    private boolean propertyExist(String propertyType, String name) {
+    public boolean propertyExist(String propertyType, String name) {
         if (this.properties.containsKey(propertyType)) {
             Set<String> propertiesKeySet = this.properties.keySet();
             if (propertiesKeySet.contains(name)) {
