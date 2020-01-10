@@ -113,11 +113,11 @@ public class Validations {
         String[] splitParameters = parameters.split(",");
         for (String parameter : splitParameters) {
             String[] splitParam = parameter.split(" ");
-            if(splitParam[0].equals("final")) {
-                if(splitParam.length != 3) {
+            if (splitParam[0].equals("final")) {
+                if (splitParam.length != 3) {
                     throw new BadFormatException("Invalid method parameters");
                 }
-                splitParam = new String[] {
+                splitParam = new String[]{
                         splitParam[1],
                         splitParam[2]
                 };
@@ -128,5 +128,18 @@ public class Validations {
             this.validParameterType(splitParam[0]);
             this.validValue(splitParam[0], splitParam[1]);
         }
+    }
+
+    public boolean isChar(String str) {
+        return (str.startsWith("'") && !str.endsWith("'")) ||
+                str.length() != 3;
+    }
+
+    public boolean isString(String str) {
+        return str.startsWith("\"") && !str.endsWith("\"");
+    }
+
+    public boolean isBoolean(String str) {
+        return str.equals("true") || str.equals("false");
     }
 }
