@@ -7,4 +7,8 @@ public class StringProperty extends Property {
         super(_name, _type, _isFinal, _method);
         this.value = _value;
     }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 }

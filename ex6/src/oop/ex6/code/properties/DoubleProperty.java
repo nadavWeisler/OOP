@@ -7,4 +7,8 @@ public class DoubleProperty extends Property {
         super(_name, _type, _isFinal, _method);
         this.value = _value;
     }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
 }
