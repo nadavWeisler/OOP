@@ -109,4 +109,56 @@ public class PropertyFactory {
         }
         return null;
     }
+
+    public Property updatePropertyFromString(Property oldProperty, String value) throws BadFormatException {
+        Property newProperty = oldProperty;
+        try {
+            switch (oldProperty.type) {
+                case STRING_TYPE:
+                    ((StringProperty) newProperty).setValue(value.substring(1, value.length() - 1));
+                    break;
+                case INT_TYPE:
+                    ((IntProperty) newProperty).setValue(Integer.parseInt(value));
+                    break;
+                case DOUBLE_TYPE:
+                    ((DoubleProperty) newProperty).setValue(Double.parseDouble(value));
+                    break;
+                case CHAR_TYPE:
+                    ((CharProperty) newProperty).setValue(value.charAt(1));
+                    break;
+                case BOOLEAN_TYPE:
+                    ((BooleanProperty) newProperty).setValue(Boolean.parseBoolean(value));
+            }
+        } catch (Exception exp) {
+            throw new BadFormatException("Bad value");
+        }
+
+        return newProperty;
+    }
+
+    public Property updatePropertyFromOtherProperty(Property toUpdate, Property fromUpdate) throws BadFormatException {
+        Property newProperty = toUpdate;
+        try {
+            switch (toUpdate.type) {
+                case STRING_TYPE:
+                    ((StringProperty) newProperty).setValue(((StringProperty) fromUpdate).getValue());
+                    break;
+                case INT_TYPE:
+                    ((IntProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue());
+                    break;
+                case DOUBLE_TYPE:
+                    ((DoubleProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue());
+                    break;
+                case CHAR_TYPE:
+                    ((CharProperty) newProperty).setValue(((CharProperty) fromUpdate).getValue());
+                    break;
+                case BOOLEAN_TYPE:
+                    ((BooleanProperty) newProperty).setValue(((BooleanProperty) fromUpdate).getValue());
+            }
+        } catch (Exception exp) {
+            throw new BadFormatException("Bad value");
+        }
+
+        return newProperty;
+    }
 }

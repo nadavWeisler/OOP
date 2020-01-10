@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
+
 
 public class Parser {
     private HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
@@ -68,14 +68,26 @@ public class Parser {
                     if (splitLine.length != 2) {
                         throw new BadFormatException("Bad initialize of parameter");
                     }
+
                     if (PropertyFactory.getInstance().validValue(splitLine[1])) {
+
+                        replaceProperty(splitLine[0], type,
+                                PropertyFactory.getInstance().updatePropertyFromOtherProperty(toUpdate,
+                                        fromUpdate));
+                    } else {
                         if (GetPropertyTypeOptions(splitLine[1]).size() > 0) {
                             String type = getSameType(splitLine[0], splitLine[1]);
                             if (type.equals(EMPTY_STRING)) {
                                 throw new BadFormatException("Bad Parameter");
                             } else {
-
+                                Property toUpdate = this.properties.get(type).get(splitLine[0]);
+                                Property fromUpdate = this.properties.get(type).get(splitLine[1]);
+                                replaceProperty(splitLine[0], type,
+                                        PropertyFactory.getInstance().updatePropertyFromOtherProperty(toUpdate,
+                                                fromUpdate));
                             }
+                        } else {
+                            throw new BadFormatException("Not Same Type");
                         }
                     }
                 }
@@ -85,6 +97,12 @@ public class Parser {
         }
 
         return 0;
+    }
+
+    private void replaceProperty(String name, String type, Property newProperty) {
+        HashMap<String, Property> newHash = this.properties.get(type);
+        newHash.put(name, newProperty);
+        this.properties.put(type, newHash);
     }
 
     private String getSameType(String name1, String name2) {
@@ -178,9 +196,7 @@ public class Parser {
     private boolean propertyExist(String propertyType, String name) {
         if (this.properties.containsKey(propertyType)) {
             Set<String> propertiesKeySet = this.properties.keySet();
-            if (propertiesKeySet.contains(name)) {
-                return true;
-            }
+            return propertiesKeySet.contains(name);
         }
         return false;
     }

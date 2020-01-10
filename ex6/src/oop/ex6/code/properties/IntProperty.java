@@ -7,4 +7,12 @@ public class IntProperty extends Property {
         super(_name, _type, _isFinal, _method);
         this.value = _value;
     }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }
