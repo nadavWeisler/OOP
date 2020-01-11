@@ -59,6 +59,12 @@ public class MethodParser extends Parser {
 
             if (this.isPropertyLine(lines.get(i))) {
                 addProperties(getPropertyFromLine(lines.get(i)));
+            } else if (this.ifAssignPropertyLine(lines.get(i))) {
+                this.assignProperty(lines.get(i));
+            } else if (this.isReturn(lines, i)) {
+                break;
+            } else if(!this.isCallToExistingMethod(lines.get(i), newMethod)) {
+                throw new BadFormatException("Bad Formant");
             }
         }
 
@@ -71,6 +77,7 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the method name and saves it in the methodName data member
+     *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
     private String extractMethodName(String methodLine) throws BadFormatException {
@@ -89,6 +96,7 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
+     *
      * @return extracted method parameter text
      * @throws BadFormatException if there is no '()" for the condition
      */
@@ -110,6 +118,7 @@ public class MethodParser extends Parser {
 
     /**
      * extract the method parameter types according to the order in the method deceleration
+     *
      * @param methodLine the given method deceleration line
      * @return an array of string that represents the parameter types of the method
      * @throws BadFormatException when the the parameters line is invalid
@@ -132,6 +141,7 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies the method parameter type and name is according to syntax
+     *
      * @param type the given parameter type to verify
      * @param name the given parameter name to verify
      * @throws BadFormatException if the type or name are invalid
@@ -145,6 +155,7 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method line is valid
+     *
      * @throws BadFormatException if a syntax error is found
      */
     private void verifyMethodLine(String methodLine) throws BadFormatException {
@@ -187,7 +198,8 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given code line is a call to an existing method
-     * @param line the given code line to verify
+     *
+     * @param line   the given code line to verify
      * @param method the method that the code line is inside
      * @return true if the code line is a valid method call, else false
      * @throws BadFormatException if the code line is an invalid existing method call

@@ -4,10 +4,12 @@ import oop.ex6.Utils;
 import oop.ex6.parsers.FileParser;
 import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
+import oop.ex6.parsers.Parser;
 
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
-public class Block {
+public class Block extends Parser {
     private Utils.blockType type;
     private String conditionLine;
 
