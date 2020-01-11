@@ -110,9 +110,9 @@ public class Block {
                     // if the parameter is no the saved words 'true' 'false'
                     if (!(parameter.equals("true") || parameter.equals("false"))) {
                         // if the parameter does not exist as a boolean,int or double
-                        if (!(FileParser.getInstance().propertyExist("boolean", parameter) ||
-                                FileParser.getInstance().propertyExist("int", parameter) ||
-                                FileParser.getInstance().propertyExist("double", parameter))) {
+                        if (!(FileParser.getInstance().propertyExistWithType("boolean", parameter) ||
+                                FileParser.getInstance().propertyExistWithType("int", parameter) ||
+                                FileParser.getInstance().propertyExistWithType("double", parameter))) {
                             throw new BadFormatException("The block condition is invalid");
                         }
                     }

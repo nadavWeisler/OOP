@@ -2,7 +2,6 @@ package oop.ex6.parsers;
 
 import oop.ex6.Validations;
 import oop.ex6.code.*;
-import oop.ex6.code.properties.*;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.io.BufferedReader;
@@ -110,31 +109,8 @@ public class FileParser extends Parser {
                     throw new BadFormatException("Invalid line");
                 }
 
-                if (ifUpdatePropertyLine(line)) {
-                    String noneBlankLine = line.replace(BLANK_SPACE, EMPTY_STRING);
-                    String[] splitLine = noneBlankLine.split(EQUALS);
-                    if (splitLine.length != 2) {
-                        throw new BadFormatException("Bad initialize of parameter");
-                    }
-
-                    if (PropertyFactory.getInstance().validValue(splitLine[1])) {
-
-                    } else {
-                        if (GetPropertyTypeOptions(splitLine[1]).size() > 0) {
-                            String type = getSameType(splitLine[0], splitLine[1]);
-                            if (type.equals(EMPTY_STRING)) {
-                                throw new BadFormatException("Bad Parameter");
-                            } else {
-                                Property toUpdate = this.properties.get(type).get(splitLine[0]);
-                                Property fromUpdate = this.properties.get(type).get(splitLine[1]);
-                                replaceProperty(splitLine[0], type,
-                                        PropertyFactory.getInstance().updatePropertyFromOtherProperty(toUpdate,
-                                                fromUpdate));
-                            }
-                        } else {
-                            throw new BadFormatException("Not Same Type");
-                        }
-                    }
+                if (ifAssignPropertyLine(line)) {
+                    this.assignProperty(line);
                 }
             }
         } catch (BadFormatException exp) {
