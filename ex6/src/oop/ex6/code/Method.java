@@ -15,6 +15,7 @@ public class Method {
     protected HashMap<String, HashMap<String, Property>> properties;
     protected ArrayList<Method> executeMethods;
     protected ArrayList<Block> methodBlocks;
+    protected String [] parameterType;
 
     public String getMethodName() {
         return methodName;
@@ -24,8 +25,17 @@ public class Method {
     /**
      * Constructor of method
      */
-    public Method() {
+    public Method(String [] methodParameterType) {
         this.properties = new HashMap<>();
         this.executeMethods = new ArrayList<>();
+        this.parameterType = methodParameterType;
+    }
+
+    public HashMap<String, HashMap<String, Property>> getProperties (){
+        return properties;
+    }
+
+    public String [] getMethodParameterType (){
+        return parameterType;
     }
 }

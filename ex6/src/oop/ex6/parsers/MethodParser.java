@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class MethodParser extends Parser {
     private static final String BAD_METHOD_LINE = "The method line is invalid";
     private HashMap<String, HashMap<String, Property>> globalProperties;
+    private HashMap<String, Method> existingMethods;
 
     private MethodParser() {
 
@@ -28,10 +29,11 @@ public class MethodParser extends Parser {
     public Method parseMethod(ArrayList<String> lines,
                               HashMap<String, HashMap<String, Property>> globalProperties)
             throws BadFormatException {
-        Method newMethod = new Method();
-        this.globalProperties = globalProperties;
         String methodName = extractMethodName(lines.get(0));
         verifyMethodLine(methodName);
+        String[] methodParamType = getMethodParamType(methodName);
+        Method newMethod = new Method(methodParamType);
+        this.globalProperties = globalProperties;
         ArrayList<Block> blocks = new ArrayList<>();
         for (int i = 1; i < lines.size() - 1; i++) {
             if (this.isIfLine(lines.get(i))) {
@@ -69,7 +71,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the method name and saves it in the methodName data member
-     *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
     private String extractMethodName(String methodLine) throws BadFormatException {
@@ -88,7 +89,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
-     *
      * @return extracted method parameter text
      * @throws BadFormatException if there is no '()" for the condition
      */
@@ -109,8 +109,29 @@ public class MethodParser extends Parser {
     }
 
     /**
+     * extract the method parameter types according to the order in the method deceleration
+     * @param methodLine the given method deceleration line
+     * @return an array of string that represents the parameter types of the method
+     * @throws BadFormatException when the the parameters line is invalid
+     */
+    private String[] getMethodParamType(String methodLine) throws BadFormatException {
+        methodLine = getMethodParameters(methodLine);
+        String[] parameters = methodLine.split(",");
+        String[] methodParamType = new String[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            String[] singleParam = parameters[i].split(" ");
+            if (singleParam.length == 3) { // has final deceleration
+                methodParamType[i] = singleParam[1];
+            } else { // does not have final deceleration
+                methodParamType[i] = singleParam[0];
+            }
+        }
+        return methodParamType;
+
+    }
+
+    /**
      * Verifies the method parameter type and name is according to syntax
-     *
      * @param type the given parameter type to verify
      * @param name the given parameter name to verify
      * @throws BadFormatException if the type or name are invalid
@@ -124,7 +145,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method line is valid
-     *
      * @throws BadFormatException if a syntax error is found
      */
     private void verifyMethodLine(String methodLine) throws BadFormatException {
@@ -163,5 +183,74 @@ public class MethodParser extends Parser {
             newHash.put(newProperty.getType(), oneNewHash);
             addProperties(newHash);
         }
+    }
+
+    /**
+     * Verifies if the given code line is a call to an existing method
+     * @param line the given code line to verify
+     * @param method the method that the code line is inside
+     * @return true if the code line is a valid method call, else false
+     * @throws BadFormatException if the code line is an invalid existing method call
+     */
+    private boolean isCallToExistingMethod(String line, Method method) throws BadFormatException {
+        line = line.replace(" ", "");
+        String[] methodCall = line.split("\\(");
+        if (existingMethods.containsKey(methodCall[0])) { // The method exist
+            if (!(line.endsWith(");"))) {
+                throw new BadFormatException("The method call is invalid");
+            }
+            String methodParameters = getMethodParameters(line);
+            String[] parametersArray = methodParameters.split(",");
+
+            for (int i = 0; i < parametersArray.length; i++) {
+                String expectedParamType = method.getMethodParameterType()[i];
+                // verifies if the parameter exist in the method
+                if (method.getProperties().containsKey(expectedParamType)) {
+                    if (!(method.getProperties().get(expectedParamType).containsKey(parametersArray[i]))) {
+                        // the parameter does not exist in the method, verifies if it exist in the global scope
+                        if (globalProperties.containsKey(expectedParamType)) {
+                            if (!(globalProperties.get(expectedParamType).containsKey(parametersArray[i]))) {
+                                // the parameter does not exist in the global scope either
+                                throw new BadFormatException("The method call is invalid");
+                            }
+                        }
+                    }
+                } else { // the parameter type does not exist in the method
+                    if (globalProperties.containsKey(expectedParamType)) {
+                        if (!(globalProperties.get(expectedParamType).containsKey(parametersArray[i]))) {
+                            // the parameter does not exist in the global scope either
+                            throw new BadFormatException("The method call is invalid");
+                        }
+                    } else { // the parameter type does not exist in the global scope either
+                        throw new BadFormatException("The method call is invalid");
+                    }
+
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
+        String returnLine = methodLines.get(lineIndex).replace(" ", "");
+        if (returnLine.equals("return;")) {
+            if (methodLines.size() == lineIndex + 2) {
+                String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
+                if (!(nextLine.equals("}"))) {
+                    throw new BadFormatException("The method end is invalid");
+                }
+            } else { // There is more then one line after the return statement
+                // (after the return statement there should be one more line)
+                throw new BadFormatException("The method end is invalid");
+            }
+            return true;
+        } else {
+            if (returnLine.contains("return")) {
+                throw new BadFormatException("The return statement is invalid");
+            }
+            return false;
+        }
+
     }
 }
