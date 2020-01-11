@@ -8,6 +8,7 @@ import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -264,5 +265,37 @@ public class MethodParser extends Parser {
             return false;
         }
 
+    }
+
+    /**
+     * Verifies if the code line is a block line - if/while condition
+     * @param line the given code line
+     * @return true if the line is an if or while line, else return false
+     */
+    private boolean isBlock (String line){
+        line = line.replace(" ", "");
+        String [] blockLine = line.split("\\(");
+        if(blockLine[0].equals("if")){
+            return true;
+        }else if(blockLine[0].equals("while")){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * The given line is a block line, verifies if it is a while block line
+     * @param line the given block line
+     * @return true for a while condition, else false which means it is an if condition.
+     */
+    private boolean isWhile (String line){
+        line = line.replace(" ", "");
+        String [] blockLine = line.split("\\(");
+        if(blockLine[0].equals("while")){
+            return true;
+        }
+            return false;
+        }
     }
 }

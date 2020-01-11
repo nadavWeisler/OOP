@@ -91,7 +91,7 @@ public class Block extends Parser {
     }
 
 
-    private void verifyCondition() throws oop.ex6.exceptions.BadFormatException {
+    private void verifyCondition() throws BadFormatException {
 
         String conditionLine = this.conditionLine.replace(" ", "");
 
