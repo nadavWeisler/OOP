@@ -16,6 +16,10 @@ public abstract class Property {
     public String getName() {
         return name;
     }
+
+    public String getType() {
+        return this.type;
+    }
 }
 
 

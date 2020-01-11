@@ -8,7 +8,6 @@ import oop.ex6.exceptions.BadFormatException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -41,12 +40,17 @@ public class FileParser extends Parser {
         return result;
     }
 
+    private boolean methodExist(Method method) {
+        return this.methods.containsKey(method.getMethodName());
+    }
+
     public int ParseFile(String fileName) throws IOException {
         boolean insideMethod = false;
         ArrayList<Integer> conditionSwitch = new ArrayList<>();
         ArrayList<Integer> whileSwitch = new ArrayList<>();
         int switchCount = 0;
-        ArrayList<String> currentMethod = new ArrayList<>();
+        Method newMethod;
+        ArrayList<String> methodList = new ArrayList<>();
         try {
             //Get file array list
             ArrayList<String> fileList = fileToArrayList(fileName);
@@ -60,13 +64,9 @@ public class FileParser extends Parser {
                 //The line has a valid suffix
                 Validations.getValidations().hasCodeSuffix(line);
 
-                if (this.isPropertyLine(line)) {
-                    addProperties(getPropertyFromLine(line));
-                }
-
                 //Inside a method
                 if (insideMethod) {
-                    currentMethod.add(line);
+                    methodList.add(line);
                     if (this.isIfLine(line)) {
                         conditionSwitch.add(switchCount);
                         switchCount++;
@@ -77,6 +77,13 @@ public class FileParser extends Parser {
                         if (conditionSwitch.isEmpty()) {
                             if (whileSwitch.isEmpty()) {
                                 insideMethod = false;
+                                newMethod = MethodParser.getInstance().parseMethod(methodList, this.properties);
+                                if (this.methodExist(newMethod)) {
+                                    throw new BadFormatException("The method already exist");
+                                } else {
+                                    this.methods.put(newMethod.getMethodName(), newMethod);
+                                    methodList = new ArrayList<>();
+                                }
                             } else {
                                 whileSwitch.remove(whileSwitch.size() - 1);
                             }
@@ -86,7 +93,7 @@ public class FileParser extends Parser {
                             } else {
                                 int lastCondition = conditionSwitch.get(conditionSwitch.size() - 1);
                                 int lastWhile = whileSwitch.get(whileSwitch.size() - 1);
-                                if(lastCondition > lastWhile) {
+                                if (lastCondition > lastWhile) {
                                     conditionSwitch.remove(conditionSwitch.size() - 1);
                                 } else {
                                     whileSwitch.remove(whileSwitch.size() - 1);
@@ -94,11 +101,13 @@ public class FileParser extends Parser {
                             }
                         }
                     }
-                }
-
-                if (this.isMethodLine(line)) {
-                    currentMethod.add(line);
+                } else if (this.isPropertyLine(line)) {
+                    addProperties(getPropertyFromLine(line));
+                } else if (this.isMethodLine(line)) {
+                    methodList.add(line);
                     insideMethod = true;
+                } else {
+                    throw new BadFormatException("Invalid line");
                 }
 
                 if (ifUpdatePropertyLine(line)) {
@@ -136,7 +145,6 @@ public class FileParser extends Parser {
     }
 
 
-
     public boolean isMethodLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -144,8 +152,6 @@ public class FileParser extends Parser {
         }
         return false;
     }
-
-
 
 
 }
