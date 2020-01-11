@@ -2,11 +2,9 @@ package oop.ex6.code;
 
 import oop.ex6.Utils;
 import oop.ex6.parsers.FileParser;
-import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
 import oop.ex6.parsers.Parser;
 
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class Block extends Parser {
@@ -23,8 +21,9 @@ public class Block extends Parser {
 
     /**
      * Constructor for Block
-     * @param isWhile defines the type pf the block, if true then the block is a while loop, else the block
-     * is an if condition
+     *
+     * @param isWhile       defines the type pf the block, if true then the block is a while loop, else the block
+     *                      is an if condition
      * @param conditionLine the given conditionLine for the block
      */
     public Block(boolean isWhile, String conditionLine) {
@@ -38,6 +37,7 @@ public class Block extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
+     *
      * @param line the given condition line
      * @return extracted condition text
      * @throws BadFormatException if there is no '()" for the condition
@@ -60,6 +60,7 @@ public class Block extends Parser {
 
     /**
      * Verifies the operators in the condition
+     *
      * @param condition thr given condition line to verify
      * @throws BadFormatException when found that the operator '&&' or '||' in an invalid way
      */
@@ -107,8 +108,7 @@ public class Block extends Parser {
 
             for (String parameter : conditionParameters) {
                 // if the parameter is not a number
-                if (!(Validations.getValidations().isDouble(parameter) ||
-                        Validations.getValidations().isInteger(parameter))) {
+                if (!(Utils.isDouble(parameter) || Utils.isInteger(parameter))) {
                     // if the parameter is no the saved words 'true' 'false'
                     if (!(parameter.equals("true") || parameter.equals("false"))) {
                         // if the parameter does not exist as a boolean,int or double

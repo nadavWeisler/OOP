@@ -5,6 +5,7 @@ public abstract class Property {
     protected String type;
     protected boolean isFinal;
     protected boolean methodProperty;
+    protected boolean isNull;
 
     public Property(String _name, String _type, boolean _isFinal, boolean _method) {
         this.name = _name;

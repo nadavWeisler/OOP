@@ -1,14 +1,12 @@
 package oop.ex6.parsers;
 
 import oop.ex6.Utils;
-import oop.ex6.Validations;
 import oop.ex6.code.Block;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -31,8 +29,8 @@ public class MethodParser extends Parser {
                               HashMap<String, HashMap<String, Property>> globalProperties)
             throws BadFormatException {
         String methodName = extractMethodName(lines.get(0));
-        verifyMethodLine(methodName);
-        String[] methodParamType = getMethodParamType(methodName);
+        verifyMethodLine(lines.get(0));
+        String[] methodParamType = getMethodParamType(lines.get(0));
         Method newMethod = new Method(methodParamType);
         this.globalProperties = globalProperties;
         ArrayList<Block> blocks = new ArrayList<>();
@@ -64,7 +62,7 @@ public class MethodParser extends Parser {
                 this.assignProperty(lines.get(i));
             } else if (this.isReturn(lines, i)) {
                 break;
-            } else if(!this.isCallToExistingMethod(lines.get(i), newMethod)) {
+            } else if (!this.isCallToExistingMethod(lines.get(i), newMethod)) {
                 throw new BadFormatException("Bad Formant");
             }
         }
@@ -84,11 +82,13 @@ public class MethodParser extends Parser {
     private String extractMethodName(String methodLine) throws BadFormatException {
         String[] splitMethodLine = methodLine.split(" ");
         String ret = EMPTY_STRING;
-        for (int i = 0; i < splitMethodLine.length; i++) {
+        for (int i = 0; i < splitMethodLine[1].length(); i++) {
             if (splitMethodLine[1].charAt(i) == '(') {
                 ret = splitMethodLine[1].substring(0, i);
+                break;
             }
         }
+
         if (ret.isEmpty()) {
             throw new BadFormatException(BAD_METHOD_LINE);
         }
@@ -105,7 +105,10 @@ public class MethodParser extends Parser {
         for (int i = 0; i < methodLine.length(); i++) {
             if (methodLine.charAt(i) == '(') {
                 for (int j = i; j < methodLine.length(); j++) {
-                    if (methodLine.charAt(i) == ')') {
+                    if (methodLine.charAt(j) == ')') {
+                        if (i == j - 1) {
+                            return null;
+                        }
                         return methodLine.substring(i + 1, j); // returns the method parameters
                     }
                 }
@@ -125,8 +128,11 @@ public class MethodParser extends Parser {
      * @throws BadFormatException when the the parameters line is invalid
      */
     private String[] getMethodParamType(String methodLine) throws BadFormatException {
-        methodLine = getMethodParameters(methodLine);
-        String[] parameters = methodLine.split(",");
+        if(getMethodParameters(methodLine) == null) {
+            return new String[0];
+        }
+        String methodParams = getMethodParameters(methodLine);
+        String[] parameters = methodParams.split(",");
         String[] methodParamType = new String[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             String[] singleParam = parameters[i].split(" ");
@@ -148,9 +154,8 @@ public class MethodParser extends Parser {
      * @throws BadFormatException if the type or name are invalid
      */
     private void verifyTypeName(String type, String name) throws BadFormatException {
-
-        Validations.getValidations().validParameterType(type);
-        Validations.getValidations().validParameterName(name, true);
+        Utils.validParameterType(type);
+        Utils.validParameterName(name, true);
 
     }
 
@@ -162,33 +167,43 @@ public class MethodParser extends Parser {
     private void verifyMethodLine(String methodLine) throws BadFormatException {
         String methodParameters = getMethodParameters(methodLine);
 
+
         if (!Utils.RemoveAllSpacesAtEnd(methodLine).endsWith("{")) {
+//            System.out.println("nina");
             throw new BadFormatException(BAD_METHOD_LINE);
         }
 
+        if (methodParameters == null) {
+            return;
+        }
         if (methodParameters.contains(",,")) {
+//            System.out.println("nina");
             throw new BadFormatException(BAD_METHOD_LINE);
         }
 
         String[] singleParameters = methodParameters.split(",");
-
         for (String parameter : singleParameters) {
             boolean isFinal = false;
-            String[] currentParameter = parameter.split(" ");
-            if (currentParameter.length > 3 || currentParameter.length == 1) {
+            ArrayList<String>currentParameter = Utils.cleanWhiteSpace(parameter.split(" "));
+            if (currentParameter.size() > 3 || currentParameter.size() == 1) {
+//                System.out.println("nina");
                 throw new BadFormatException(BAD_METHOD_LINE);
-            } else if (currentParameter.length == 3) {
-                if ((!currentParameter[0].equals("final"))) {
+            } else if (currentParameter.size() == 3) {
+//                Utils.printList(currentParameter);
+                if ((!currentParameter.get(0).equals("final"))) {
                     throw new BadFormatException(BAD_METHOD_LINE);
                 }
                 isFinal = true;
-                verifyTypeName(currentParameter[1], currentParameter[2]);
-                currentParameter = new String[]{currentParameter[1], currentParameter[2]};
+                verifyTypeName(currentParameter.get(1), currentParameter.get(2));
+                ArrayList<String> toHelp = new ArrayList<String>();
+                toHelp.add(currentParameter.get(1));
+                toHelp.add(currentParameter.get(2));
+                currentParameter = toHelp;
             } else { // currentParameter.length == 2
-                verifyTypeName(currentParameter[0], currentParameter[1]);
+                verifyTypeName(currentParameter.get(0), currentParameter.get(1));
             }
-            Property newProperty = PropertyFactory.getInstance().createMethodProperty(currentParameter[0],
-                    currentParameter[1], isFinal);
+            Property newProperty = PropertyFactory.getInstance().createMethodProperty(currentParameter.get(0),
+                    currentParameter.get(1), isFinal);
             HashMap<String, HashMap<String, Property>> newHash = new HashMap<>();
             HashMap<String, Property> oneNewHash = new HashMap<>();
             oneNewHash.put(newProperty.getName(), newProperty);
@@ -212,6 +227,7 @@ public class MethodParser extends Parser {
             if (!(line.endsWith(");"))) {
                 throw new BadFormatException("The method call is invalid");
             }
+
             String methodParameters = getMethodParameters(line);
             String[] parametersArray = methodParameters.split(",");
 
@@ -246,7 +262,7 @@ public class MethodParser extends Parser {
     }
 
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
-        String returnLine = methodLines.get(lineIndex).replace(" ", "");
+        String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
             if (methodLines.size() == lineIndex + 2) {
                 String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
@@ -259,6 +275,7 @@ public class MethodParser extends Parser {
             }
             return true;
         } else {
+            System.out.println(returnLine);
             if (returnLine.contains("return")) {
                 throw new BadFormatException("The return statement is invalid");
             }
@@ -269,33 +286,28 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the code line is a block line - if/while condition
+     *
      * @param line the given code line
      * @return true if the line is an if or while line, else return false
      */
-    private boolean isBlock (String line){
+    private boolean isBlock(String line) {
         line = line.replace(" ", "");
-        String [] blockLine = line.split("\\(");
-        if(blockLine[0].equals("if")){
+        String[] blockLine = line.split("\\(");
+        if (blockLine[0].equals("if")) {
             return true;
-        }else if(blockLine[0].equals("while")){
-            return true;
-        }else{
-            return false;
-        }
+        } else return blockLine[0].equals("while");
     }
 
     /**
      * The given line is a block line, verifies if it is a while block line
+     *
      * @param line the given block line
      * @return true for a while condition, else false which means it is an if condition.
      */
-    private boolean isWhile (String line){
+    private boolean isWhile(String line) {
         line = line.replace(" ", "");
-        String [] blockLine = line.split("\\(");
-        if(blockLine[0].equals("while")){
-            return true;
-        }
-            return false;
-        }
+        String[] blockLine = line.split("\\(");
+        return blockLine[0].equals("while");
     }
 }
+

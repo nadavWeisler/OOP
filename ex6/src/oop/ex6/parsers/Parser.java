@@ -21,11 +21,11 @@ public abstract class Parser {
 
     protected HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
 
-    protected boolean isCommentLine(String line) {
-        return line.startsWith("// ");
+    protected boolean isComment(String line) {
+        return line.startsWith("//");
     }
 
-    protected boolean isEmptyLine(String line) {
+    protected boolean isEmpty(String line) {
         return line.isBlank() || line.isEmpty();
     }
 
@@ -85,12 +85,15 @@ public abstract class Parser {
 
     protected HashMap<String, HashMap<String, Property>> getPropertyFromLine(String line) throws BadFormatException {
         HashMap<String, HashMap<String, Property>> result = new HashMap<>();
+        line = line.substring(0, line.length() - 1);
         String[] splitLine = line.split(COMMA);
         String currentType = null;
         boolean currentFinal = false;
         String currentName;
         String currentValue = null;
         for (String arg : splitLine) {
+            arg = Utils.RemoveAllSpacesAtEnd(arg);
+            System.out.println("Arg: " + arg);
             String[] splitArgs = arg.split(BLANK_SPACE);
             if (splitArgs.length == 0) {
                 continue;
@@ -106,6 +109,9 @@ public abstract class Parser {
             }
 
             if (PropertyFactory.getInstance().isPropertyType(splitArgs[0])) {
+                if(currentType != null) {
+                    throw new BadFormatException("Type already declared");
+                }
                 currentType = splitArgs[0];
                 splitArgs = Arrays.copyOfRange(splitArgs, 1, splitArgs.length);
             } else {
@@ -115,9 +121,8 @@ public abstract class Parser {
                 }
             }
 
-            String joinedArgs = String.join(COMMA, Arrays.asList(splitArgs));
+            String joinedArgs = String.join(EMPTY_STRING, Arrays.asList(splitArgs));
             splitArgs = joinedArgs.split(EQUALS);
-
             if (splitArgs.length > 2 || splitArgs.length == 0) {
                 throw new BadFormatException("n");
             } else {
@@ -134,6 +139,37 @@ public abstract class Parser {
                 }
                 newProperties.putAll(result.get(currentType));
             }
+            if (currentFinal && currentValue == null) {
+                throw new BadFormatException("Final property must contain value");
+            }
+            if (currentValue != null && currentValue.endsWith(";")) {
+                currentValue = currentValue.substring(0, currentValue.length() - 1);
+            }
+
+            if (propertyExist(currentValue)) {
+                boolean changed = false;
+                ArrayList<String> valueTypes = GetPropertyTypeOptions(currentValue);
+                if (valueTypes.contains(currentType)) {
+                    currentValue = PropertyFactory.getInstance().getValueFromProperty(
+                            this.properties.get(currentType).get(currentValue));
+                    changed = true;
+                } else {
+                    for (String option : valueTypes) {
+                        if (PropertyFactory.getInstance().validTypesTo(currentType, option)) {
+                            currentValue = PropertyFactory.getInstance().getValueFromProperty(
+                                    this.properties.get(option).get(currentValue));
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+                if (currentValue == null) {
+                    throw new BadFormatException("Null parameter");
+                }
+                if (!changed) {
+                    throw new BadFormatException("Invalid parameter");
+                }
+            }
             newProperties.put(currentName,
                     PropertyFactory.getInstance().createProperty(currentType,
                             currentName, currentValue, currentFinal));
@@ -142,8 +178,7 @@ public abstract class Parser {
         return result;
     }
 
-    protected void replaceProperty(String name, String type, Property newProperty)
-            throws BadFormatException {
+    protected void replaceProperty(String name, String type, Property newProperty) {
         HashMap<String, Property> newHash = this.properties.get(type);
         newHash.put(name, newProperty);
         this.properties.put(type, newHash);
@@ -209,7 +244,7 @@ public abstract class Parser {
 
         for (String typeTo : typesToUpdate) {
             for (String typeFrom : typesFromUpdate) {
-                if(PropertyFactory.getInstance().validTypesTo(typeTo, typeFrom)) {
+                if (PropertyFactory.getInstance().validTypesTo(typeTo, typeFrom)) {
                     Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
                             this.properties.get(typeTo).get(nameToUpdate),
                             this.properties.get(typeFrom).get(nameFromUpdate));

@@ -1,10 +1,6 @@
 package oop.ex6.code;
 
-import oop.ex6.Utils;
-import oop.ex6.Validations;
 import oop.ex6.code.properties.Property;
-import oop.ex6.code.properties.PropertyFactory;
-import oop.ex6.exceptions.BadFormatException;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,6 @@
 package oop.ex6.code.properties;
 
 import oop.ex6.Utils;
-import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.util.regex.Pattern;
@@ -49,32 +48,57 @@ public class PropertyFactory {
     }
 
     public boolean validValue(String type, String value) {
+        if (value == null) {
+            return true;
+        }
         switch (type) {
             case STRING_TYPE:
-                if (!value.startsWith("\"") || value.endsWith("\"")) {
+                if (!(value.startsWith("\"") && value.endsWith("\""))) {
                     return false;
                 }
-            case INT_TYPE:
-                if (!Validations.getValidations().isInteger(value)) {
-                    return false;
-                }
+                break;
             case DOUBLE_TYPE:
-                if (!Validations.getValidations().isDouble(value)) {
+                if (!Utils.isDouble(value)) {
                     return false;
                 }
+                break;
+            case INT_TYPE:
+                if (!Utils.isInteger(value)) {
+                    return false;
+                }
+                break;
             case CHAR_TYPE:
-                if ((!value.startsWith("'") || value.endsWith("'")) &&
-                        value.length() == 3) {
+                if (value.length() != 3 || (!(value.startsWith("'") && value.endsWith("'")))) {
                     return false;
                 }
+                break;
             case BOOLEAN_TYPE:
                 if (!(value.equals("true") ||
                         value.equals("false") ||
-                        Validations.getValidations().isDouble(value))) {
+                        Utils.isDouble(value))) {
                     return false;
                 }
         }
         return true;
+    }
+
+    public String getValueFromProperty(Property property) {
+        if(property.isNull) {
+            return null;
+        }
+        switch (property.getType()) {
+            case STRING_TYPE:
+                return "\"" + ((StringProperty)property).getValue() + "\"";
+            case INT_TYPE:
+                return String.valueOf(((IntProperty)property).getValue());
+            case DOUBLE_TYPE:
+                return String.valueOf(((DoubleProperty)property).getValue());
+            case CHAR_TYPE:
+                return "'" + ((CharProperty)property).getValue() + "'";
+            case BOOLEAN_TYPE:
+                return String.valueOf(((BooleanProperty)property).getValue());
+        }
+        return null;
     }
 
     public boolean validTypesTo(String toType, String fromType) {
@@ -91,26 +115,50 @@ public class PropertyFactory {
 
     public Property createProperty(String propertyType, String propertyName,
                                    String propertyValue, boolean isFinal) throws BadFormatException {
+        System.out.println(propertyType + " " + propertyName + " " + propertyValue);
+        System.out.println(!isPropertyType(propertyType) + " " + !validParameterName(propertyName)
+                + " " + !validValue(propertyType, propertyValue));
         if (!isPropertyType(propertyType) || !validParameterName(propertyName) ||
                 !validValue(propertyType, propertyValue)) {
-            throw new BadFormatException("b");
+            throw new BadFormatException("Property fields are invalid");
         }
-        switch (propertyType) {
-            case STRING_TYPE:
-                return new StringProperty(propertyName,
-                        propertyType, isFinal, false, propertyValue);
-            case INT_TYPE:
-                return new IntProperty(propertyName,
-                        propertyType, isFinal, false, Integer.parseInt(propertyValue));
-            case DOUBLE_TYPE:
-                return new DoubleProperty(propertyName,
-                        propertyType, isFinal, false, Double.parseDouble(propertyValue));
-            case BOOLEAN_TYPE:
-                return new BooleanProperty(propertyName,
-                        propertyType, isFinal, false, Boolean.parseBoolean(propertyValue));
-            case CHAR_TYPE:
-                return new CharProperty(propertyName,
-                        propertyType, isFinal, false, propertyValue.charAt(1));
+        if (propertyValue == null) {
+            switch (propertyType) {
+                case STRING_TYPE:
+                    return new StringProperty(propertyName,
+                            propertyType, isFinal, false, null);
+                case INT_TYPE:
+                    return new IntProperty(propertyName,
+                            propertyType, isFinal, false, null);
+                case DOUBLE_TYPE:
+                    return new DoubleProperty(propertyName,
+                            propertyType, isFinal, false, null);
+                case BOOLEAN_TYPE:
+                    return new BooleanProperty(propertyName,
+                            propertyType, isFinal, false, null);
+                case CHAR_TYPE:
+                    return new CharProperty(propertyName,
+                            propertyType, isFinal, false, null);
+            }
+        } else {
+            switch (propertyType) {
+                case STRING_TYPE:
+                    return new StringProperty(propertyName,
+                            propertyType, isFinal, false, propertyValue);
+                case INT_TYPE:
+                    return new IntProperty(propertyName,
+                            propertyType, isFinal, false, Integer.parseInt(propertyValue));
+                case DOUBLE_TYPE:
+                    return new DoubleProperty(propertyName,
+                            propertyType, isFinal, false, Double.parseDouble(propertyValue));
+                case BOOLEAN_TYPE:
+                    return new BooleanProperty(propertyName,
+                            propertyType, isFinal, false, Boolean.parseBoolean(propertyValue));
+                case CHAR_TYPE:
+                    System.out.println(propertyValue);
+                    return new CharProperty(propertyName,
+                            propertyType, isFinal, false, propertyValue.charAt(1));
+            }
         }
         return null;
     }
