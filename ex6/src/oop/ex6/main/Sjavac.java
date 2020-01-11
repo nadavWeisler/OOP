@@ -5,6 +5,9 @@ import oop.ex6.parsers.FileParser;
 
 import java.io.IOException;
 
+/**
+ * Runs the program and contains the main method
+ */
 public class Sjavac {
     public static void main(String[] args) {
         try {

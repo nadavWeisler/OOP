@@ -1,0 +1,43 @@
+nadav.wiesler
+nina.kollman
+
+=============================
+=      File description     =
+=============================
+oop.ex6 package contains the following:
+* code package contains:
+ # Property
+ # PropertyFactory
+ # StringProperty
+ # CharProperty
+ # DoubleProperty
+ # IntProperty
+ # BooleanProperty
+* exception package contains:
+  # BadFormatException.java - extends Exception and represents all the code errors that is found in the given
+    file, i.e the program should return the value 1
+* main package contains:
+  # Sjavac.java - contains the main method of the program. Runs the program with the given argument
+  and returns 0,1,2 according to the given file.  The main method uses all the different classes
+* parsers package contains:
+  # Parser
+  # FileParser
+  # MethodParser
+
+
+Utils.java
+Validation.java
+
+=============================
+=          Design           =
+=============================
+
+
+=============================
+=    Implementation details  =
+=============================
+
+
+=============================
+=    Answers to questions   =
+=============================

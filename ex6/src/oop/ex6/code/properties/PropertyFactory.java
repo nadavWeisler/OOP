@@ -5,8 +5,15 @@ import oop.ex6.exceptions.BadFormatException;
 
 import java.util.regex.Pattern;
 
+/**
+ * PropertyFactory class creates all different properties types, uses the Singleton design pattern
+ */
 public class PropertyFactory {
+
+    // creates a single instance of Property Factory - singleton design
     private static PropertyFactory factory = new PropertyFactory();
+
+    // finals to use in the factory
     private final String STRING_TYPE = "String";
     private final String INT_TYPE = "int";
     private final String DOUBLE_TYPE = "double";
@@ -15,10 +22,14 @@ public class PropertyFactory {
     private final String EMPTY_STRING = "";
     private final String BLANK_SPACE = " ";
 
-    private PropertyFactory() {
+    // private constructor - singleton design
+    private PropertyFactory() {}
 
-    }
-
+    /**
+     * Verifies if the given String one of the valid variable types
+     * @param str the given string to verify
+     * @return true if the String is a valid variable type else false
+     */
     public boolean isPropertyType(String str) {
         return str.equals(DOUBLE_TYPE) ||
                 str.equals(BOOLEAN_TYPE) ||
@@ -27,10 +38,19 @@ public class PropertyFactory {
                 str.equals(CHAR_TYPE);
     }
 
+    /**
+     * returns the single PropertyFactory instance - singleton design
+     * @return PropertyFactory instance
+     */
     public static PropertyFactory getInstance() {
         return factory;
     }
 
+    /**
+     * Verifies that the given string is a valid variable name
+     * @param name the given string to verify
+     * @return true if the string is a valid name else false
+     */
     private boolean validParameterName(String name) {
         if (name.length() == 0) {
             return false;
@@ -47,6 +67,12 @@ public class PropertyFactory {
         return true;
     }
 
+    /**
+     * Verifies that the variable assignment is valid according to the variable type
+     * @param type the given variable type
+     * @param value the given variable value to be assigned
+     * @return true if the assignment is valid else false
+     */
     public boolean validValue(String type, String value) {
         if (value == null) {
             return true;
@@ -82,6 +108,11 @@ public class PropertyFactory {
         return true;
     }
 
+    /**
+     * Returns the given property value
+     * @param property the given property
+     * @return property value
+     */
     public String getValueFromProperty(Property property) {
         if(property.isNull) {
             return null;
@@ -101,6 +132,12 @@ public class PropertyFactory {
         return null;
     }
 
+    /**
+     * TODO
+     * @param toType
+     * @param fromType
+     * @return
+     */
     public boolean validTypesTo(String toType, String fromType) {
         if (toType.equals(fromType)) {
             return true;
@@ -113,6 +150,15 @@ public class PropertyFactory {
         }
     }
 
+    /**
+     * Creates a specific property
+     * @param propertyType the created property type
+     * @param propertyName the created property name
+     * @param propertyValue the created property value
+     * @param isFinal true if the property is declared as final else false
+     * @return the created property
+     * @throws BadFormatException when the property deceleration is invalid
+     */
     public Property createProperty(String propertyType, String propertyName,
                                    String propertyValue, boolean isFinal) throws BadFormatException {
         System.out.println(propertyType + " " + propertyName + " " + propertyValue);
@@ -163,6 +209,13 @@ public class PropertyFactory {
         return null;
     }
 
+    /**
+     * TODO / מה ההבדל?
+     * @param propertyType
+     * @param propertyName
+     * @param isFinal
+     * @return
+     */
     public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal) {
         switch (propertyType) {
             case STRING_TYPE:
@@ -184,6 +237,13 @@ public class PropertyFactory {
         return null;
     }
 
+    /**
+     * TODO
+     * @param oldProperty
+     * @param value
+     * @return
+     * @throws BadFormatException
+     */
     public Property updatePropertyFromString(Property oldProperty, String value) throws BadFormatException {
         Property newProperty = oldProperty;
         try {
@@ -214,6 +274,13 @@ public class PropertyFactory {
         return newProperty;
     }
 
+    /**
+     * TODO
+     * @param toUpdate
+     * @param fromUpdate
+     * @return
+     * @throws BadFormatException
+     */
     public Property updatePropertyFromOtherProperty(Property toUpdate, Property fromUpdate) throws BadFormatException {
         Property newProperty = toUpdate;
         if (!this.validTypesTo(toUpdate.getType(), fromUpdate.getType())) {
