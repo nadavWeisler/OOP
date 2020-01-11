@@ -21,11 +21,13 @@ public class Method {
     /**
      * Constructor of method
      */
-    public Method(String [] methodParameterType) {
+    public Method(String [] methodParameterType, String name) {
         this.properties = new HashMap<>();
         this.executeMethods = new ArrayList<>();
         this.parameterType = methodParameterType;
+        this.methodName = name;
     }
+
 
     public HashMap<String, HashMap<String, Property>> getProperties (){
         return properties;

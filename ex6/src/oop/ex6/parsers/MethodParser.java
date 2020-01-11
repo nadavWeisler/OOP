@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class MethodParser extends Parser {
     private static final String BAD_METHOD_LINE = "The method line is invalid";
     private HashMap<String, HashMap<String, Property>> globalProperties;
-    private HashMap<String, Method> existingMethods;
+    private HashMap<String, Method> existingMethods = new HashMap<>();
 
     private MethodParser() {
 
@@ -31,39 +31,47 @@ public class MethodParser extends Parser {
         String methodName = extractMethodName(lines.get(0));
         verifyMethodLine(lines.get(0));
         String[] methodParamType = getMethodParamType(lines.get(0));
-        Method newMethod = new Method(methodParamType);
+        Method newMethod = new Method(methodParamType, methodName);
         this.globalProperties = globalProperties;
         ArrayList<Block> blocks = new ArrayList<>();
+        boolean startBlock = false;
         for (int i = 1; i < lines.size() - 1; i++) {
+            System.out.println(lines.get(i));
             if (this.isIfLine(lines.get(i))) {
+
                 blocks.add(new Block(false, lines.get(i)));
                 ArrayList<String> newBlock = new ArrayList<>();
                 newBlock.add(lines.get(i));
+                startBlock = true;
             } else if (this.isWhileLine(lines.get(i))) {
                 blocks.add(new Block(true, lines.get(i)));
                 ArrayList<String> newBlock = new ArrayList<>();
                 newBlock.add(lines.get(i));
+                startBlock = true;
+            } else {
+                startBlock = false;
             }
 
             if (blocks.size() > 0) {
                 blocks.get(blocks.size() - 1).addLine(lines.get(i));
             }
 
-            if (isEnd(lines.get(i))) {
-                if (blocks.size() == 0) {
-                    throw new BadFormatException("Invalid line");
-                }
-                blocks.remove(blocks.size() - 1);
-            }
 
-            if (this.isPropertyLine(lines.get(i))) {
-                addProperties(getPropertyFromLine(lines.get(i)));
-            } else if (this.ifAssignPropertyLine(lines.get(i))) {
-                this.assignProperty(lines.get(i));
-            } else if (this.isReturn(lines, i)) {
-                break;
-            } else if (!this.isCallToExistingMethod(lines.get(i), newMethod)) {
-                throw new BadFormatException("Bad Formant");
+            if (!startBlock) {
+                if (isEnd(lines.get(i))) {
+                    if (blocks.size() == 0) {
+                        throw new BadFormatException("Invalid line");
+                    }
+                    blocks.remove(blocks.size() - 1);
+                } else if (this.isPropertyLine(lines.get(i))) {
+                    addProperties(getPropertyFromLine(lines.get(i)));
+                } else if (this.ifAssignPropertyLine(lines.get(i))) {
+                    this.assignProperty(lines.get(i));
+                } else if (this.isReturn(lines, i)) {
+                    break;
+                } else if (!this.isCallToExistingMethod(lines.get(i), newMethod)) {
+                    throw new BadFormatException("Bad Formant");
+                }
             }
         }
 
@@ -128,7 +136,7 @@ public class MethodParser extends Parser {
      * @throws BadFormatException when the the parameters line is invalid
      */
     private String[] getMethodParamType(String methodLine) throws BadFormatException {
-        if(getMethodParameters(methodLine) == null) {
+        if (getMethodParameters(methodLine) == null) {
             return new String[0];
         }
         String methodParams = getMethodParameters(methodLine);
@@ -184,7 +192,7 @@ public class MethodParser extends Parser {
         String[] singleParameters = methodParameters.split(",");
         for (String parameter : singleParameters) {
             boolean isFinal = false;
-            ArrayList<String>currentParameter = Utils.cleanWhiteSpace(parameter.split(" "));
+            ArrayList<String> currentParameter = Utils.cleanWhiteSpace(parameter.split(" "));
             if (currentParameter.size() > 3 || currentParameter.size() == 1) {
 //                System.out.println("nina");
                 throw new BadFormatException(BAD_METHOD_LINE);
@@ -223,6 +231,11 @@ public class MethodParser extends Parser {
     private boolean isCallToExistingMethod(String line, Method method) throws BadFormatException {
         line = line.replace(" ", "");
         String[] methodCall = line.split("\\(");
+        System.out.println(methodCall[0]);
+        System.out.println((method.getMethodName()));
+        if (methodCall[0].equals(method.getMethodName())) {
+            return true;
+        }
         if (existingMethods.containsKey(methodCall[0])) { // The method exist
             if (!(line.endsWith(");"))) {
                 throw new BadFormatException("The method call is invalid");

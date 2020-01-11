@@ -26,13 +26,14 @@ public class Block extends Parser {
      *                      is an if condition
      * @param conditionLine the given conditionLine for the block
      */
-    public Block(boolean isWhile, String conditionLine) {
+    public Block(boolean isWhile, String conditionLine) throws BadFormatException {
         if (isWhile) {
             type = Utils.blockType.WHILE_LOOP;
         } else {
             type = Utils.blockType.IF_CONDITION;
         }
         this.conditionLine = conditionLine;
+        this.verifyCondition();
     }
 
     /**
@@ -66,6 +67,10 @@ public class Block extends Parser {
      */
     private void verifyConditionOperators(String condition) throws BadFormatException {
 
+        System.out.println("nina");
+        if( condition.contains("\"")){
+            throw new BadFormatException( " The condition contains string");
+        }
         // Verifies if the condition line contains '||&&' or '&&||'
         // Verifies if the condition starts with '||' or '&&'
         if (Pattern.matches(".*(\\|\\|\\&\\&).*+", condition) ||
