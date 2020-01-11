@@ -1,5 +1,6 @@
 package oop.ex6.code.properties;
 
+import oop.ex6.Utils;
 import oop.ex6.Validations;
 import oop.ex6.exceptions.BadFormatException;
 
@@ -47,7 +48,7 @@ public class PropertyFactory {
         return true;
     }
 
-    private boolean validValue(String type, String value) {
+    public boolean validValue(String type, String value) {
         switch (type) {
             case STRING_TYPE:
                 if (!value.startsWith("\"") || value.endsWith("\"")) {
@@ -76,12 +77,16 @@ public class PropertyFactory {
         return true;
     }
 
-    public boolean validValue(String type) {
-        return validValue(type, STRING_TYPE) ||
-                validValue(type, INT_TYPE) ||
-                validValue(type, DOUBLE_TYPE) ||
-                validValue(type, CHAR_TYPE) ||
-                validValue(type, BOOLEAN_TYPE);
+    public boolean validTypesTo(String toType, String fromType) {
+        if (toType.equals(fromType)) {
+            return true;
+        } else {
+            if (toType.equals(this.BOOLEAN_TYPE)) {
+                return fromType.equals(DOUBLE_TYPE) || fromType.equals(INT_TYPE);
+            } else {
+                return toType.equals(this.DOUBLE_TYPE) && fromType.equals(this.INT_TYPE);
+            }
+        }
     }
 
     public Property createProperty(String propertyType, String propertyName,
@@ -148,7 +153,11 @@ public class PropertyFactory {
                     ((CharProperty) newProperty).setValue(value.charAt(1));
                     break;
                 case BOOLEAN_TYPE:
-                    ((BooleanProperty) newProperty).setValue(Boolean.parseBoolean(value));
+                    if (Utils.isDouble(value)) {
+                        ((BooleanProperty) newProperty).setValue(Double.parseDouble(value) != 0);
+                    } else {
+                        ((BooleanProperty) newProperty).setValue(Boolean.parseBoolean(value));
+                    }
             }
         } catch (Exception exp) {
             throw new BadFormatException("Bad value");
@@ -159,8 +168,11 @@ public class PropertyFactory {
 
     public Property updatePropertyFromOtherProperty(Property toUpdate, Property fromUpdate) throws BadFormatException {
         Property newProperty = toUpdate;
+        if (!this.validTypesTo(toUpdate.getType(), fromUpdate.getType())) {
+            throw new BadFormatException("Invalid update");
+        }
         try {
-            switch (toUpdate.type) {
+            switch (toUpdate.getType()) {
                 case STRING_TYPE:
                     ((StringProperty) newProperty).setValue(((StringProperty) fromUpdate).getValue());
                     break;
@@ -168,13 +180,23 @@ public class PropertyFactory {
                     ((IntProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue());
                     break;
                 case DOUBLE_TYPE:
-                    ((DoubleProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue());
+                    if (fromUpdate.getType().equals(INT_TYPE)) {
+                        ((DoubleProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue());
+                    } else {
+                        ((DoubleProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue());
+                    }
                     break;
                 case CHAR_TYPE:
                     ((CharProperty) newProperty).setValue(((CharProperty) fromUpdate).getValue());
                     break;
                 case BOOLEAN_TYPE:
-                    ((BooleanProperty) newProperty).setValue(((BooleanProperty) fromUpdate).getValue());
+                    if (fromUpdate.getType().equals(INT_TYPE)) {
+                        ((BooleanProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue() != 0);
+                    } else if (fromUpdate.getType().equals(DOUBLE_TYPE)) {
+                        ((BooleanProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue() != 0);
+                    } else {
+                        ((BooleanProperty) newProperty).setValue(((BooleanProperty) fromUpdate).getValue());
+                    }
             }
         } catch (Exception exp) {
             throw new BadFormatException("Bad value");
