@@ -202,10 +202,13 @@ public class MethodParser extends Parser {
         if (methodParameters == null) {
             return;
         }
+
         if (methodParameters.contains(",,")) {
 //            System.out.println("nina");
             throw new BadFormatException(BAD_METHOD_LINE);
         }
+
+        sameMethodParametersName(methodParameters);
 
         String[] singleParameters = methodParameters.split(",");
         for (String parameter : singleParameters) {
@@ -236,6 +239,33 @@ public class MethodParser extends Parser {
             newHash.put(newProperty.getType(), oneNewHash);
             addProperties(newHash);
         }
+    }
+
+    /**
+     * Verifies if the method is defined with equal parameter name
+     * @param line the given method parameters to verify
+     * @throws BadFormatException if the method has at least two parameters with the same name
+     */
+    private void sameMethodParametersName (String line) throws BadFormatException {
+        String [] parameters = line.split(",");
+        String [] parametersName = new String [parameters.length];
+        for (int i = 0; i <parameters.length ; i++) {
+            String [] singleParameter = parameters[i].split(" ");
+            if(singleParameter.length == 2){
+                parametersName[i] = singleParameter[1];
+            }else{ // length == 3 (with final)
+                parametersName[i] = singleParameter[2];
+            }
+        }
+
+        for (int i = 0; i <parametersName.length ; i++) {
+            for (int j = 0; j <parametersName.length-1 ; j++) {
+                if(parametersName[i].equals(parametersName[j])){
+                    throw new BadFormatException("Equal parameter names in the method deceleration");
+                }
+            }
+        }
+
     }
 
     /**
