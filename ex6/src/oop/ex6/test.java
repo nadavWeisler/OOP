@@ -38,7 +38,7 @@ public class test {
         // Wrapped Scanner to get user input.
 
         String dirPath = "C:\\Weisler\\Study\\OOP\\ex6\\tests\\";
-        String newLine = getLine(fileName, 168);
+        String newLine = getLine(fileName, 1);
         System.out.println(newLine);
         String[] lineSplit = newLine.split(" ");
         if (lineSplit.length < 2) {

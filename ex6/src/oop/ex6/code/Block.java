@@ -59,7 +59,7 @@ public class Block extends Parser {
         for (int i = 0; i < line.length(); i++) {
             if (line.charAt(i) == '(') {
                 for (int j = i; j < line.length(); j++) {
-                    if (line.charAt(i) == ')') {
+                    if (line.charAt(j) == ')') {
                         return line.substring(i + 1, j); // returns the condition itself
                     }
                 }
@@ -77,8 +77,6 @@ public class Block extends Parser {
      * @throws BadFormatException when found that the operator '&&' or '||' in an invalid way
      */
     private void verifyConditionOperators(String condition) throws BadFormatException {
-
-        System.out.println("nina");
         if( condition.contains("\"")){
             throw new BadFormatException( " The condition contains string");
         }
@@ -116,7 +114,7 @@ public class Block extends Parser {
         String conditionLine = this.conditionLine.replace(" ", "");
 
         // verifies that the condition line has the expected format
-        if (Pattern.matches("[if(].*[){]", conditionLine)) {
+        if (Pattern.matches("(if|while)[(].*[)]\\s?[{]", conditionLine)) {
             String condition = getCondition(conditionLine);
 
             verifyConditionOperators(condition);
@@ -129,7 +127,7 @@ public class Block extends Parser {
                 // if the parameter is not a number
                 if (!(Utils.isDouble(parameter) || Utils.isInteger(parameter))) {
                     // if the parameter is no the saved words 'true' 'false'
-                    if (!(parameter.equals("true") || parameter.equals("false"))) {
+                    if (!(parameter.equals("true") || parameter.equals("false")) && !Utils.isDouble(parameter)) {
                         // if the parameter does not exist as a boolean,int or double
                         if (!(FileParser.getInstance().propertyExistWithType("boolean", parameter) ||
                                 FileParser.getInstance().propertyExistWithType("int", parameter) ||

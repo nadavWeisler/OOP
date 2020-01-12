@@ -47,24 +47,21 @@ public class MethodParser extends Parser {
      * S-java definition
      *
      * @param lines            The methods code lines are gathered in an array list
-     * @param globalProperties The existing global properties of the code
      * @return a method object if the method is valid
      * @throws BadFormatException when the method code is invalid
      */
-    public Method parseMethod(ArrayList<String> lines,
-                              HashMap<String, HashMap<String, Property>> globalProperties)
+    public Method parseMethod(ArrayList<String> lines)
             throws BadFormatException {
         String methodName = extractMethodName(lines.get(0));
         verifyMethodLine(lines.get(0));
         String[] methodParamType = getMethodParamType(lines.get(0));
         Method newMethod = new Method(methodParamType, methodName);
-        this.globalProperties = globalProperties;
+        this.globalProperties = FileParser.global_properties;
         ArrayList<Block> blocks = new ArrayList<>();
         boolean startBlock = false;
         for (int i = 1; i < lines.size() - 1; i++) {
             System.out.println(lines.get(i));
             if (this.isIfLine(lines.get(i))) {
-
                 blocks.add(new Block(false, lines.get(i)));
                 ArrayList<String> newBlock = new ArrayList<>();
                 newBlock.add(lines.get(i));
@@ -82,6 +79,7 @@ public class MethodParser extends Parser {
                 blocks.get(blocks.size() - 1).addLine(lines.get(i));
             }
 
+            System.out.println(lines.get(i));
 
             if (!startBlock) {
                 if (isEnd(lines.get(i))) {

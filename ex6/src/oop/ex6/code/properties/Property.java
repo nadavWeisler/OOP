@@ -32,6 +32,14 @@ public abstract class Property {
         return name;
     }
 
+    public boolean isMethodProperty(){
+        return this.methodProperty;
+    }
+
+    public boolean isFinal(){
+        return this.isFinal;
+    }
+
     /**
      * returns property type
      * @return property type

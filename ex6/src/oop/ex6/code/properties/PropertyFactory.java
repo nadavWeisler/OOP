@@ -102,12 +102,12 @@ public class PropertyFactory {
                 }
                 break;
             case CHAR_TYPE:
-                if (charPattern.matcher(value).matches()) {
+                if (!charPattern.matcher(value).matches()) {
                     return false;
                 }
                 break;
             case BOOLEAN_TYPE:
-                if (booleanPattern.matcher(value).matches()) {
+                if (!booleanPattern.matcher(value).matches()) {
                     return false;
                 }
         }
