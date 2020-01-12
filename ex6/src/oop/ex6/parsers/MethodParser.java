@@ -259,7 +259,7 @@ public class MethodParser extends Parser {
         }
 
         for (int i = 0; i <parametersName.length ; i++) {
-            for (int j = 0; j <parametersName.length-1 ; j++) {
+            for (int j = i+1; j <parametersName.length-1 ; j++) {
                 if(parametersName[i].equals(parametersName[j])){
                     throw new BadFormatException("Equal parameter names in the method deceleration");
                 }
@@ -322,27 +322,26 @@ public class MethodParser extends Parser {
     }
 
     /**
-     * TODO
-     * @param methodLines
-     * @param lineIndex
-     * @return
-     * @throws BadFormatException
+     * Verifies if the given code line is a valid return statement
+     * @param methodLines the method code lines
+     * @param lineIndex the index of the code line to verify
+     * @return true if the code line is a valid return statement, false if the line is not the a return
+     * statement line
+     * @throws BadFormatException when the code line is an invalid return statement
      */
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
         String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
-            if (methodLines.size() == lineIndex + 2) {
+           // if (methodLines.size() == lineIndex + 2) {
                 String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
                 if (!(nextLine.equals("}"))) {
-                    throw new BadFormatException("The method end is invalid");
+                    throw new BadFormatException("The method return statement is invalid");
                 }
-            } else { // There is more then one line after the return statement
+           // } else { // There is more then one line after the return statement
                 // (after the return statement there should be one more line)
-                throw new BadFormatException("The method end is invalid");
-            }
+                //throw new BadFormatException("The method end is invalid");
             return true;
-        } else {
-            System.out.println(returnLine);
+            } else {
             if (returnLine.contains("return")) {
                 throw new BadFormatException("The return statement is invalid");
             }
@@ -350,6 +349,8 @@ public class MethodParser extends Parser {
         }
 
     }
+
+
 
     /**
      * Verifies if the code line is a block line - if/while condition
