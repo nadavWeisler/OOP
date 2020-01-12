@@ -10,21 +10,44 @@ import oop.ex6.exceptions.BadFormatException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Extends Parser and parse the methods from the original file , uses the singleton design pattern
+ * The parser is activated from the FileParser class
+ */
 public class MethodParser extends Parser {
+
+
     private static final String BAD_METHOD_LINE = "The method line is invalid";
+
+    // Represents all the global properties in the code file
     private HashMap<String, HashMap<String, Property>> globalProperties;
+    // Represents all the existing methods in the code line
     private HashMap<String, Method> existingMethods = new HashMap<>();
 
-    private MethodParser() {
+    /**
+     * MethodParser private constructor - singleton design pattern
+     */
+    private MethodParser() {}
 
-    }
-
+    // Creating a single instance of MethodParser - singleton design pattern
     private static MethodParser methodParser = new MethodParser();
 
+    /**
+     * Returns the single instance of MethodParser - singleton design pattern
+     * @return
+     */
     public static MethodParser getInstance() {
         return methodParser;
     }
 
+    /**
+     *  Parse the method into data section and verifies the validity of the method according to the
+     *  S-java definition
+     * @param lines The methods code lines are gathered in an array list
+     * @param globalProperties The existing global properties of the code
+     * @return a method object if the method is valid
+     * @throws BadFormatException when the method code is invalid
+     */
     public Method parseMethod(ArrayList<String> lines,
                               HashMap<String, HashMap<String, Property>> globalProperties)
             throws BadFormatException {
@@ -84,7 +107,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the method name and saves it in the methodName data member
-     *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
     private String extractMethodName(String methodLine) throws BadFormatException {
@@ -105,7 +127,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
-     *
      * @return extracted method parameter text
      * @throws BadFormatException if there is no '()" for the condition
      */
@@ -130,7 +151,6 @@ public class MethodParser extends Parser {
 
     /**
      * extract the method parameter types according to the order in the method deceleration
-     *
      * @param methodLine the given method deceleration line
      * @return an array of string that represents the parameter types of the method
      * @throws BadFormatException when the the parameters line is invalid
@@ -156,7 +176,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies the method parameter type and name is according to syntax
-     *
      * @param type the given parameter type to verify
      * @param name the given parameter name to verify
      * @throws BadFormatException if the type or name are invalid
@@ -169,7 +188,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method line is valid
-     *
      * @throws BadFormatException if a syntax error is found
      */
     private void verifyMethodLine(String methodLine) throws BadFormatException {
@@ -222,7 +240,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given code line is a call to an existing method
-     *
      * @param line   the given code line to verify
      * @param method the method that the code line is inside
      * @return true if the code line is a valid method call, else false
@@ -274,6 +291,13 @@ public class MethodParser extends Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param methodLines
+     * @param lineIndex
+     * @return
+     * @throws BadFormatException
+     */
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
         String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
@@ -299,7 +323,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the code line is a block line - if/while condition
-     *
      * @param line the given code line
      * @return true if the line is an if or while line, else return false
      */
@@ -313,7 +336,6 @@ public class MethodParser extends Parser {
 
     /**
      * The given line is a block line, verifies if it is a while block line
-     *
      * @param line the given block line
      * @return true for a while condition, else false which means it is an if condition.
      */

@@ -10,7 +10,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+/**
+ * Super class that contains different method to use when parsing the text file into data sections
+ */
 public abstract class Parser {
+
+    // Creating finals for the parsing usage
     protected final String FINAL_CONSTANT = "final";
     protected final String EMPTY_STRING = "";
     protected final String BLANK_SPACE = " ";
@@ -19,16 +24,32 @@ public abstract class Parser {
     protected final String WHILE_CONSTANT = "while";
     protected final String If_CONSTANT = "if";
 
+    // Saves all the file variables
     protected HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
 
+    /**
+     * Verifies if the code line is a comment line
+     * @param line the given line to verify
+     * @return true if the code line is comment line, else false
+     */
     protected boolean isComment(String line) {
         return line.startsWith("//");
     }
 
+    /**
+     * Verifies if the code line is an empty line
+     * @param line the given line to verify
+     * @return true if the code line is empty line else, false
+     */
     protected boolean isEmpty(String line) {
         return line.isBlank() || line.isEmpty();
     }
 
+    /**
+     * TODO
+     * @param name
+     * @return
+     */
     protected ArrayList<String> GetPropertyTypeOptions(String name) {
         ArrayList<String> options = new ArrayList<>();
         for (String type : this.properties.keySet()) {
@@ -39,6 +60,11 @@ public abstract class Parser {
         return options;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     */
     protected boolean ifAssignPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -51,6 +77,11 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param newProperties
+     * @throws BadFormatException
+     */
     protected void addProperties(HashMap<String, HashMap<String, Property>> newProperties) throws BadFormatException {
         for (String type : newProperties.keySet()) {
             if (this.properties.containsKey(type)) {
@@ -74,6 +105,11 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Verifies if the given property exist according to a given property name
+     * @param name the given property name to verify
+     * @return true if the property exist else false
+     */
     public boolean propertyExist(String name) {
         for (String type : this.properties.keySet()) {
             if (this.properties.get(type).containsKey(name)) {
@@ -83,6 +119,12 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     * @throws BadFormatException
+     */
     protected HashMap<String, HashMap<String, Property>> getPropertyFromLine(String line) throws BadFormatException {
         HashMap<String, HashMap<String, Property>> result = new HashMap<>();
         line = line.substring(0, line.length() - 1);
@@ -178,18 +220,36 @@ public abstract class Parser {
         return result;
     }
 
+    /**
+     * TODO
+     * @param name
+     * @param type
+     * @param newProperty
+     */
     protected void replaceProperty(String name, String type, Property newProperty) {
         HashMap<String, Property> newHash = this.properties.get(type);
         newHash.put(name, newProperty);
         this.properties.put(type, newHash);
     }
 
+    /**
+     * TODO
+     * @param name
+     * @param type
+     * @param value
+     * @throws BadFormatException
+     */
     protected void replaceProperty(String name, String type, String value) throws BadFormatException {
         Property newProperty = PropertyFactory.getInstance().updatePropertyFromString(
                 this.properties.get(type).get(name), value);
         replaceProperty(name, type, newProperty);
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     */
     protected boolean isPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -198,6 +258,11 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Verifies if the given code line is a while loop line
+     * @param line the given code line to verify
+     * @return true if the code line is a start of a while loop else false
+     */
     protected boolean isWhileLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -206,6 +271,11 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Verifies if the given code line is a if condition line
+     * @param line the given code line to verify
+     * @return true if the code line is a start of a if condition line else false
+     */
     protected boolean isIfLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -214,10 +284,21 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Verifies if the code line ends with the bracket '}'
+     * @param line the given line to verify
+     * @return true if the line end with the bracket '}' , else false
+     */
     protected boolean isEnd(String line) {
         return line.replace(" ", "").equals("}");
     }
 
+    /**
+     * TODO
+     * @param name
+     * @param value
+     * @throws BadFormatException
+     */
     protected void updatePropertyValue(String name, String value) throws BadFormatException {
         for (String type : this.properties.keySet()) {
             if (this.properties.get(type).containsKey(name)) {
@@ -229,6 +310,13 @@ public abstract class Parser {
         }
     }
 
+    /**
+     * Sets an existing property value to the value of another existing property according to the properties
+     * names
+     * @param nameToUpdate the property to set the value in
+     * @param nameFromUpdate the property to assign the value from
+     * @throws BadFormatException TODO
+     */
     protected void updatePropertyValueByPropertyName(String nameToUpdate, String nameFromUpdate) throws BadFormatException {
         ArrayList<String> typesToUpdate = this.GetPropertyTypeOptions(nameToUpdate);
         ArrayList<String> typesFromUpdate = this.GetPropertyTypeOptions(nameFromUpdate);
@@ -254,6 +342,11 @@ public abstract class Parser {
         }
     }
 
+    /**
+     * TODO
+     * @param line
+     * @throws BadFormatException
+     */
     protected void assignProperty(String line) throws BadFormatException {
         int firstEqualIndex = line.indexOf(EQUALS);
         if (firstEqualIndex == -1 || firstEqualIndex == line.length() - 1) {

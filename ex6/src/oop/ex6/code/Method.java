@@ -33,6 +33,7 @@ public class Method {
      * @param name the method name
      */
     public Method(String [] methodParameterType, String name) {
+
         this.properties = new HashMap<>();
         this.executeMethods = new ArrayList<>();
         this.parameterType = methodParameterType;

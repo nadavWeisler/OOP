@@ -10,17 +10,19 @@ import java.io.IOException;
  */
 public class Sjavac {
     public static void main(String[] args) {
+
+
         try {
-            if(args.length != 1) {
+            if(args.length != 1) { // The program arg is invalid
                 throw new IOException("More than 1 argument");
-            } else {
+            } else { // Try to parse the file
                 FileParser.getInstance().ParseFile(args[0]);
             }
-            System.out.println(0);
-        } catch (IOException e) {
+            System.out.println(0); // The file was successfully parsed
+        } catch (IOException e) { //
             System.err.println(2);
         } catch (BadFormatException e) {
-            System.err.println(1);
+            System.err.println(1); // The code is illegal
             System.err.println(e.getMessage());
         }
     }
