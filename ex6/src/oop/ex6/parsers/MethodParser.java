@@ -342,18 +342,16 @@ public class MethodParser extends Parser {
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
         String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
-            if (methodLines.size() == lineIndex + 2) {
-                String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
-                if (!(nextLine.equals("}"))) {
-                    throw new BadFormatException("The method end is invalid");
-                }
-            } else { // There is more then one line after the return statement
-                // (after the return statement there should be one more line)
-                throw new BadFormatException("The method end is invalid");
+            // if (methodLines.size() == lineIndex + 2) {
+            String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
+            if (!(nextLine.equals("}"))) {
+                throw new BadFormatException("The method return statement is invalid");
             }
+            // } else { // There is more then one line after the return statement
+            // (after the return statement there should be one more line)
+            //throw new BadFormatException("The method end is invalid");
             return true;
         } else {
-            System.out.println(returnLine);
             if (returnLine.contains("return")) {
                 throw new BadFormatException("The return statement is invalid");
             }
