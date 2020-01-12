@@ -90,6 +90,7 @@ public abstract class Parser {
                 HashMap<String, Property> newTypeProperties = newProperties.get(type);
                 for (String currentProperty : newTypeProperties.keySet()) {
                     if (this.properties.get(type).containsKey(currentProperty)) {
+                        System.out.println("Nina");
                         throw new BadFormatException("Already contain this key!");
                     }
                 }

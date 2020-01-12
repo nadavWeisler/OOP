@@ -20,9 +20,9 @@ public class Sjavac {
             }
             System.out.println(0); // The file was successfully parsed
         } catch (IOException e) { //
-            System.err.println(2);
+            System.out.println(2);
         } catch (BadFormatException e) {
-            System.err.println(1); // The code is illegal
+            System.out.println(1); // The code is illegal
             System.err.println(e.getMessage());
         }
     }

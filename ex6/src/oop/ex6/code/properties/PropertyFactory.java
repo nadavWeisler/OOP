@@ -26,6 +26,7 @@ public class PropertyFactory {
     private final Pattern booleanPattern = Pattern.compile(("true|false|^(-?)(0|([1-9][0-9]*))(\\\\.[0-9]+)?$|[0-9]"));
 
     // private constructor - singleton design
+    private PropertyFactory() {
     }
 
     /**
