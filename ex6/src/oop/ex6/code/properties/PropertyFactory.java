@@ -21,12 +21,16 @@ public class PropertyFactory {
     private final String BOOLEAN_TYPE = "boolean";
     private final String EMPTY_STRING = "";
     private final String BLANK_SPACE = " ";
+    private final Pattern stringPattern = Pattern.compile("\".*\"");
+    private final Pattern charPattern = Pattern.compile("'.'");
+    private final Pattern booleanPattern = Pattern.compile(("true|false|^(-?)(0|([1-9][0-9]*))(\\\\.[0-9]+)?$|[0-9]"));
 
     // private constructor - singleton design
-    private PropertyFactory() {}
+    }
 
     /**
      * Verifies if the given String one of the valid variable types
+     *
      * @param str the given string to verify
      * @return true if the String is a valid variable type else false
      */
@@ -40,6 +44,7 @@ public class PropertyFactory {
 
     /**
      * returns the single PropertyFactory instance - singleton design
+     *
      * @return PropertyFactory instance
      */
     public static PropertyFactory getInstance() {
@@ -48,6 +53,7 @@ public class PropertyFactory {
 
     /**
      * Verifies that the given string is a valid variable name
+     *
      * @param name the given string to verify
      * @return true if the string is a valid name else false
      */
@@ -69,7 +75,8 @@ public class PropertyFactory {
 
     /**
      * Verifies that the variable assignment is valid according to the variable type
-     * @param type the given variable type
+     *
+     * @param type  the given variable type
      * @param value the given variable value to be assigned
      * @return true if the assignment is valid else false
      */
@@ -79,7 +86,7 @@ public class PropertyFactory {
         }
         switch (type) {
             case STRING_TYPE:
-                if (!(value.startsWith("\"") && value.endsWith("\""))) {
+                if (!stringPattern.matcher(value).matches()) {
                     return false;
                 }
                 break;
@@ -94,14 +101,12 @@ public class PropertyFactory {
                 }
                 break;
             case CHAR_TYPE:
-                if (value.length() != 3 || (!(value.startsWith("'") && value.endsWith("'")))) {
+                if (charPattern.matcher(value).matches()) {
                     return false;
                 }
                 break;
             case BOOLEAN_TYPE:
-                if (!(value.equals("true") ||
-                        value.equals("false") ||
-                        Utils.isDouble(value))) {
+                if (booleanPattern.matcher(value).matches()) {
                     return false;
                 }
         }
@@ -110,30 +115,32 @@ public class PropertyFactory {
 
     /**
      * Returns the given property value
+     *
      * @param property the given property
      * @return property value
      */
     public String getValueFromProperty(Property property) {
-        if(property.isNull) {
+        if (property.isNull) {
             return null;
         }
         switch (property.getType()) {
             case STRING_TYPE:
-                return "\"" + ((StringProperty)property).getValue() + "\"";
+                return "\"" + ((StringProperty) property).getValue() + "\"";
             case INT_TYPE:
-                return String.valueOf(((IntProperty)property).getValue());
+                return String.valueOf(((IntProperty) property).getValue());
             case DOUBLE_TYPE:
-                return String.valueOf(((DoubleProperty)property).getValue());
+                return String.valueOf(((DoubleProperty) property).getValue());
             case CHAR_TYPE:
-                return "'" + ((CharProperty)property).getValue() + "'";
+                return "'" + ((CharProperty) property).getValue() + "'";
             case BOOLEAN_TYPE:
-                return String.valueOf(((BooleanProperty)property).getValue());
+                return String.valueOf(((BooleanProperty) property).getValue());
         }
         return null;
     }
 
     /**
      * TODO
+     *
      * @param toType
      * @param fromType
      * @return
@@ -152,10 +159,11 @@ public class PropertyFactory {
 
     /**
      * Creates a specific property
-     * @param propertyType the created property type
-     * @param propertyName the created property name
+     *
+     * @param propertyType  the created property type
+     * @param propertyName  the created property name
      * @param propertyValue the created property value
-     * @param isFinal true if the property is declared as final else false
+     * @param isFinal       true if the property is declared as final else false
      * @return the created property
      * @throws BadFormatException when the property deceleration is invalid
      */
@@ -211,6 +219,7 @@ public class PropertyFactory {
 
     /**
      * TODO / מה ההבדל?
+     *
      * @param propertyType
      * @param propertyName
      * @param isFinal
@@ -239,6 +248,7 @@ public class PropertyFactory {
 
     /**
      * TODO
+     *
      * @param oldProperty
      * @param value
      * @return
@@ -276,6 +286,7 @@ public class PropertyFactory {
 
     /**
      * TODO
+     *
      * @param toUpdate
      * @param fromUpdate
      * @return

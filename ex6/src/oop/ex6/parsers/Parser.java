@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Super class that contains different method to use when parsing the text file into data sections
@@ -23,6 +24,7 @@ public abstract class Parser {
     protected final String EQUALS = "=";
     protected final String WHILE_CONSTANT = "while";
     protected final String If_CONSTANT = "if";
+    protected final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
 
     // Saves all the file variables
     protected HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
@@ -33,7 +35,7 @@ public abstract class Parser {
      * @return true if the code line is comment line, else false
      */
     protected boolean isComment(String line) {
-        return line.startsWith("//");
+        return COMMENT_PATTERN.matcher(line).matches();
     }
 
     /**
