@@ -5,12 +5,21 @@ import oop.ex6.exceptions.BadFormatException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+/**
+ * Utils class, contains different method for the usage of all the classes
+ */
 public class Utils {
+
+    /**
+     * Removes all blank spaces from a given String
+     * @param str the given String
+     * @return String without blank spaces
+     */
     public static String RemoveAllSpacesAtEnd(String str) {
         return str.trim();
     }
 
-    public enum blockType {IF_CONDITION, WHILE_LOOP}
+
 
     public static void printList(String[] lst) {
         for (String line : lst) {
@@ -18,37 +27,68 @@ public class Utils {
         }
     }
 
-    public static boolean isInteger(String s) {
+    /**
+     * Verifies if a given String is an integer
+     * @param str the given string
+     * @return true if the string is an integer, else false
+     */
+    public static boolean isInteger(String str) {
         try {
-            Integer.parseInt(s);
+            Integer.parseInt(str);
         } catch (NumberFormatException | NullPointerException e) {
             return false;
         }
         return true;
     }
 
-    public static boolean isDouble(String s) {
+    /**
+     * Verifies if a given String is a double
+     * @param str the given string
+     * @return true if the string is a double, else false
+     */
+    public static boolean isDouble(String str) {
         try {
-            Double.parseDouble(s);
+            Double.parseDouble(str);
         } catch (NumberFormatException | NullPointerException e) {
             return false;
         }
         return true;
     }
 
+    /**
+     * Verifies if a given String is a char
+     * @param str the given string
+     * @return true if the string is a char, else false
+     */
     public boolean isChar(String str) {
         return (str.startsWith("'") && !str.endsWith("'")) ||
                 str.length() != 3;
     }
 
+    /**
+     * Verifies if a given String is a String
+     * @param str the given string
+     * @return true if the string is a String, else false
+     */
     public boolean isString(String str) {
         return str.startsWith("\"") && !str.endsWith("\"");
     }
 
+    /**
+     * Verifies if a given String is a boolean value
+     * @param str the given string
+     * @return true if the string is a boolean value, else false
+     */
     public boolean isBoolean(String str) {
         return str.equals("true") || str.equals("false");
     }
 
+    /**
+     * Verifies that the given parameter name is valid according to the S-java definition
+     * @param name the given parameter name to verify
+     * @param startWithLetter indicates if the name must start with a letter
+     * @throws BadFormatException when the name is invalid
+     */
     public static void validParameterName(String name, boolean startWithLetter) throws BadFormatException {
         if (name.length() == 0) {
             throw new BadFormatException("Empty name");
@@ -66,6 +106,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Verifies that the given parameter type is valid, i.e it is one of the following:
+     * String, char, boolean, int, double
+     * @param type the given String to verify
+     * @throws BadFormatException when the type is invalid
+     */
     public static void validParameterType(String type) throws BadFormatException {
         if (!(type.equals("String") ||
                 type.equals("int") ||
@@ -76,6 +122,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Verifies that the value to be assigned into variable is legal according to the variable type
+     * @param type the variable type
+     * @param value the value to be assigned into the variable
+     * @throws BadFormatException if the value does not match the variable type requirements
+     */
     public void validValue(String type, String value) throws BadFormatException {
         switch (type) {
             case "String":
@@ -102,6 +154,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Verifies if the code line has one of the following suffix: '}','{',';'
+     * @param line the given code line to verify
+     * @throws BadFormatException when the code line does not end with one of the necessary suffix
+     */
     public static void hasCodeSuffix(String line) throws BadFormatException {
         String cleanLine = Utils.RemoveAllSpacesAtEnd(line);
         if (!(cleanLine.endsWith("}") || cleanLine.endsWith(";") || cleanLine.endsWith("{"))) {
@@ -109,6 +166,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Clears the code line array list from empty code lines
+     * @param strings the code lines array list
+     * @return code lines array list without emty code lines
+     */
     public static ArrayList<String> cleanWhiteSpace(String[] strings) {
         ArrayList<String> result = new ArrayList<>();
         for (String str : strings) {
@@ -119,6 +181,11 @@ public class Utils {
         return result;
     }
 
+    /**
+     * TODO
+     * @param parameters
+     * @throws BadFormatException
+     */
     public void validMethodParameters(String parameters) throws BadFormatException {
         String[] splitParameters = parameters.split(",");
         for (String parameter : splitParameters) {

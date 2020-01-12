@@ -12,14 +12,15 @@ import java.util.regex.Pattern;
  */
 public class Block extends Parser {
 
-    private Utils.blockType type;
+    public enum blockType {IF_CONDITION, WHILE_LOOP}
+    private blockType type;
     private String conditionLine;
 
     /**
      * Returns the block type, i.e if block or while block
      * @return
      */
-    public Utils.blockType getType() {
+    public blockType getType() {
         return type;
     }
 
@@ -40,9 +41,9 @@ public class Block extends Parser {
      */
     public Block(boolean isWhile, String conditionLine) throws BadFormatException {
         if (isWhile) {
-            type = Utils.blockType.WHILE_LOOP;
+            type = blockType.WHILE_LOOP;
         } else {
-            type = Utils.blockType.IF_CONDITION;
+            type = blockType.IF_CONDITION;
         }
         this.conditionLine = conditionLine;
         this.verifyCondition();
