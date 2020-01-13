@@ -1,0 +1,23 @@
+In order to run tests put the test directory path as the first argument in the configurations of tests.java. Put the the second
+argument is the path to the testresults file. 
+
+Make sure that your Sjavac.java file looks as such:
+
+public class Sjavac {
+
+    public static void main(String[] args) {
+        ....Your main code that prints 1, 2, or 0 as required....
+    }
+
+
+    public int testRun(String[] args){
+        ....Exact Copy of your code from the static main which returns 1, 2, or 0 instead of printing 1, 2, or 0.....
+
+
+}
+
+
+In addition, if you peformed a check to see whether or not you had an improper args length in your code somewhere make sure to put
+that condition as a comment, otherwise the tests won't work (because the code receives two arguments instead of 1 from the tester).
+Some files where deleted because there were no results in the testresults files, and 3 tests were deleted because there were unclear
+repeats. Otherwise, its good to go! There are a total of 201 tests.

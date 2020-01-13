@@ -6,27 +6,28 @@ nina.kollman
 =============================
 oop.ex6 package contains the following:
 * code package contains:
- # Property
- # PropertyFactory
- # StringProperty
- # CharProperty
- # DoubleProperty
- # IntProperty
- # BooleanProperty
+ # Property - Super class that represent a variable
+ # PropertyFactory - A class that creates all different properties types, uses the Singleton design pattern
+ # StringProperty - Extends Property and represents a specific String property
+ # CharProperty - Extends Property and represents a specific Char property
+ # DoubleProperty - Extends Property and represents a specific double property
+ # IntProperty - Extends Property and represents a specific int property
+ # BooleanProperty - Extends Property and represents a specific boolean property
 * exception package contains:
   # BadFormatException.java - extends Exception and represents all the code errors that is found in the given
     file, i.e the program should return the value 1
 * main package contains:
   # Sjavac.java - contains the main method of the program. Runs the program with the given argument
-  and returns 0,1,2 according to the given file.  The main method uses all the different classes
+  and returns the values: 0 - the code is legal ,1 - the code is illegal ,2 - I/O error to the given file.
+  The main method uses all the different classes.
 * parsers package contains:
-  # Parser
-  # FileParser
-  # MethodParser
+  # Parser - Super class that contains different method to use when parsing the text file into data sections
+  # FileParser - Extends Parser and parse the text file that contains code lines, uses the singleton
+   design pattern
+  # MethodParser - Extends Parser and parse the methods from the original file , uses the singleton design
+  pattern, the parser is activated from the FileParser class
 
-
-Utils.java
-Validation.java
+Utils.java -  A class that contains different method for the usage of all the classes
 
 =============================
 =          Design           =
@@ -41,3 +42,26 @@ Validation.java
 =============================
 =    Answers to questions   =
 =============================
+6.1:
+We created a BadFormatException class that represent that there was found illegal code in the file.
+The exception is thrown from the "smallest" method that verifies a specific code line, parameter name and etc
+and it is cached in the main method in order to return 1 for the program, i.e illegal code.
+In addition we inserted meaningful messages when throwing the error from specific methods, the messages were
+really helpful when we ran the tests for the program, we could easily recognize where the problem was found.
+Regarding I/O error - we verified it directly in the main method as well as in the parser. These two handles
+directly the file therefore they throw that error. The error is cached in the main method in order to return
+2 for the program.
+
+6.2:
+1) In order to add a new type of variable (like float) we would need to edit the properties package as
+follows:
+- Create a new FloatProperty class that will represent the float property, the class structure will be similar
+to the other specific properties
+- Modify the PropertyFactory class and add the float variable to all the methods in the class
+
+2) Feature number 1 - Different methods types ?
+   Feature number 2 - ?
+
+6.3:
+The main regular expression that we used are:
+

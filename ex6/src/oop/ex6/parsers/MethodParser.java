@@ -27,13 +27,15 @@ public class MethodParser extends Parser {
     /**
      * MethodParser private constructor - singleton design pattern
      */
-    private MethodParser() {}
+    private MethodParser() {
+    }
 
     // Creating a single instance of MethodParser - singleton design pattern
     private static MethodParser methodParser = new MethodParser();
 
     /**
      * Returns the single instance of MethodParser - singleton design pattern
+     *
      * @return
      */
     public static MethodParser getInstance() {
@@ -41,9 +43,10 @@ public class MethodParser extends Parser {
     }
 
     /**
-     *  Parse the method into data section and verifies the validity of the method according to the
-     *  S-java definition
-     * @param lines The methods code lines are gathered in an array list
+     * Parse the method into data section and verifies the validity of the method according to the
+     * S-java definition
+     *
+     * @param lines            The methods code lines are gathered in an array list
      * @param globalProperties The existing global properties of the code
      * @return a method object if the method is valid
      * @throws BadFormatException when the method code is invalid
@@ -107,6 +110,7 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the method name and saves it in the methodName data member
+     *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
     private String extractMethodName(String methodLine) throws BadFormatException {
@@ -127,6 +131,7 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
+     *
      * @return extracted method parameter text
      * @throws BadFormatException if there is no '()" for the condition
      */
@@ -151,6 +156,7 @@ public class MethodParser extends Parser {
 
     /**
      * extract the method parameter types according to the order in the method deceleration
+     *
      * @param methodLine the given method deceleration line
      * @return an array of string that represents the parameter types of the method
      * @throws BadFormatException when the the parameters line is invalid
@@ -176,6 +182,7 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies the method parameter type and name is according to syntax
+     *
      * @param type the given parameter type to verify
      * @param name the given parameter name to verify
      * @throws BadFormatException if the type or name are invalid
@@ -188,6 +195,7 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method line is valid
+     *
      * @throws BadFormatException if a syntax error is found
      */
     private void verifyMethodLine(String methodLine) throws BadFormatException {
@@ -243,24 +251,25 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method is defined with equal parameter name
+     *
      * @param line the given method parameters to verify
      * @throws BadFormatException if the method has at least two parameters with the same name
      */
-    private void sameMethodParametersName (String line) throws BadFormatException {
-        String [] parameters = line.split(",");
-        String [] parametersName = new String [parameters.length];
-        for (int i = 0; i <parameters.length ; i++) {
-            String [] singleParameter = parameters[i].split(" ");
-            if(singleParameter.length == 2){
+    private void sameMethodParametersName(String line) throws BadFormatException {
+        String[] parameters = line.split(",");
+        String[] parametersName = new String[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            String[] singleParameter = parameters[i].split(" ");
+            if (singleParameter.length == 2) {
                 parametersName[i] = singleParameter[1];
-            }else{ // length == 3 (with final)
+            } else { // length == 3 (with final)
                 parametersName[i] = singleParameter[2];
             }
         }
 
-        for (int i = 0; i <parametersName.length ; i++) {
-            for (int j = i+1; j <parametersName.length-1 ; j++) {
-                if(parametersName[i].equals(parametersName[j])){
+        for (int i = 0; i < parametersName.length; i++) {
+            for (int j = i + 1; j < parametersName.length; j++) {
+                if (parametersName[i].equals(parametersName[j])) {
                     throw new BadFormatException("Equal parameter names in the method deceleration");
                 }
             }
@@ -270,6 +279,7 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given code line is a call to an existing method
+     *
      * @param line   the given code line to verify
      * @param method the method that the code line is inside
      * @return true if the code line is a valid method call, else false
@@ -322,26 +332,26 @@ public class MethodParser extends Parser {
     }
 
     /**
-     * Verifies if the given code line is a valid return statement
-     * @param methodLines the method code lines
-     * @param lineIndex the index of the code line to verify
-     * @return true if the code line is a valid return statement, false if the line is not the a return
-     * statement line
-     * @throws BadFormatException when the code line is an invalid return statement
+     * TODO
+     *
+     * @param methodLines
+     * @param lineIndex
+     * @return
+     * @throws BadFormatException
      */
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
         String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
-           // if (methodLines.size() == lineIndex + 2) {
-                String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
-                if (!(nextLine.equals("}"))) {
-                    throw new BadFormatException("The method return statement is invalid");
-                }
-           // } else { // There is more then one line after the return statement
-                // (after the return statement there should be one more line)
-                //throw new BadFormatException("The method end is invalid");
+            // if (methodLines.size() == lineIndex + 2) {
+            String nextLine = methodLines.get(lineIndex + 1).replace(" ", "");
+            if (!(nextLine.equals("}"))) {
+                throw new BadFormatException("The method return statement is invalid");
+            }
+            // } else { // There is more then one line after the return statement
+            // (after the return statement there should be one more line)
+            //throw new BadFormatException("The method end is invalid");
             return true;
-            } else {
+        } else {
             if (returnLine.contains("return")) {
                 throw new BadFormatException("The return statement is invalid");
             }
@@ -350,10 +360,9 @@ public class MethodParser extends Parser {
 
     }
 
-
-
     /**
      * Verifies if the code line is a block line - if/while condition
+     *
      * @param line the given code line
      * @return true if the line is an if or while line, else return false
      */
@@ -367,6 +376,7 @@ public class MethodParser extends Parser {
 
     /**
      * The given line is a block line, verifies if it is a while block line
+     *
      * @param line the given block line
      * @return true for a while condition, else false which means it is an if condition.
      */
@@ -376,4 +386,3 @@ public class MethodParser extends Parser {
         return blockLine[0].equals("while");
     }
 }
-
