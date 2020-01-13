@@ -5,6 +5,8 @@ import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,10 +29,11 @@ public abstract class Parser {
     protected final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
 
     // Saves all the file variables
-    protected HashMap<String, HashMap<String, Property>> properties = new HashMap<>();
+    protected HashMap<String, HashMap<String, Property>> local_properties = new HashMap<>();
 
     /**
      * Verifies if the code line is a comment line
+     *
      * @param line the given line to verify
      * @return true if the code line is comment line, else false
      */
@@ -40,6 +43,7 @@ public abstract class Parser {
 
     /**
      * Verifies if the code line is an empty line
+     *
      * @param line the given line to verify
      * @return true if the code line is empty line else, false
      */
@@ -49,13 +53,15 @@ public abstract class Parser {
 
     /**
      * TODO
+     *
      * @param name
      * @return
      */
-    protected ArrayList<String> GetPropertyTypeOptions(String name) {
+    protected ArrayList<String> GetPropertyTypeOptions(String name,
+                                                       HashMap<String, HashMap<String, Property>> currentProperties) {
         ArrayList<String> options = new ArrayList<>();
-        for (String type : this.properties.keySet()) {
-            if (this.properties.get(type).containsKey(name)) {
+        for (String type : currentProperties.keySet()) {
+            if (currentProperties.get(type).containsKey(name)) {
                 options.add(type);
             }
         }
@@ -64,14 +70,22 @@ public abstract class Parser {
 
     /**
      * TODO
+     *
      * @param line
      * @return
      */
     protected boolean ifAssignPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            for (String type : this.properties.keySet()) {
-                if (this.properties.get(type).containsKey(splitLine[0])) {
+            for (String type : this.local_properties.keySet()) {
+                if (this.local_properties.get(type).containsKey(splitLine[0]) ||
+                        local_properties.get(type).containsKey(splitLine[0])) {
+                    return true;
+                }
+            }
+            for (String type : FileParser.global_properties.keySet()) {
+                if (FileParser.global_properties.get(type).containsKey(splitLine[0]) ||
+                        FileParser.global_properties.get(type).containsKey(splitLine[0])) {
                     return true;
                 }
             }
@@ -81,40 +95,65 @@ public abstract class Parser {
 
     /**
      * TODO
+     *
      * @param newProperties
      * @throws BadFormatException
      */
     protected void addProperties(HashMap<String, HashMap<String, Property>> newProperties) throws BadFormatException {
         for (String type : newProperties.keySet()) {
-            if (this.properties.containsKey(type)) {
+            if (this.local_properties.containsKey(type)) {
                 HashMap<String, Property> newTypeProperties = newProperties.get(type);
                 for (String currentProperty : newTypeProperties.keySet()) {
-                    if (this.properties.get(type).containsKey(currentProperty)) {
+                    if (this.local_properties.get(type).containsKey(currentProperty)) {
                         throw new BadFormatException("Already contain this key!");
                     }
                 }
             } else {
-                this.properties.put(type, newProperties.get(type));
+                this.local_properties.put(type, newProperties.get(type));
             }
         }
     }
 
     public boolean propertyExistWithType(String propertyType, String name) {
-        if (this.properties.containsKey(propertyType)) {
-            Set<String> propertiesKeySet = this.properties.keySet();
+        System.out.println(propertyType + "-" + name);
+        if (this.local_properties.containsKey(propertyType)) {
+            Set<String> propertiesKeySet = this.local_properties.keySet();
+            if (propertiesKeySet.contains(name)) {
+                return true;
+            }
+        }
+
+        Utils.printProperties(FileParser.global_properties);
+
+        if (FileParser.global_properties.containsKey(propertyType)) {
+            Set<String> propertiesKeySet = FileParser.global_properties.keySet();
+            for (String p : propertiesKeySet) {
+                System.out.println(p);
+            }
             return propertiesKeySet.contains(name);
         }
+
         return false;
     }
 
     /**
      * Verifies if the given property exist according to a given property name
+     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
     public boolean propertyExist(String name) {
-        for (String type : this.properties.keySet()) {
-            if (this.properties.get(type).containsKey(name)) {
+        for (String type : this.local_properties.keySet()) {
+            if (this.local_properties.get(type).containsKey(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean propertyExistGlobal(String name) {
+        for (String type : FileParser.global_properties.keySet()) {
+            if (FileParser.global_properties.get(type).containsKey(name)) {
                 return true;
             }
         }
@@ -123,6 +162,7 @@ public abstract class Parser {
 
     /**
      * TODO
+     *
      * @param line
      * @return
      * @throws BadFormatException
@@ -153,7 +193,7 @@ public abstract class Parser {
             }
 
             if (PropertyFactory.getInstance().isPropertyType(splitArgs[0])) {
-                if(currentType != null) {
+                if (currentType != null) {
                     throw new BadFormatException("Type already declared");
                 }
                 currentType = splitArgs[0];
@@ -189,53 +229,87 @@ public abstract class Parser {
             if (currentValue != null && currentValue.endsWith(";")) {
                 currentValue = currentValue.substring(0, currentValue.length() - 1);
             }
-
             if (propertyExist(currentValue)) {
-                boolean changed = false;
-                ArrayList<String> valueTypes = GetPropertyTypeOptions(currentValue);
-                if (valueTypes.contains(currentType)) {
-                    currentValue = PropertyFactory.getInstance().getValueFromProperty(
-                            this.properties.get(currentType).get(currentValue));
-                    changed = true;
-                } else {
-                    for (String option : valueTypes) {
-                        if (PropertyFactory.getInstance().validTypesTo(currentType, option)) {
-                            currentValue = PropertyFactory.getInstance().getValueFromProperty(
-                                    this.properties.get(option).get(currentValue));
-                            changed = true;
-                            break;
-                        }
-                    }
-                }
-                if (currentValue == null) {
-                    throw new BadFormatException("Null parameter");
-                }
-                if (!changed) {
-                    throw new BadFormatException("Invalid parameter");
-                }
+                currentValue = getCurrentValueFromProperty(currentValue, currentType, this.local_properties);
+            } else if (propertyExistGlobal(currentValue)) {
+                currentValue = getCurrentValueFromProperty(currentValue, currentType, FileParser.global_properties);
             }
-            newProperties.put(currentName,
-                    PropertyFactory.getInstance().createProperty(currentType,
-                            currentName, currentValue, currentFinal));
-            result.put(currentType, newProperties);
+            if (currentValue == null) {
+                newProperties.put(currentName,
+                        PropertyFactory.getInstance().createMethodProperty(currentType,
+                                currentName, currentFinal));
+            } else {
+                newProperties.put(currentName,
+                        PropertyFactory.getInstance().createProperty(currentType,
+                                currentName, currentValue, currentFinal));
+                result.put(currentType, newProperties);
+            }
         }
         return result;
     }
 
-    /**
-     * TODO
-     * @param name
-     * @param type
-     * @param newProperty
-     */
-    protected void replaceProperty(String name, String type, Property newProperty) {
-        HashMap<String, Property> newHash = this.properties.get(type);
-        newHash.put(name, newProperty);
-        this.properties.put(type, newHash);
+    private String getCurrentValueFromProperty(String currentValue, String currentType,
+                                               HashMap<String, HashMap<String, Property>> currentProperties)
+            throws BadFormatException {
+        boolean changed = false;
+        ArrayList<String> valueTypes = GetPropertyTypeOptions(currentValue, currentProperties);
+        if (valueTypes.contains(currentType)) {
+            if (currentProperties.get(currentType).get(currentValue).isMethodProperty()) {
+                return null;
+            }
+            currentValue = PropertyFactory.getInstance().getValueFromProperty(
+                    currentProperties.get(currentType).get(currentValue));
+            changed = true;
+        } else {
+            for (String option : valueTypes) {
+                if (PropertyFactory.getInstance().validTypesTo(currentType, option)) {
+                    if (currentProperties.get(option).get(currentValue).isMethodProperty()) {
+                        return null;
+                    }
+                    currentValue = PropertyFactory.getInstance().getValueFromProperty(
+                            currentProperties.get(option).get(currentValue));
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (currentValue == null) {
+            throw new BadFormatException("Null parameter");
+        }
+        if (!changed) {
+            throw new BadFormatException("Invalid parameter");
+        }
+        return currentValue;
     }
 
     /**
      * TODO
+     *
+     * @param name
+     * @param type
+     * @param newProperty
+     */
+    protected void replaceProperty(String name, String type, Property newProperty) throws BadFormatException {
+        if (newProperty.isFinal()) {
+            throw new BadFormatException("Assign to final property");
+        }
+        HashMap<String, Property> newHash = this.local_properties.get(type);
+        newHash.put(name, newProperty);
+        this.local_properties.put(type, newHash);
+    }
+
+    protected void replacePropertyGlobal(String name, String type, Property newProperty) throws BadFormatException {
+        if (newProperty.isFinal()) {
+            throw new BadFormatException("Assign to final property");
+        }
+        HashMap<String, Property> newHash = FileParser.global_properties.get(type);
+        newHash.put(name, newProperty);
+        FileParser.global_properties.put(type, newHash);
+    }
+
+    /**
+     * TODO
+     *
      * @param name
      * @param type
      * @param value
@@ -243,12 +317,25 @@ public abstract class Parser {
      */
     protected void replaceProperty(String name, String type, String value) throws BadFormatException {
         Property newProperty = PropertyFactory.getInstance().updatePropertyFromString(
-                this.properties.get(type).get(name), value);
+                this.local_properties.get(type).get(name), value);
+        if (newProperty.isFinal()) {
+            throw new BadFormatException("Assign to final property");
+        }
+        replaceProperty(name, type, newProperty);
+    }
+
+    protected void replacePropertyGlobal(String name, String type, String value) throws BadFormatException {
+        Property newProperty = PropertyFactory.getInstance().updatePropertyFromString(
+                this.local_properties.get(type).get(name), value);
+        if (newProperty.isFinal()) {
+            throw new BadFormatException("Assign to final property");
+        }
         replaceProperty(name, type, newProperty);
     }
 
     /**
      * TODO
+     *
      * @param line
      * @return
      */
@@ -262,6 +349,7 @@ public abstract class Parser {
 
     /**
      * Verifies if the given code line is a while loop line
+     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a while loop else false
      */
@@ -275,6 +363,7 @@ public abstract class Parser {
 
     /**
      * Verifies if the given code line is a if condition line
+     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a if condition line else false
      */
@@ -288,6 +377,7 @@ public abstract class Parser {
 
     /**
      * Verifies if the code line ends with the bracket '}'
+     *
      * @param line the given line to verify
      * @return true if the line end with the bracket '}' , else false
      */
@@ -297,36 +387,60 @@ public abstract class Parser {
 
     /**
      * TODO
+     *
      * @param name
      * @param value
      * @throws BadFormatException
      */
-    protected void updatePropertyValue(String name, String value) throws BadFormatException {
-        for (String type : this.properties.keySet()) {
-            if (this.properties.get(type).containsKey(name)) {
+    protected void updatePropertyValue(String name, String value)
+            throws BadFormatException {
+        for (String type : this.local_properties.keySet()) {
+            if (this.local_properties.get(type).containsKey(name)) {
+                if (this.local_properties.get(type).get(name).isFinal()) {
+                    throw new BadFormatException("Assign final property");
+                }
                 if (PropertyFactory.getInstance().validValue(type, value)) {
                     this.replaceProperty(name, type, value);
                     return;
                 }
             }
         }
+
+        for (String type : FileParser.global_properties.keySet()) {
+            if (FileParser.global_properties.get(type).containsKey(name)) {
+                if (FileParser.global_properties.get(type).get(name).isFinal()) {
+                    throw new BadFormatException("Assign final property");
+                }
+                if (PropertyFactory.getInstance().validValue(type, value)) {
+                    this.replacePropertyGlobal(name, type, value);
+                    return;
+                }
+            }
+        }
+
+
     }
 
     /**
      * Sets an existing property value to the value of another existing property according to the properties
      * names
-     * @param nameToUpdate the property to set the value in
+     *
+     * @param nameToUpdate   the property to set the value in
      * @param nameFromUpdate the property to assign the value from
      * @throws BadFormatException TODO
      */
-    protected void updatePropertyValueByPropertyName(String nameToUpdate, String nameFromUpdate) throws BadFormatException {
-        ArrayList<String> typesToUpdate = this.GetPropertyTypeOptions(nameToUpdate);
-        ArrayList<String> typesFromUpdate = this.GetPropertyTypeOptions(nameFromUpdate);
+    protected void updatePropertyValueByPropertyName(String nameToUpdate, String nameFromUpdate)
+            throws BadFormatException {
+        ArrayList<String> typesToUpdate = this.GetPropertyTypeOptions(nameToUpdate, this.local_properties);
+        ArrayList<String> typesFromUpdate = this.GetPropertyTypeOptions(nameFromUpdate, this.local_properties);
         for (String type : typesFromUpdate) {
-            if (typesFromUpdate.contains(type)) {
+            if (typesToUpdate.contains(type)) {
                 Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
-                        this.properties.get(type).get(nameToUpdate),
-                        this.properties.get(type).get(nameFromUpdate));
+                        this.local_properties.get(type).get(nameToUpdate),
+                        this.local_properties.get(type).get(nameFromUpdate));
+                if (newProperty.isFinal()) {
+                    throw new BadFormatException("Assign final property");
+                }
                 this.replaceProperty(nameToUpdate, type, newProperty);
                 return;
             }
@@ -336,20 +450,43 @@ public abstract class Parser {
             for (String typeFrom : typesFromUpdate) {
                 if (PropertyFactory.getInstance().validTypesTo(typeTo, typeFrom)) {
                     Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
-                            this.properties.get(typeTo).get(nameToUpdate),
-                            this.properties.get(typeFrom).get(nameFromUpdate));
+                            this.local_properties.get(typeTo).get(nameToUpdate),
+                            this.local_properties.get(typeFrom).get(nameFromUpdate));
+                    if (newProperty.isFinal()) {
+                        throw new BadFormatException("Assign final property");
+                    }
                     this.replaceProperty(nameToUpdate, typeTo, newProperty);
                 }
             }
         }
     }
 
+    protected void updatePropertyValueByPropertyNameGlobal(String nameToUpdate, String nameFromUpdate)
+            throws BadFormatException {
+        ArrayList<String> typesToUpdate = this.GetPropertyTypeOptions(nameToUpdate, FileParser.global_properties);
+        ArrayList<String> typesFromUpdate = this.GetPropertyTypeOptions(nameFromUpdate, FileParser.global_properties);
+        for (String type : typesFromUpdate) {
+            if (typesToUpdate.contains(type)) {
+                Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
+                        FileParser.global_properties.get(type).get(nameToUpdate),
+                        FileParser.global_properties.get(type).get(nameFromUpdate));
+                if (newProperty.isFinal()) {
+                    throw new BadFormatException("Assign final property");
+                }
+                this.replaceProperty(nameToUpdate, type, newProperty);
+                return;
+            }
+        }
+    }
+
     /**
      * TODO
+     *
      * @param line
      * @throws BadFormatException
      */
-    protected void assignProperty(String line) throws BadFormatException {
+    protected void assignProperty(String line)
+            throws BadFormatException {
         int firstEqualIndex = line.indexOf(EQUALS);
         if (firstEqualIndex == -1 || firstEqualIndex == line.length() - 1) {
             throw new BadFormatException("Bad assignment");
@@ -358,12 +495,13 @@ public abstract class Parser {
         String propertyName = Utils.RemoveAllSpacesAtEnd(line.substring(0, firstEqualIndex));
         String propertyValue = Utils.RemoveAllSpacesAtEnd(line.substring(firstEqualIndex + 1));
 
-        if (!this.propertyExist(propertyName)) {
+        if (!this.propertyExist(propertyName) && !this.propertyExistGlobal(propertyName)) {
             throw new BadFormatException("Property is not declared");
         }
-
         if (this.propertyExist(propertyValue)) {
             this.updatePropertyValueByPropertyName(propertyName, propertyValue);
+        } else if (this.propertyExistGlobal(propertyValue)) {
+            this.updatePropertyValueByPropertyNameGlobal(propertyName, propertyValue);
         } else {
             this.updatePropertyValue(propertyName, propertyValue);
         }
