@@ -7,10 +7,7 @@ import oop.ex6.exceptions.BadFormatException;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -21,7 +18,7 @@ public abstract class Parser {
     // Creating finals for the parsing usage
     protected final String FINAL_CONSTANT = "final";
     protected final String EMPTY_STRING = "";
-    protected final String BLANK_SPACE = " ";
+    protected final String BLANK_SPACE = "\\s";
     protected final String COMMA = ",";
     protected final String EQUALS = "=";
     protected final String WHILE_CONSTANT = "while";
@@ -101,38 +98,52 @@ public abstract class Parser {
      */
     protected void addProperties(HashMap<String, HashMap<String, Property>> newProperties) throws BadFormatException {
         for (String type : newProperties.keySet()) {
-            if (this.local_properties.containsKey(type)) {
-                HashMap<String, Property> newTypeProperties = newProperties.get(type);
-                for (String currentProperty : newTypeProperties.keySet()) {
-                    if (this.local_properties.get(type).containsKey(currentProperty)) {
-                        throw new BadFormatException("Already contain this key!");
-                    }
+            for (String currentProperty : newProperties.get(type).keySet()) {
+                if (propertyExist(currentProperty)) {
+                    throw new BadFormatException("Already contain this key!");
                 }
-            } else {
-                this.local_properties.put(type, newProperties.get(type));
             }
+            this.local_properties.put(type, newProperties.get(type));
         }
     }
 
-    public boolean propertyExistWithType(String propertyType, String name) {
-        System.out.println(propertyType + "-" + name);
-        if (this.local_properties.containsKey(propertyType)) {
-            Set<String> propertiesKeySet = this.local_properties.keySet();
-            if (propertiesKeySet.contains(name)) {
-                return true;
-            }
-        }
 
-        Utils.printProperties(FileParser.global_properties);
-
+    public boolean globalPropertyExistWithType(String propertyType, String name) {
         if (FileParser.global_properties.containsKey(propertyType)) {
-            Set<String> propertiesKeySet = FileParser.global_properties.keySet();
+            Set<String> propertiesKeySet = FileParser.global_properties.get(propertyType).keySet();
             for (String p : propertiesKeySet) {
                 System.out.println(p);
             }
             return propertiesKeySet.contains(name);
         }
 
+        return false;
+    }
+
+    public boolean propertyExistWithSomeTypes(String[] types, String name) {
+        for (String type : types) {
+            if (propertyExistWithType(type, name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean globalPropertyExistWithSomeTypes(String[] types, String name) {
+        for (String type : types) {
+            if (globalPropertyExistWithType(type, name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean propertyExistWithType(String propertyType, String name) {
+        System.out.println(propertyType + "-" + name);
+        if (this.local_properties.containsKey(propertyType)) {
+            Set<String> propertiesKeySet = this.local_properties.get(propertyType).keySet();
+            return propertiesKeySet.contains(name);
+        }
         return false;
     }
 
@@ -167,10 +178,14 @@ public abstract class Parser {
      * @return
      * @throws BadFormatException
      */
-    protected HashMap<String, HashMap<String, Property>> getPropertyFromLine(String line) throws BadFormatException {
+    protected HashMap<String, HashMap<String, Property>> getPropertyFromLine(String line)
+            throws BadFormatException {
         HashMap<String, HashMap<String, Property>> result = new HashMap<>();
         line = line.substring(0, line.length() - 1);
         String[] splitLine = line.split(COMMA);
+        if(splitLine.length < 2 && !line.contains(EQUALS)) {
+            throw new BadFormatException("Bad property line");
+        }
         String currentType = null;
         boolean currentFinal = false;
         String currentName;
@@ -179,33 +194,36 @@ public abstract class Parser {
             arg = Utils.RemoveAllSpacesAtEnd(arg);
             System.out.println("Arg: " + arg);
             String[] splitArgs = arg.split(BLANK_SPACE);
-            if (splitArgs.length == 0) {
+            List<String> cleanArgs = Utils.cleanWhiteSpace(splitArgs);
+            System.out.println(cleanArgs.size());
+            if (cleanArgs.size() == 0) {
                 continue;
             }
 
-            if (splitArgs[0].equals("final")) {
+            if (cleanArgs.get(0).equals("final")) {
                 currentFinal = true;
-                splitArgs = Arrays.copyOfRange(splitArgs, 1, splitArgs.length);
+                cleanArgs = (ArrayList<String>) cleanArgs.subList(1, cleanArgs.size());
             }
 
-            if (splitArgs.length == 0) {
+            if (cleanArgs.size() == 0) {
                 throw new BadFormatException("b");
             }
 
-            if (PropertyFactory.getInstance().isPropertyType(splitArgs[0])) {
+            if (PropertyFactory.getInstance().isPropertyType(cleanArgs.get(0))) {
                 if (currentType != null) {
                     throw new BadFormatException("Type already declared");
                 }
-                currentType = splitArgs[0];
-                splitArgs = Arrays.copyOfRange(splitArgs, 1, splitArgs.length);
+                currentType = cleanArgs.get(0);
+                cleanArgs = cleanArgs.subList(1, cleanArgs.size());
             } else {
                 if (currentFinal || currentType == null ||
-                        this.propertyExistWithType(currentType, splitArgs[0])) {
+                        this.propertyExistWithType(currentType, cleanArgs.get(0))) {
                     throw new BadFormatException("b");
                 }
             }
 
-            String joinedArgs = String.join(EMPTY_STRING, Arrays.asList(splitArgs));
+            String joinedArgs = String.join(" ", cleanArgs);
+
             splitArgs = joinedArgs.split(EQUALS);
             if (splitArgs.length > 2 || splitArgs.length == 0) {
                 throw new BadFormatException("n");
@@ -234,6 +252,10 @@ public abstract class Parser {
             } else if (propertyExistGlobal(currentValue)) {
                 currentValue = getCurrentValueFromProperty(currentValue, currentType, FileParser.global_properties);
             }
+
+            if (this.propertyExist(currentName)) {
+                throw new BadFormatException("Property already exist");
+            }
             if (currentValue == null) {
                 newProperties.put(currentName,
                         PropertyFactory.getInstance().createMethodProperty(currentType,
@@ -242,9 +264,10 @@ public abstract class Parser {
                 newProperties.put(currentName,
                         PropertyFactory.getInstance().createProperty(currentType,
                                 currentName, currentValue, currentFinal));
-                result.put(currentType, newProperties);
             }
+            result.put(currentType, newProperties);
         }
+        Utils.printProperties(result);
         return result;
     }
 
@@ -498,6 +521,7 @@ public abstract class Parser {
         if (!this.propertyExist(propertyName) && !this.propertyExistGlobal(propertyName)) {
             throw new BadFormatException("Property is not declared");
         }
+
         if (this.propertyExist(propertyValue)) {
             this.updatePropertyValueByPropertyName(propertyName, propertyValue);
         } else if (this.propertyExistGlobal(propertyValue)) {

@@ -46,56 +46,60 @@ public class MethodParser extends Parser {
      * Parse the method into data section and verifies the validity of the method according to the
      * S-java definition
      *
-     * @param lines            The methods code lines are gathered in an array list
-     * @param globalProperties The existing global properties of the code
+     * @param lines The methods code lines are gathered in an array list
      * @return a method object if the method is valid
      * @throws BadFormatException when the method code is invalid
      */
-    public Method parseMethod(ArrayList<String> lines,
-                              HashMap<String, HashMap<String, Property>> globalProperties)
+    public Method parseMethod(ArrayList<String> lines)
             throws BadFormatException {
-        String methodName = extractMethodName(lines.get(0));
-        verifyMethodLine(lines.get(0));
+        this.local_properties = new HashMap<>();
+        String line = Utils.RemoveAllSpacesAtEnd(lines.get(0));
+        String[] methodDetails = extractMethodName(line);
+        verifyMethodLine(methodDetails[0], methodDetails[1]);
         String[] methodParamType = getMethodParamType(lines.get(0));
-        Method newMethod = new Method(methodParamType, methodName);
-        this.globalProperties = globalProperties;
+        Method newMethod = new Method(methodParamType, methodDetails[0]);
+        this.globalProperties = FileParser.global_properties;
         ArrayList<Block> blocks = new ArrayList<>();
-        boolean startBlock = false;
+        boolean startBlock;
         for (int i = 1; i < lines.size() - 1; i++) {
-            System.out.println(lines.get(i));
-            if (this.isIfLine(lines.get(i))) {
-
-                blocks.add(new Block(false, lines.get(i)));
+            line = Utils.RemoveAllSpacesAtEnd(lines.get(i));
+            if (this.isIfLine(line)) {
+                blocks.add(new Block(false, line, this.local_properties));
                 ArrayList<String> newBlock = new ArrayList<>();
-                newBlock.add(lines.get(i));
+                newBlock.add(line);
                 startBlock = true;
             } else if (this.isWhileLine(lines.get(i))) {
-                blocks.add(new Block(true, lines.get(i)));
+                blocks.add(new Block(true, line, this.local_properties));
                 ArrayList<String> newBlock = new ArrayList<>();
-                newBlock.add(lines.get(i));
+                newBlock.add(line);
                 startBlock = true;
             } else {
                 startBlock = false;
             }
 
-            if (blocks.size() > 0) {
-                blocks.get(blocks.size() - 1).addLine(lines.get(i));
-            }
-
 
             if (!startBlock) {
-                if (isEnd(lines.get(i))) {
+                if (isEnd(line)) {
                     if (blocks.size() == 0) {
                         throw new BadFormatException("Invalid line");
                     }
+                    for (String type : blocks.get(blocks.size() - 1).local_properties.keySet()) {
+                        for (String name : blocks.get(blocks.size() - 1).local_properties.get(type).keySet()) {
+                            this.local_properties.get(type).remove(name);
+                        }
+                    }
                     blocks.remove(blocks.size() - 1);
-                } else if (this.isPropertyLine(lines.get(i))) {
-                    addProperties(getPropertyFromLine(lines.get(i)));
-                } else if (this.ifAssignPropertyLine(lines.get(i))) {
-                    this.assignProperty(lines.get(i));
+                } else if (this.isPropertyLine(line)) {
+                    HashMap<String, HashMap<String, Property>> toAddProperties = getPropertyFromLine(line);
+                    addProperties(toAddProperties);
+                    if (blocks.size() > 0) {
+                        blocks.get(blocks.size() - 1).addProperties(toAddProperties);
+                    }
+                } else if (this.ifAssignPropertyLine(line)) {
+                    this.assignProperty(line);
                 } else if (this.isReturn(lines, i)) {
                     break;
-                } else if (!this.isCallToExistingMethod(lines.get(i), newMethod)) {
+                } else if (!this.isCallToExistingMethod(line, newMethod)) {
                     throw new BadFormatException("Bad Formant");
                 }
             }
@@ -113,20 +117,35 @@ public class MethodParser extends Parser {
      *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
-    private String extractMethodName(String methodLine) throws BadFormatException {
-        String[] splitMethodLine = methodLine.split(" ");
-        String ret = EMPTY_STRING;
-        for (int i = 0; i < splitMethodLine[1].length(); i++) {
-            if (splitMethodLine[1].charAt(i) == '(') {
-                ret = splitMethodLine[1].substring(0, i);
-                break;
+    private String[] extractMethodName(String methodLine) throws BadFormatException {
+        System.out.println(methodLine);
+        String[] splitMethodLine = methodLine.split("\\s");
+        ArrayList<String> splitMethodLineArray = Utils.cleanWhiteSpace(splitMethodLine);
+        System.out.println(String.join("_", splitMethodLineArray));
+        String methodName = null;
+        StringBuilder methodParams = new StringBuilder(EMPTY_STRING);
+        String methodParamsString = null;
+        boolean doneWithParams = false;
+        for (int i = 1; i < splitMethodLineArray.size() - 1; i++) {
+            if (splitMethodLineArray.get(i).equals("(")) {
+                methodName = splitMethodLineArray.get(i - 1);
+            } else if (splitMethodLineArray.get(i).equals(")") && !doneWithParams) {
+                methodParamsString = methodParams.toString();
+                doneWithParams = true;
+            } else if (methodName == null) {
+                continue;
+            } else if (!doneWithParams) {
+                methodParams.append(splitMethodLineArray.get(i)+" ");
+            } else {
+                throw new BadFormatException(BAD_METHOD_LINE);
             }
         }
 
-        if (ret.isEmpty()) {
+        if(!splitMethodLineArray.get(splitMethodLineArray.size() - 1).equals("{")) {
             throw new BadFormatException(BAD_METHOD_LINE);
         }
-        return ret;
+
+        return new String[] {methodName, methodParamsString};
     }
 
     /**
@@ -138,7 +157,7 @@ public class MethodParser extends Parser {
     private String getMethodParameters(String methodLine) throws BadFormatException {
         for (int i = 0; i < methodLine.length(); i++) {
             if (methodLine.charAt(i) == '(') {
-                for (int j = i; j < methodLine.length(); j++) {
+                for (int j = methodLine.length() - 1; j > i; j--) {
                     if (methodLine.charAt(j) == ')') {
                         if (i == j - 1) {
                             return null;
@@ -198,27 +217,19 @@ public class MethodParser extends Parser {
      *
      * @throws BadFormatException if a syntax error is found
      */
-    private void verifyMethodLine(String methodLine) throws BadFormatException {
-        String methodParameters = getMethodParameters(methodLine);
-
-
-        if (!Utils.RemoveAllSpacesAtEnd(methodLine).endsWith("{")) {
-//            System.out.println("nina");
-            throw new BadFormatException(BAD_METHOD_LINE);
-        }
-
-        if (methodParameters == null) {
+    private void verifyMethodLine(String methodName, String methodParams) throws BadFormatException {
+        if (methodParams == null) {
             return;
         }
 
-        if (methodParameters.contains(",,")) {
+        if (methodParams.contains(",,")) {
 //            System.out.println("nina");
             throw new BadFormatException(BAD_METHOD_LINE);
         }
 
-        sameMethodParametersName(methodParameters);
+        sameMethodParametersName(methodParams);
 
-        String[] singleParameters = methodParameters.split(",");
+        String[] singleParameters = methodParams.split(",");
         for (String parameter : singleParameters) {
             boolean isFinal = false;
             ArrayList<String> currentParameter = Utils.cleanWhiteSpace(parameter.split(" "));
@@ -256,6 +267,7 @@ public class MethodParser extends Parser {
      * @throws BadFormatException if the method has at least two parameters with the same name
      */
     private void sameMethodParametersName(String line) throws BadFormatException {
+        System.out.println(line);
         String[] parameters = line.split(",");
         String[] parametersName = new String[parameters.length];
         for (int i = 0; i < parameters.length; i++) {

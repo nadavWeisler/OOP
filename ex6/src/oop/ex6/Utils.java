@@ -31,7 +31,7 @@ public class Utils {
 
     public static void printProperties(HashMap<String, HashMap<String, Property>> p) {
         for (String type : p.keySet()) {
-            System.out.println("Type: " + type);
+            System.out.println("Type:" + type);
             for (String name : p.get(type).keySet()) {
                 System.out.println("_" + name);
             }
@@ -195,7 +195,8 @@ public class Utils {
     public static ArrayList<String> cleanWhiteSpace(String[] strings) {
         ArrayList<String> result = new ArrayList<>();
         for (String str : strings) {
-            if (!str.isEmpty() && !str.isBlank() && !str.equals("\n") && !str.equals("\r")) {
+            if (!str.isEmpty() && !str.isBlank() && !str.equals("\n") && !str.equals("\r") &&
+                    !Pattern.matches("(\\s|\\n|\\r)+", str)) {
                 result.add(str);
             }
         }

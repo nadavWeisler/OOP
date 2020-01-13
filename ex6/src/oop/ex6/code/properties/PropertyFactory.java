@@ -26,7 +26,8 @@ public class PropertyFactory {
     private final Pattern booleanPattern = Pattern.compile(("true|false|^(-?)(0|([1-9][0-9]*))(\\\\.[0-9]+)?$|[0-9]"));
 
     // private constructor - singleton design
-    private PropertyFactory () {}
+    private PropertyFactory() {
+    }
 
     /**
      * Verifies if the given String one of the valid variable types
@@ -84,6 +85,7 @@ public class PropertyFactory {
         if (value == null) {
             return true;
         }
+        System.out.println("Type: " + type);
         switch (type) {
             case STRING_TYPE:
                 if (!stringPattern.matcher(value).matches()) {
@@ -106,7 +108,7 @@ public class PropertyFactory {
                 }
                 break;
             case BOOLEAN_TYPE:
-                if (booleanPattern.matcher(value).matches()) {
+                if (!Utils.isDouble(value) && !value.equals("true") && !value.equals("false")) {
                     return false;
                 }
         }
@@ -225,7 +227,11 @@ public class PropertyFactory {
      * @param isFinal
      * @return
      */
-    public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal) {
+    public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal)
+            throws BadFormatException {
+        if (!isPropertyType(propertyType) || !validParameterName(propertyName)) {
+            throw new BadFormatException("Property fields are invalid");
+        }
         switch (propertyType) {
             case STRING_TYPE:
                 return new StringProperty(propertyName,

@@ -100,6 +100,7 @@ public class FileParser extends Parser {
         ArrayList<String> fileList = fileToArrayList(fileName);
 
         for (String line : fileList) {
+            line = Utils.RemoveAllSpacesAtEnd(line);
             //Empty or Comment line
             if (this.isEmpty(line) || this.isComment(line)) {
                 continue;
@@ -145,26 +146,18 @@ public class FileParser extends Parser {
             } else if (this.isMethodLine(line)) {
                 methodList.add(line);
                 insideMethod = true;
+            } else if (ifAssignPropertyLine(line)) {
+                this.assignProperty(line);
             } else {
                 throw new BadFormatException("Invalid line");
             }
-
-            if (ifAssignPropertyLine(line)) {
-                this.assignProperty(line);
-            }
         }
 
+        //If file ended without close the method
         if (insideMethod) {
             throw new BadFormatException("Method did not close");
         }
 
-        for (String type : global_properties.keySet()) {
-            for (String name : global_properties.get(type).keySet()) {
-                System.out.println("=" +name);
-            }
-        }
-
-        System.out.println("nadav");
         for (ArrayList<String> methodParser : methodParsers) {
             newMethod = MethodParser.getInstance().parseMethod(methodParser);
             if (this.methodExist(newMethod)) {
@@ -231,7 +224,7 @@ public class FileParser extends Parser {
                 Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
                         global_properties.get(type).get(nameToUpdate),
                         global_properties.get(type).get(nameFromUpdate));
-                if(newProperty.isFinal()) {
+                if (newProperty.isFinal()) {
                     throw new BadFormatException("Assign final property");
                 }
                 this.replaceProperty(nameToUpdate, type, newProperty);

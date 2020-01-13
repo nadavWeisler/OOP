@@ -1,10 +1,4 @@
-import exceptions.globalexceptions.GlobalException;
-import exceptions.globalexceptions.processvariablesexceptions.ProcessVariableException;
-import global.GlobalMethods;
-import global.GlobalVariables;
 import oop.ex6.main.Sjavac;
-import parser.ParseGlobalCode;
-import variablefactories.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +13,7 @@ import java.util.regex.Pattern;
 public class tests {
 
 
-    public static void main(String[] args) throws IOException, GlobalException, ProcessVariableException {
+    public static void main(String[] args) throws IOException{
 
         Pattern p1 = Pattern.compile("java");
 
@@ -31,7 +25,7 @@ public class tests {
 
         File dir = new File(args[0]);
         File[] directoryFiles = dir.listFiles();
-        String[] currentargs = new String[2];
+        String[] currentargs = new String[1];
         int actualResult = 0;
         int expectedResult;
         String currentLine;
@@ -51,7 +45,8 @@ public class tests {
 
                 expectedResult = Integer.parseInt(currentLine);
                 currentargs[0] = file.getAbsolutePath();
-                currentargs[1] = file.getName();
+
+//                currentargs[1] = file.getName();
                 actualResult = tester.testRun(currentargs);
 
                 if (actualResult != expectedResult) {
@@ -66,7 +61,7 @@ public class tests {
                    testsPassed++;
                 }
 
-                currentargs = new String[2];
+                currentargs = new String[1];
                 counter++;
             }
         }
