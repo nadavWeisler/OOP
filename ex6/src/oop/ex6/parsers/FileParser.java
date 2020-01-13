@@ -3,6 +3,7 @@ package oop.ex6.parsers;
 import oop.ex6.Utils;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
+import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.io.IOException;
@@ -16,8 +17,8 @@ public class FileParser extends Parser {
 
     protected HashMap<String, HashMap<String, Property>> global_properties = new HashMap<>();
 
-
     private static FileParser parser = new FileParser();
+    private HashMap<String, Method> methods = new HashMap<>();
 
     private FileParser() {
         this.global_properties.put("int", new HashMap<>());
@@ -51,7 +52,31 @@ public class FileParser extends Parser {
         return line.isBlank() || line.isEmpty();
     }
 
-    public int ParseFile(String fileName) throws IOException, BadFormatException {
+    /**
+     * Verifies if the code line is a method deceleration line
+     *
+     * @param line the given line to verify
+     * @return true if the code line is a method deceleration line, else false
+     */
+    public boolean isMethodLine(String line) {
+        String[] splitLine = line.split(BLANK_SPACE);
+        if (splitLine.length > 0) {
+            return splitLine[0].equals(VOID_CONSTANT);
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the given method already exist in the program
+     *
+     * @param method the given method to verify
+     * @return true if the method exist, else false
+     */
+    private boolean methodExist(Method method) {
+        return this.methods.containsKey(method.getMethodName());
+    }
+
+    public void ParseFile(String fileName) throws IOException, BadFormatException {
         boolean insideMethod = false;
         ArrayList<Integer> conditionSwitch = new ArrayList<>();
         ArrayList<Integer> whileSwitch = new ArrayList<>();
@@ -104,21 +129,37 @@ public class FileParser extends Parser {
                         }
                     }
                 }
-            } else if (this.isPropertyLine(line)) {
-//                this.addGlobalProperties(getPropertyFromLine(line));
             } else if (isPropertyLine(line)) {
                 ArrayList<Property> newProperties = this.getPropertiesFromLine(line);
                 for (Property property : newProperties) {
                     String currentType = property.getType();
-                    if(this.global_properties.get(currentType).containsKey(property.getName())) {
+                    if (this.global_properties.get(currentType).containsKey(property.getName())) {
                         throw new BadFormatException("Property Already Exist");
                     } else {
                         this.global_properties.get(currentType).put(property.getName(), property);
                     }
                 }
+            } else if (isMethodLine(line)) {
+                methodList.add(line);
+                insideMethod = true;
+            } else if (ifAssignGlobalPropertyLine(line)) {
+                AssignValueToGlobalProperties(line);
+            } else {
+                throw new BadFormatException("Bad format line");
             }
         }
-        return 0;
-    }
+        //If file ended without close the method
+        if (insideMethod) {
+            throw new BadFormatException("Method did not close");
+        }
 
+        for (ArrayList<String> methodParser : methodParsers) {
+            newMethod = OldMethodParser.getInstance().parseMethod(methodParser);
+            if (this.methodExist(newMethod)) {
+                throw new BadFormatException("The method already exist");
+            } else {
+                this.methods.put(newMethod.getMethodName(), newMethod);
+            }
+        }
+    }
 }

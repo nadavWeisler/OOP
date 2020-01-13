@@ -7,6 +7,7 @@ import oop.ex6.exceptions.BadFormatException;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class Parser {
@@ -17,6 +18,8 @@ public class Parser {
     protected final String EQUALS = "=";
     protected final String WHILE_CONSTANT = "while";
     protected final String If_CONSTANT = "if";
+    protected final String VOID_CONSTANT = "void";
+    protected HashMap<String, HashMap<String, Property>> local_properties = new HashMap<>();
 
     /**
      * TODO
@@ -79,29 +82,23 @@ public class Parser {
         String type;
         if (currentString.equals(FINAL_CONSTANT)) {
             isFinal = true;
-            spaceIndex = line.substring(spaceIndex + 1).indexOf(BLANK_SPACE);
+            spaceIndex = line.substring(6).indexOf(BLANK_SPACE);
             if (spaceIndex == -1) {
                 throw new BadFormatException("BAD PROPERTY LINE");
             }
             line = Utils.RemoveAllSpacesAtEnd(line.substring(6));
         }
-
         firstIndex = 0;
         spaceIndex = line.indexOf(BLANK_SPACE);
         currentString = line.substring(firstIndex, spaceIndex);
 
         if (PropertyFactory.getInstance().isPropertyType(currentString)) {
             type = currentString;
-            line = Utils.RemoveAllSpacesAtEnd(line.substring(spaceIndex));
-            spaceIndex = line.indexOf(BLANK_SPACE);
-            if (spaceIndex == -1) {
-                throw new BadFormatException("BAD PROPERTY LINE");
-            }
-
         } else {
             throw new BadFormatException("BAD PROPERTY LINE");
         }
-        System.out.println(line);
+
+        line = Utils.RemoveAllSpacesAtEnd(line.substring(spaceIndex));
         String[] splitLine = line.split(COMMA);
         ArrayList<String> waitForValue = new ArrayList<>();
         ArrayList<Property> result = new ArrayList<>();
@@ -126,7 +123,6 @@ public class Parser {
                 if (!PropertyFactory.getInstance().validParameterName(name)) {
                     throw new BadFormatException("BAD PROPERTY NAME");
                 } else if (!PropertyFactory.getInstance().validValue(type, value)) {
-                    System.out.println(value);
                     throw new BadFormatException("BAD PROPERTY VALUE");
                 } else {
                     for (String waitItem : waitForValue) {
@@ -143,23 +139,142 @@ public class Parser {
             }
         }
 
-        if(!ended) {
+        if (!ended) {
             throw new BadFormatException("; missing");
+        }
+
+        if (waitForValue.size() > 0) {
+            for (String name : waitForValue) {
+                result.add(PropertyFactory.getInstance().createProperty(type, name, null, isFinal));
+            }
         }
 
         return result;
     }
 
-    public static void main(String[] args) {
-        try {
-            String x = " double      d     =          3.2;";
-            ArrayList<Property> t = new Parser().getPropertiesFromLine(x);
-            for (Property t1 : t) {
-                System.out.println(t1.getName());
+    protected boolean ifAssignGlobalPropertyLine(String line) {
+        String[] splitLine = line.split(BLANK_SPACE);
+        if (splitLine.length > 0) {
+            for (String type : FileParser.getInstance().global_properties.keySet()) {
+                if (FileParser.getInstance().global_properties.get(type).containsKey(splitLine[0]) ||
+                        FileParser.getInstance().global_properties.get(type).containsKey(splitLine[0])) {
+                    return true;
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        return false;
     }
+
+    protected boolean ifAssignLocalPropertyLine(String line) {
+        String[] splitLine = line.split(BLANK_SPACE);
+        if (splitLine.length > 0) {
+            for (String type : this.local_properties.keySet()) {
+                if (this.local_properties.get(type).containsKey(splitLine[0]) ||
+                        this.local_properties.get(type).containsKey(splitLine[0])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the given property exist according to a given property name
+     *
+     * @param name the given property name to verify
+     * @return true if the property exist else false
+     */
+    public boolean globalPropertyExist(String name) {
+        for (String type : FileParser.getInstance().global_properties.keySet()) {
+            if (FileParser.getInstance().global_properties.get(type).containsKey(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the given property exist according to a given property name
+     *
+     * @param name the given property name to verify
+     * @return true if the property exist else false
+     */
+    public boolean localPropertyExist(String name) {
+        for (String type : this.local_properties.keySet()) {
+            if (this.local_properties.get(type).containsKey(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected ArrayList<String> getPropertyTypeOptions(String name,
+                                                       HashMap<String, HashMap<String, Property>> currentProperties) {
+        ArrayList<String> options = new ArrayList<>();
+        for (String type : currentProperties.keySet()) {
+            if (currentProperties.get(type).containsKey(name)) {
+                options.add(type);
+            }
+        }
+        return options;
+    }
+
+    protected String getParameterType(String name,
+                                      HashMap<String, HashMap<String, Property>> properties) {
+        for (String type : properties.keySet()) {
+            for (String propertyName : properties.get(type).keySet()) {
+                if (name.equals(propertyName)) {
+                    return type;
+                }
+            }
+        }
+        return EMPTY_STRING;
+    }
+
+    protected void AssignValueToLocalProperties(String line) throws BadFormatException {
+        line = Utils.RemoveAllSpacesAtEnd(line);
+        String[] splitLine = line.split(EQUALS);
+        if (splitLine.length != 2) {
+            throw new BadFormatException("Assign is invalid");
+        }
+        String value = Utils.RemoveAllSpacesAtEnd(splitLine[1]);
+        String name = Utils.RemoveAllSpacesAtEnd(splitLine[0]);
+        if (!this.localPropertyExist(name)) {
+            throw new BadFormatException("Property does not exist");
+        }
+        String propertyType = this.getParameterType(name, this.local_properties);
+        if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
+            throw new BadFormatException("Property value is invalid");
+        }
+
+        Property currentProperty = PropertyFactory.getInstance().getUpdatedProperty(
+                this.local_properties.get(propertyType).get(name), value);
+
+        this.local_properties.get(propertyType).put(name, currentProperty);
+    }
+
+
+    protected void AssignValueToGlobalProperties(String line) throws BadFormatException {
+        line = Utils.RemoveAllSpacesAtEnd(line);
+        String[] splitLine = line.split(EQUALS);
+        if (splitLine.length != 2) {
+            throw new BadFormatException("Assign is invalid");
+        }
+        String value = Utils.RemoveAllSpacesAtEnd(splitLine[1]);
+        String name = Utils.RemoveAllSpacesAtEnd(splitLine[0]);
+        if (!this.globalPropertyExist(name)) {
+            throw new BadFormatException("Property does not exist");
+        }
+        String propertyType = this.getParameterType(name, FileParser.getInstance().global_properties);
+        if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
+            throw new BadFormatException("Property value is invalid");
+        }
+
+        Property currentProperty = PropertyFactory.getInstance().getUpdatedProperty(
+                FileParser.getInstance().global_properties.get(propertyType).get(name), value);
+
+        FileParser.getInstance().global_properties.get(propertyType).put(name, currentProperty);
+    }
+
 
 }

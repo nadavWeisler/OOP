@@ -251,5 +251,9 @@ public class Utils {
         return result;
     }
 
+    public static String getOnlyOneBlank(String str){
+        return str.replace("  ", " ");
+    }
+
 
 }

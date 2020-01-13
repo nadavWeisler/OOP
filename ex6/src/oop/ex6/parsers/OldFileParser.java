@@ -6,8 +6,6 @@ import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,7 +141,7 @@ public class OldFileParser extends OldParser {
         }
 
         for (ArrayList<String> methodParser : methodParsers) {
-            newMethod = MethodParser.getInstance().parseMethod(methodParser);
+            newMethod = OldMethodParser.getInstance().parseMethod(methodParser);
             if (this.methodExist(newMethod)) {
                 throw new BadFormatException("The method already exist");
             } else {

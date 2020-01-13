@@ -15,7 +15,7 @@ public class Method {
     protected HashMap<String, HashMap<String, Property>> properties;
     protected ArrayList<Method> executeMethods;
     protected ArrayList<Block> methodBlocks;
-    protected String [] parameterType;
+    protected ArrayList<String> parameterType;
 
     /**
      * Returns method name
@@ -32,7 +32,7 @@ public class Method {
      * in the method deceleration
      * @param name the method name
      */
-    public Method(String [] methodParameterType, String name) {
+    public Method(ArrayList<String> methodParameterType, String name) {
 
         this.properties = new HashMap<>();
         this.executeMethods = new ArrayList<>();
@@ -53,7 +53,7 @@ public class Method {
      * Returns the method parameter type array
      * @return method parameter type array according to the order of deceleration in the method
      */
-    public String [] getMethodParameterType (){
+    public ArrayList<String> getMethodParameterType (){
         return parameterType;
     }
 }

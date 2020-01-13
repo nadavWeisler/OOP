@@ -85,7 +85,6 @@ public class PropertyFactory {
         if (value == null) {
             return true;
         }
-        System.out.println("Type: " + type);
         switch (type) {
             case STRING_TYPE:
                 if (!stringPattern.matcher(value).matches()) {
@@ -171,9 +170,6 @@ public class PropertyFactory {
      */
     public Property createProperty(String propertyType, String propertyName,
                                    String propertyValue, boolean isFinal) throws BadFormatException {
-        System.out.println(propertyType + " " + propertyName + " " + propertyValue);
-        System.out.println(!isPropertyType(propertyType) + " " + !validParameterName(propertyName)
-                + " " + !validValue(propertyType, propertyValue));
         if (!isPropertyType(propertyType) || !validParameterName(propertyName) ||
                 !validValue(propertyType, propertyValue)) {
             throw new BadFormatException("Property fields are invalid");
@@ -211,7 +207,6 @@ public class PropertyFactory {
                     return new BooleanProperty(propertyName,
                             propertyType, isFinal, false, Boolean.parseBoolean(propertyValue));
                 case CHAR_TYPE:
-                    System.out.println(propertyValue);
                     return new CharProperty(propertyName,
                             propertyType, isFinal, false, propertyValue.charAt(1));
             }
@@ -335,5 +330,30 @@ public class PropertyFactory {
         }
 
         return newProperty;
+    }
+
+    public Property getUpdatedProperty(Property property, String value) {
+        Property ret = property;
+        switch (ret.getType()) {
+            case STRING_TYPE:
+                ((StringProperty) ret).setValue(value.substring(1, value.length() - 1));
+                break;
+            case INT_TYPE:
+                ((IntProperty) ret).setValue(Integer.parseInt(value));
+                break;
+            case DOUBLE_TYPE:
+                ((DoubleProperty) ret).setValue(Double.parseDouble(value));
+                break;
+            case CHAR_TYPE:
+                ((CharProperty) ret).setValue(value.charAt(1));
+                break;
+            case BOOLEAN_TYPE:
+                if (Utils.isDouble(value)) {
+                    ((BooleanProperty) ret).setValue(Double.parseDouble(value) != 0);
+                } else {
+                    ((BooleanProperty) ret).setValue(Boolean.parseBoolean(value));
+                }
+        }
+        return ret;
     }
 }
