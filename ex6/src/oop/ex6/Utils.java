@@ -3,6 +3,9 @@ package oop.ex6;
 import oop.ex6.code.properties.Property;
 import oop.ex6.exceptions.BadFormatException;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -228,6 +231,24 @@ public class Utils {
             this.validParameterType(splitParam[0]);
             this.validValue(splitParam[0], splitParam[1]);
         }
+    }
+
+    /**
+     * Converts the text file into an array list of String, each element represent a code line of the file
+     *
+     * @param fileName the given file name to convert to an array list
+     * @return an array list of String code lines from the file
+     * @throws IOException if the given file is invalid
+     */
+    public static ArrayList<String> fileToArrayList(String fileName) throws IOException {
+        ArrayList<String> result = new ArrayList<String>();
+
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        while (br.ready()) {
+            result.add(br.readLine());
+        }
+
+        return result;
     }
 
 

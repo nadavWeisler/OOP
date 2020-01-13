@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Extends Parser and parse the methods from the original file , uses the singleton design pattern
  * The parser is activated from the FileParser class
  */
-public class MethodParser extends Parser {
+public class MethodParser extends OldParser {
 
 
     private static final String BAD_METHOD_LINE = "The method line is invalid";
@@ -58,7 +58,7 @@ public class MethodParser extends Parser {
         verifyMethodLine(methodDetails[0], methodDetails[1]);
         String[] methodParamType = getMethodParamType(lines.get(0));
         Method newMethod = new Method(methodParamType, methodDetails[0]);
-        this.globalProperties = FileParser.global_properties;
+//        this.globalProperties = FileParser.global_properties;
         ArrayList<Block> blocks = new ArrayList<>();
         boolean startBlock;
         for (int i = 1; i < lines.size() - 1; i++) {

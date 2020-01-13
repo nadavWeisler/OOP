@@ -4,9 +4,8 @@ import oop.ex6.Utils;
 import oop.ex6.code.properties.Property;
 import oop.ex6.parsers.FileParser;
 import oop.ex6.exceptions.BadFormatException;
-import oop.ex6.parsers.Parser;
+import oop.ex6.parsers.OldParser;
 
-import javax.print.attribute.HashAttributeSet;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -14,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Block represent if/while section
  */
-public class Block extends Parser {
+public class Block extends OldParser {
 
     public enum blockType {IF_CONDITION, WHILE_LOOP}
 
@@ -134,12 +133,12 @@ public class Block extends Parser {
                     // if the parameter is no the saved words 'true' 'false'
                     if (!(parameter.equals("true") || parameter.equals("false")) && !Utils.isDouble(parameter)) {
                         // if the parameter does not exist as a boolean,int or double
-                        if (!(FileParser.getInstance().propertyExistWithSomeTypes(booleanTypes, parameter) ||
-                                methodPropertyExistWithSomeTypes(booleanTypes, parameter) ||
-                                FileParser.getInstance().globalPropertyExistWithSomeTypes(
-                                        booleanTypes, parameter))) {
-                            throw new BadFormatException("The block condition is invalid");
-                        }
+//                        if (!(FileParser.getInstance().propertyExistWithSomeTypes(booleanTypes, parameter) ||
+//                                methodPropertyExistWithSomeTypes(booleanTypes, parameter) ||
+//                                FileParser.getInstance().globalPropertyExistWithSomeTypes(
+//                                        booleanTypes, parameter))) {
+//                            throw new BadFormatException("The block condition is invalid");
+//                        }
                     }
                 }
             }

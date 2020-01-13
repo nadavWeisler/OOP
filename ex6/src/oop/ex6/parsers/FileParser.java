@@ -3,91 +3,54 @@ package oop.ex6.parsers;
 import oop.ex6.Utils;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
-import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
-/**
- * Extends Parser and parse the text file that contains code lines, uses the singleton design pattern
- */
 public class FileParser extends Parser {
 
-    // Represent all the methods in the file
-    private HashMap<String, Method> methods = new HashMap<>();
+    protected final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
 
-    // Creates a single instance of FileParser - singleton design
+    protected HashMap<String, HashMap<String, Property>> global_properties = new HashMap<>();
+
+
     private static FileParser parser = new FileParser();
 
-    // Saves all the file variables
-    protected static HashMap<String, HashMap<String, Property>> global_properties = new HashMap<>();
-
-
-    // Creating finals for the parse process
-    private final String VOID_CONSTANT = "void";
-    private final String FINAL_CONSTANT = "final";
-    private final String EMPTY_STRING = "";
-    private final String BLANK_SPACE = " ";
-    private final String COMMA = ",";
-    private final String EQUALS = "=";
-
-
-    /**
-     * Private constructor of FileParser - singleton design pattern
-     */
     private FileParser() {
+        this.global_properties.put("int", new HashMap<>());
+        this.global_properties.put("double", new HashMap<>());
+        this.global_properties.put("String", new HashMap<>());
+        this.global_properties.put("char", new HashMap<>());
+        this.global_properties.put("boolean", new HashMap<>());
     }
 
-    /**
-     * Returns the single instance of FileParser - singleton design pattern
-     *
-     * @return FileParser instance
-     */
     public static FileParser getInstance() {
         return parser;
     }
 
     /**
-     * Converts the text file into an array list of String, each element represent a code line of the file
+     * Verifies if the code line is a comment line
      *
-     * @param fileName the given file name to convert to an array list
-     * @return an array list of String code lines from the file
-     * @throws IOException if the given file is invalid
+     * @param line the given line to verify
+     * @return true if the code line is comment line, else false
      */
-    private ArrayList<String> fileToArrayList(String fileName) throws IOException {
-        ArrayList<String> result = new ArrayList<String>();
-
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
-        while (br.ready()) {
-            result.add(br.readLine());
-        }
-
-        return result;
+    protected boolean isComment(String line) {
+        return COMMENT_PATTERN.matcher(line).matches();
     }
 
     /**
-     * Verifies if the given method already exist in the program
+     * Verifies if the code line is an empty line
      *
-     * @param method the given method to verify
-     * @return true if the method exist, else false
+     * @param line the given line to verify
+     * @return true if the code line is empty line else, false
      */
-    private boolean methodExist(Method method) {
-        return this.methods.containsKey(method.getMethodName());
+    protected boolean isEmpty(String line) {
+        return line.isBlank() || line.isEmpty();
     }
 
-    /**
-     * Parse the file into data section and verifies the validity of the file according to the
-     * S-java definition
-     *
-     * @param fileName the given file to parse and verify its validity
-     * @return 0 if the code is legal, else throws an exception the the main method
-     * @throws IOException        when illegal file name was found
-     * @throws BadFormatException if the code is illegal
-     */
     public int ParseFile(String fileName) throws IOException, BadFormatException {
         boolean insideMethod = false;
         ArrayList<Integer> conditionSwitch = new ArrayList<>();
@@ -97,7 +60,7 @@ public class FileParser extends Parser {
         ArrayList<String> methodList = new ArrayList<>();
         ArrayList<ArrayList<String>> methodParsers = new ArrayList<>();
         //Get file array list
-        ArrayList<String> fileList = fileToArrayList(fileName);
+        ArrayList<String> fileList = Utils.fileToArrayList(fileName);
 
         for (String line : fileList) {
             line = Utils.RemoveAllSpacesAtEnd(line);
@@ -142,95 +105,20 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (this.isPropertyLine(line)) {
-                this.addGlobalProperties(getPropertyFromLine(line));
-            } else if (this.isMethodLine(line)) {
-                methodList.add(line);
-                insideMethod = true;
-            } else if (ifAssignPropertyLine(line)) {
-                this.assignProperty(line);
-            } else {
-                throw new BadFormatException("Invalid line");
+//                this.addGlobalProperties(getPropertyFromLine(line));
+            } else if (isPropertyLine(line)) {
+                ArrayList<Property> newProperties = this.getPropertiesFromLine(line);
+                for (Property property : newProperties) {
+                    String currentType = property.getType();
+                    if(this.global_properties.get(currentType).containsKey(property.getName())) {
+                        throw new BadFormatException("Property Already Exist");
+                    } else {
+                        this.global_properties.get(currentType).put(property.getName(), property);
+                    }
+                }
             }
         }
-
-        //If file ended without close the method
-        if (insideMethod) {
-            throw new BadFormatException("Method did not close");
-        }
-
-        for (ArrayList<String> methodParser : methodParsers) {
-            newMethod = MethodParser.getInstance().parseMethod(methodParser);
-            if (this.methodExist(newMethod)) {
-                throw new BadFormatException("The method already exist");
-            } else {
-                this.methods.put(newMethod.getMethodName(), newMethod);
-
-            }
-        }
-
         return 0;
     }
 
-    protected void addGlobalProperties(HashMap<String, HashMap<String, Property>> newProperties)
-            throws BadFormatException {
-        for (String type : newProperties.keySet()) {
-            if (global_properties.containsKey(type)) {
-                HashMap<String, Property> newTypeProperties = newProperties.get(type);
-                for (String currentProperty : newTypeProperties.keySet()) {
-                    if (global_properties.get(type).containsKey(currentProperty)) {
-                        throw new BadFormatException("Already contain this key!");
-                    }
-                }
-            } else {
-                global_properties.put(type, newProperties.get(type));
-            }
-        }
-    }
-
-    /**
-     * Verifies if the code line is a method deceleration line
-     *
-     * @param line the given line to verify
-     * @return true if the code line is a method deceleration line, else false
-     */
-    public boolean isMethodLine(String line) {
-        String[] splitLine = line.split(BLANK_SPACE);
-        if (splitLine.length > 0) {
-            return splitLine[0].equals(VOID_CONSTANT);
-        }
-        return false;
-    }
-
-    @Override
-    protected void updatePropertyValue(String name, String value)
-            throws BadFormatException {
-        for (String type : global_properties.keySet()) {
-            if (global_properties.get(type).containsKey(name)) {
-                if (PropertyFactory.getInstance().validValue(type, value)) {
-                    this.replaceProperty(name, type, value);
-                    return;
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void updatePropertyValueByPropertyName(String nameToUpdate, String nameFromUpdate)
-            throws BadFormatException {
-        ArrayList<String> typesToUpdate = this.GetPropertyTypeOptions(nameToUpdate, global_properties);
-        ArrayList<String> typesFromUpdate = this.GetPropertyTypeOptions(nameFromUpdate, global_properties);
-        for (String type : typesFromUpdate) {
-            if (typesToUpdate.contains(type)) {
-                Property newProperty = PropertyFactory.getInstance().updatePropertyFromOtherProperty(
-                        global_properties.get(type).get(nameToUpdate),
-                        global_properties.get(type).get(nameFromUpdate));
-                if (newProperty.isFinal()) {
-                    throw new BadFormatException("Assign final property");
-                }
-                this.replaceProperty(nameToUpdate, type, newProperty);
-                return;
-            }
-        }
-
-    }
 }

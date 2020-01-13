@@ -58,12 +58,12 @@ public class PropertyFactory {
      * @param name the given string to verify
      * @return true if the string is a valid name else false
      */
-    private boolean validParameterName(String name) {
+    public boolean validParameterName(String name) {
         if (name.length() == 0) {
             return false;
         } else if (Pattern.matches(".*\\W+.*", name)) {
             return false;
-        } else if (Pattern.matches("\\d.*", name)) { //Name start with digit
+        } else if (Pattern.matches("\\d.*", name)) { //Name start with diit
             return false;
         } else if (name.contains("_")) { // if the name contains _ then it has to contain at least
             // one more letter or digit
@@ -103,7 +103,7 @@ public class PropertyFactory {
                 }
                 break;
             case CHAR_TYPE:
-                if (charPattern.matcher(value).matches()) {
+                if (!charPattern.matcher(value).matches()) {
                     return false;
                 }
                 break;
