@@ -1,6 +1,7 @@
 package oop.ex6.parsers;
 
 import oop.ex6.Utils;
+import oop.ex6.code.Block;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
@@ -13,7 +14,6 @@ public class MethodParser extends Parser {
     private static final String BAD_METHOD_LINE = "The method line is invalid";
     private HashMap<String, HashMap<String, Property>> method_arguments = new HashMap<>();
     private static MethodParser parser = new MethodParser();
-    private HashMap<String, Method> existingMethods = new HashMap<>();
 
 
     private MethodParser() {
@@ -205,11 +205,16 @@ public class MethodParser extends Parser {
      * @return an array of string that represents the parameter types of the method
      * @throws BadFormatException when the the parameters line is invalid
      */
-    private ArrayList<String> getMethodParamType() throws BadFormatException {
+    private ArrayList<String> getMethodParamType(String line) throws BadFormatException {
         ArrayList<String> result = new ArrayList<>();
-        for (String type : this.method_arguments.keySet()) {
-            if (!this.method_arguments.get(type).isEmpty()) {
-                result.add(type);
+        String[] splitLine = line.split(COMMA);
+        for (String var : splitLine) {
+            var = var.replace("  ", " ");
+            String[] varSplit = var.split(" ");
+            if (varSplit.length == 3) {
+                result.add(Utils.RemoveAllSpacesAtEnd(varSplit[1]));
+            } else if (varSplit.length == 2) {
+                result.add(varSplit[0]);
             }
         }
         return result;
@@ -218,12 +223,11 @@ public class MethodParser extends Parser {
     /**
      * Verifies if the given code line is a call to an existing method
      *
-     * @param line   the given code line to verify
-     * @param method the method that the code line is inside
+     * @param line the given code line to verify
      * @return true if the code line is a valid method call, else false
      * @throws BadFormatException if the code line is an invalid existing method call
      */
-    private boolean isCallToExistingMethod(String line, HashMap<String, Method> existingMethods)
+    private boolean isCallToExistingMethodOld(String line, HashMap<String, Method> existingMethods)
             throws BadFormatException {
         line = line.replace(" ", "");
         String[] methodCall = line.split("\\(");
@@ -269,12 +273,92 @@ public class MethodParser extends Parser {
         return false;
     }
 
+    /**
+     * Verifies if the given code line is a call to an existing method
+     *
+     * @param line the given code line to verify
+     * @return true if the code line is a valid method call, else false
+     * @throws BadFormatException if the code line is an invalid existing method call
+     */
+    private boolean isCallToExistingMethod(String line, HashMap<String, Method> existingMethods,
+                                           ArrayList<BlockParser> blocks)
+            throws BadFormatException {
+        line = line.replace(" ", "");
+        String[] methodCall = line.split("\\(");
+
+        if (!line.endsWith(";")) {
+            throw new BadFormatException("The method call does not end with ';' ");
+        }
+
+        if (!(existingMethods.containsKey(methodCall[0]))) { // verify the method exist
+            throw new BadFormatException("The method does not exist");
+        } else {// The method was found
+            Method existingMethod = existingMethods.get(methodCall[0]);
+            ArrayList<String> methodParameters = existingMethod.getMethodParameterType();
+            String currentMethodParameters = getMethodParameters(line);
+            String[] currentParameterArray = currentMethodParameters.split(",");
+
+            System.out.println(currentParameterArray.length + "_" + methodParameters.size());
+            if (currentParameterArray.length != methodParameters.size()) {
+                throw new BadFormatException("The method number of variables is not ok");
+            }
+            // verify that the parameters are from the same type
+            for (int i = 0; i < currentParameterArray.length; i++) {
+                boolean found = false;
+                for (int j = blocks.size() - 1; j >= 0; j--) {
+                    if (blocks.get(j).localPropertyExist(currentParameterArray[i])) {
+                        found = true;
+                        if (!PropertyFactory.getInstance().validTypesTo(methodParameters.get(i),
+                                getParameterType(currentParameterArray[i], blocks.get(j).local_properties))) {
+                            throw new BadFormatException("Invalid method parameters");
+                        }
+                    }
+                }
+                if (!found) {
+                    if (localPropertyExist(currentParameterArray[i])) {
+                        found = true;
+                        if (!PropertyFactory.getInstance().validTypesTo(methodParameters.get(i),
+                                getParameterType(currentParameterArray[i], local_properties))) {
+                            throw new BadFormatException("Invalid method parameters");
+                        }
+                    }
+                }
+                if (!found) {
+                    if (methodPropertyExist(currentParameterArray[i])) {
+                        found = true;
+                        if (!PropertyFactory.getInstance().validTypesTo(methodParameters.get(i),
+                                getParameterType(currentParameterArray[i], method_arguments))) {
+                            throw new BadFormatException("Invalid method parameters");
+                        }
+                    }
+                }
+                if (!found) {
+                    if (globalPropertyExist(currentParameterArray[i])) {
+                        found = true;
+                        if (!PropertyFactory.getInstance().validTypesTo(methodParameters.get(i),
+                                getParameterType(currentParameterArray[i],
+                                        FileParser.getInstance().global_properties))) {
+                            throw new BadFormatException("Invalid method parameters");
+                        }
+                    }
+                }
+                if (!found) {
+                    if (!PropertyFactory.getInstance().validValue(methodParameters.get(i),
+                            currentParameterArray[i])) {
+                        throw new BadFormatException("Prameter doesnet exist");
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public Method parseMethod(ArrayList<String> methodLines, HashMap<String, Method> existingMethods)
             throws BadFormatException {
         String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
         String[] methodDetails = extractMethodDetails(line);
         verifyMethodLine(methodDetails[0], methodDetails[1]);
-        ArrayList<String> methodParamType = this.getMethodParamType();
+        ArrayList<String> methodParamType = this.getMethodParamType(methodDetails[1]);
         Method newMethod = new Method(methodParamType, methodDetails[0]);
         ArrayList<BlockParser> blocks = new ArrayList<BlockParser>();
         boolean insideBlock = false;
@@ -346,7 +430,7 @@ public class MethodParser extends Parser {
                 break;
             }
 
-            if (!this.isCallToExistingMethod(line, newMethod, existingMethods)) {
+            if (!this.isCallToExistingMethod(line, existingMethods, blocks)) {
                 throw new BadFormatException("Bad Formant");
             }
 
@@ -363,7 +447,7 @@ public class MethodParser extends Parser {
         String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
         String[] methodDetails = extractMethodDetails(line);
         verifyMethodLine(methodDetails[0], methodDetails[1]);
-        ArrayList<String> methodParamType = this.getMethodParamType();
+        ArrayList<String> methodParamType = this.getMethodParamType(methodDetails[1]);
         return new Method(methodParamType, methodDetails[0]);
     }
 
