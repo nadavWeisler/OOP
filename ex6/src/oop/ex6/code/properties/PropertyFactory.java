@@ -332,7 +332,10 @@ public class PropertyFactory {
         return newProperty;
     }
 
-    public Property getUpdatedProperty(Property property, String value) {
+    public Property getUpdatedProperty(Property property, String value) throws BadFormatException {
+        if(property.isFinal) {
+            throw new BadFormatException("Cannot update final property");
+        }
         Property ret = property;
         switch (ret.getType()) {
             case STRING_TYPE:

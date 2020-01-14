@@ -86,9 +86,11 @@ public class FileParser extends Parser {
         ArrayList<ArrayList<String>> methodParsers = new ArrayList<>();
         //Get file array list
         ArrayList<String> fileList = Utils.fileToArrayList(fileName);
-
+        int lineCount = -1;
         for (String line : fileList) {
+            lineCount++;
             line = Utils.RemoveAllSpacesAtEnd(line);
+            System.out.println("Line: " + line);
             //Empty or Comment line
             if (this.isEmpty(line) || this.isComment(line)) {
                 continue;
@@ -99,6 +101,7 @@ public class FileParser extends Parser {
 
             //Inside a method
             if (insideMethod) {
+                System.out.println("Inside Method!");
                 methodList.add(line);
                 if (this.isIfLine(line)) {
                     conditionSwitch.add(switchCount);
@@ -107,6 +110,8 @@ public class FileParser extends Parser {
                     whileSwitch.add(switchCount);
                     switchCount++;
                 } else if (this.isEnd(line)) {
+                    System.out.println("Con switch: " + conditionSwitch.size());
+                    System.out.println("While switch: " + whileSwitch.size());
                     if (conditionSwitch.isEmpty()) {
                         if (whileSwitch.isEmpty()) {
                             insideMethod = false;
@@ -130,7 +135,10 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isPropertyLine(line)) {
-                ArrayList<Property> newProperties = this.getPropertiesFromLine(line);
+                System.out.println("Inside Property!");
+                ArrayList<HashMap<String, HashMap<String, Property>>> arr = new ArrayList<>();
+                arr.add(global_properties);
+                ArrayList<Property> newProperties = this.getPropertiesFromLine(line, arr);
                 for (Property property : newProperties) {
                     String currentType = property.getType();
                     if (this.global_properties.get(currentType).containsKey(property.getName())) {
@@ -140,12 +148,16 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isMethodLine(line)) {
+                System.out.println("Inside method line!");
                 methodList.add(line);
                 insideMethod = true;
             } else if (ifAssignGlobalPropertyLine(line)) {
                 AssignValueToGlobalProperties(line);
             } else {
-                throw new BadFormatException("Bad format line");
+                if (!(this.isEnd(line) && lineCount == fileList.size() - 1)) {
+                    System.out.println(lineCount + "_" + fileList.size());
+                    throw new BadFormatException("Bad format line");
+                }
             }
         }
         //If file ended without close the method
@@ -153,13 +165,18 @@ public class FileParser extends Parser {
             throw new BadFormatException("Method did not close");
         }
 
+        HashMap<String, Method> existingMethods = new HashMap<>();
         for (ArrayList<String> methodParser : methodParsers) {
-            newMethod = OldMethodParser.getInstance().parseMethod(methodParser);
+            newMethod = MethodParser.getInstance().parseMethodLine(methodParser);
             if (this.methodExist(newMethod)) {
                 throw new BadFormatException("The method already exist");
             } else {
-                this.methods.put(newMethod.getMethodName(), newMethod);
+                existingMethods.put(newMethod.getMethodName(), newMethod);
             }
+        }
+
+        for (ArrayList<String> methodParser : methodParsers) {
+            MethodParser.getInstance().parseMethod(methodParser, existingMethods);
         }
     }
 }

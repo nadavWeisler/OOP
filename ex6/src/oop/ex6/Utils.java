@@ -251,8 +251,19 @@ public class Utils {
         return result;
     }
 
-    public static String getOnlyOneBlank(String str){
+    public static String getOnlyOneBlank(String str) {
         return str.replace("  ", " ");
+    }
+
+    public static Property existInProperties(String name, HashMap<String, HashMap<String, Property>> prop) {
+        for (String type : prop.keySet()) {
+            for (String prop_name : prop.get(type).keySet()) {
+                if(prop_name.equals(name)) {
+                    return prop.get(type).get(name);
+                }
+            }
+        }
+        return null;
     }
 
 

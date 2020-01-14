@@ -1,13 +1,11 @@
 package oop.ex6.parsers;
 
 import oop.ex6.Utils;
-import oop.ex6.code.Block;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
-import javax.xml.stream.FactoryConfigurationError;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,6 +14,7 @@ public class MethodParser extends Parser {
     private HashMap<String, HashMap<String, Property>> method_arguments = new HashMap<>();
     private static MethodParser parser = new MethodParser();
     private HashMap<String, Method> existingMethods = new HashMap<>();
+
 
     private MethodParser() {
         this.method_arguments.put("int", new HashMap<>());
@@ -209,7 +208,7 @@ public class MethodParser extends Parser {
     private ArrayList<String> getMethodParamType() throws BadFormatException {
         ArrayList<String> result = new ArrayList<>();
         for (String type : this.method_arguments.keySet()) {
-            if(!this.method_arguments.get(type).isEmpty()) {
+            if (!this.method_arguments.get(type).isEmpty()) {
                 result.add(type);
             }
         }
@@ -224,16 +223,14 @@ public class MethodParser extends Parser {
      * @return true if the code line is a valid method call, else false
      * @throws BadFormatException if the code line is an invalid existing method call
      */
-    private boolean isCallToExistingMethod(String line, Method method) throws BadFormatException {
+    private boolean isCallToExistingMethod(String line, HashMap<String, Method> existingMethods)
+            throws BadFormatException {
         line = line.replace(" ", "");
         String[] methodCall = line.split("\\(");
-        System.out.println(methodCall[0]);
-        System.out.println((method.getMethodName()));
-        if (methodCall[0].equals(method.getMethodName())) {
-            return true;
-        }
+
         if (existingMethods.containsKey(methodCall[0])) { // The method exist
-            if (!(line.endsWith(");"))) {
+            Method method = existingMethods.get(methodCall[0]);
+            if (!(line.endsWith(") ;"))) {
                 throw new BadFormatException("The method call is invalid");
             }
 
@@ -247,7 +244,8 @@ public class MethodParser extends Parser {
                     if (!(method.getProperties().get(expectedParamType).containsKey(parametersArray[i]))) {
                         // the parameter does not exist in the method, verifies if it exist in the global scope
                         if (FileParser.getInstance().global_properties.containsKey(expectedParamType)) {
-                            if (!(FileParser.getInstance().global_properties.get(expectedParamType).containsKey(parametersArray[i]))) {
+                            if (!(FileParser.getInstance().global_properties.get(expectedParamType).containsKey(
+                                    parametersArray[i]))) {
                                 // the parameter does not exist in the global scope either
                                 throw new BadFormatException("The method call is invalid");
                             }
@@ -267,78 +265,106 @@ public class MethodParser extends Parser {
             }
             return true;
         }
+
         return false;
     }
 
-    public Method parseMethod(ArrayList<String> methodLines) throws BadFormatException {
+    public Method parseMethod(ArrayList<String> methodLines, HashMap<String, Method> existingMethods)
+            throws BadFormatException {
         String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
         String[] methodDetails = extractMethodDetails(line);
         verifyMethodLine(methodDetails[0], methodDetails[1]);
         ArrayList<String> methodParamType = this.getMethodParamType();
         Method newMethod = new Method(methodParamType, methodDetails[0]);
         ArrayList<BlockParser> blocks = new ArrayList<BlockParser>();
-        return newMethod;
-        boolean startBlock = false;
+        boolean insideBlock = false;
+
         for (int i = 1; i < methodLines.size() - 1; i++) {
             line = Utils.RemoveAllSpacesAtEnd(methodLines.get(i));
             if (this.isIfLine(line)) {
-                blocks.add(new BlockParser(false, line, this.local_properties));
-                ArrayList<String> newBlock = new ArrayList<>();
-                newBlock.add(line);
-                startBlock = true;
+                blocks.add(new BlockParser(false, line));
+                insideBlock = true;
+                continue;
             } else if (this.isWhileLine(methodLines.get(i))) {
-                blocks.add(new BlockParser(true, line, this.local_properties));
-                ArrayList<String> newBlock = new ArrayList<>();
-                newBlock.add(line);
-                startBlock = true;
-            } else {
-                startBlock = false;
+                blocks.add(new BlockParser(true, line));
+                insideBlock = true;
+                continue;
             }
 
-            if (!startBlock) {
-                if (isEnd(line)) {
-                    if (blocks.size() == 0) {
-                        throw new BadFormatException("Invalid line");
+            if (isEnd(line)) {
+                if (blocks.size() == 0) {
+                    throw new BadFormatException("Invalid line");
+                }
+                blocks.remove(blocks.size() - 1);
+                continue;
+            } else if (this.isPropertyLine(line)) {
+                ArrayList<HashMap<String, HashMap<String, Property>>> allProperties = getAllBlocksProperty(blocks);
+                allProperties.add(this.method_arguments);
+                allProperties.add(FileParser.getInstance().global_properties);
+                ArrayList<Property> newProperties = getPropertiesFromLine(line, allProperties);
+                if (insideBlock) {
+                    if (blocks.get(blocks.size() - 1).propertiesExistInBlock(newProperties)) {
+                        throw new BadFormatException("Properties already exist");
+                    } else {
+                        blocks.get(blocks.size() - 1).addPropertiesToBlock(newProperties);
+                        continue;
                     }
-                    for (String type : blocks.get(blocks.size() - 1).local_properties.keySet()) {
-                        for (String name : blocks.get(blocks.size() - 1).local_properties.get(type).keySet()) {
-                            this.local_properties.get(type).remove(name);
-                        }
-                    }
-                    blocks.remove(blocks.size() - 1);
-                } else if (this.isPropertyLine(line)) {
-                    ArrayList<Property> toAddProperties = getPropertiesFromLine(line);
-                    for (Property property : toAddProperties) {
-                        if (methodPropertyExist(property)) {
-                            throw new BadFormatException("Property Already Exist");
+                } else {
+                    for (Property newProperty : newProperties) {
+                        if (this.localPropertyExist(newProperty.getName()) ||
+                                this.methodPropertyExist(newProperty.getName())) {
+                            throw new BadFormatException("Property already Exist");
                         } else {
-                            this.local_properties.get(property.getType()).put(property.getName(), property);
+                            this.local_properties.get(newProperty.getType()).put(newProperty.getName(), newProperty);
                         }
                     }
-
-                    if (blocks.size() > 0) {
-                        blocks.get(blocks.size() - 1).addPropertiesToBlock(line);
+                }
+            } else {
+                boolean assign = false;
+                if (insideBlock) {
+                    for (BlockParser blockParser : blocks) {
+                        if (blockParser.ifAssignLocalPropertyLine(line)) {
+                            blockParser.AssignValueToLocalProperties(line);
+                            assign = true;
+                            break;
+                        }
                     }
+                }
+                if (!assign) {
 
-                } else if (this.ifAssignLocalPropertyLine(line)) {
-                    this.AssignValueToLocalProperties(line);
-                } else if (this.ifAssignMethodPropertyLine(line)) {
-                    this.AssignValueToMethodProperties(line);
-                } else if (this.ifAssignGlobalPropertyLine(line)) {
-                    this.AssignValueToGlobalProperties(line);
-                } else if (this.isReturn(methodLines, i)) {
-                    break;
-                } else if (!this.isCallToExistingMethod(line, newMethod)) {
-                    throw new BadFormatException("Bad Formant");
+                    if (this.ifAssignLocalPropertyLine(line)) {
+                        AssignValueToLocalProperties(line);
+                    } else if (this.ifAssignMethodPropertyLine(line)) {
+                        AssignValueToMethodProperties(line);
+                    } else if (this.ifAssignGlobalPropertyLine(line)) {
+                        AssignValueToGlobalProperties(line);
+                    }
                 }
             }
+
+            if (this.isReturn(methodLines, i)) {
+                break;
+            }
+
+            if (!this.isCallToExistingMethod(line, newMethod, existingMethods)) {
+                throw new BadFormatException("Bad Formant");
+            }
+
+
         }
 
         if (!this.isEnd(methodLines.get(methodLines.size() - 1))) {
             throw new BadFormatException("Invalid line");
         }
-
         return newMethod;
+    }
+
+    public Method parseMethodLine(ArrayList<String> methodLines) throws BadFormatException {
+        String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
+        String[] methodDetails = extractMethodDetails(line);
+        verifyMethodLine(methodDetails[0], methodDetails[1]);
+        ArrayList<String> methodParamType = this.getMethodParamType();
+        return new Method(methodParamType, methodDetails[0]);
     }
 
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
@@ -399,14 +425,12 @@ public class MethodParser extends Parser {
         return false;
     }
 
-    public static void main(String[] args) {
-        try {
-            ArrayList<String> m = new ArrayList<>();
-            m.add("void foo(int x){");
-            m.add("}");
-            MethodParser.getInstance().parseMethod(m);
-        } catch (Exception e) {
-            e.printStackTrace();
+    private ArrayList<HashMap<String, HashMap<String, Property>>> getAllBlocksProperty(
+            ArrayList<BlockParser> allBlocks) {
+        ArrayList<HashMap<String, HashMap<String, Property>>> ret = new ArrayList<>();
+        for (BlockParser block : allBlocks) {
+            ret.add(block.local_properties);
         }
+        return ret;
     }
 }

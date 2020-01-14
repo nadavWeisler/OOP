@@ -42,9 +42,12 @@ public class Parser {
      * @return true if the code line is a start of a while loop else false
      */
     protected boolean isWhileLine(String line) {
+        line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            return splitLine[0].equals(WHILE_CONSTANT);
+            System.out.println(splitLine[0]);
+            return splitLine[0].startsWith(WHILE_CONSTANT + "(") ||
+                    splitLine[0].equals(WHILE_CONSTANT);
         }
         return false;
     }
@@ -58,7 +61,8 @@ public class Parser {
     protected boolean isIfLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            return splitLine[0].equals(If_CONSTANT);
+            return splitLine[0].startsWith(If_CONSTANT + "(") ||
+                    splitLine[0].equals(If_CONSTANT);
         }
         return false;
     }
@@ -73,7 +77,10 @@ public class Parser {
         return line.replace(" ", "").equals("}");
     }
 
-    protected ArrayList<Property> getPropertiesFromLine(String line) throws BadFormatException {
+    protected ArrayList<Property> getPropertiesFromLine(String line,
+                                                        ArrayList<HashMap<String, HashMap<String, Property>>>
+                                                                properties)
+            throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         int firstIndex = 0;
         int spaceIndex = line.indexOf(BLANK_SPACE);
@@ -122,13 +129,21 @@ public class Parser {
                 String value = Utils.RemoveAllSpacesAtEnd(splitItem[1]);
                 if (!PropertyFactory.getInstance().validParameterName(name)) {
                     throw new BadFormatException("BAD PROPERTY NAME");
-                } else if (!PropertyFactory.getInstance().validValue(type, value)) {
-                    throw new BadFormatException("BAD PROPERTY VALUE");
                 } else {
-                    for (String waitItem : waitForValue) {
-                        result.add(PropertyFactory.getInstance().createProperty(type, waitItem, value, isFinal));
+                    for (HashMap<String, HashMap<String, Property>> properties_hash : properties) {
+                        Property existProp = Utils.existInProperties(value, properties_hash);
+                        if(existProp != null) {
+                            value = PropertyFactory.getInstance().getValueFromProperty(existProp);
+                        }
                     }
-                    result.add(PropertyFactory.getInstance().createProperty(type, name, value, isFinal));
+                    if (!PropertyFactory.getInstance().validValue(type, value)) {
+                        throw new BadFormatException("BAD PROPERTY VALUE");
+                    } else {
+                        for (String waitItem : waitForValue) {
+                            result.add(PropertyFactory.getInstance().createProperty(type, waitItem, value, isFinal));
+                        }
+                        result.add(PropertyFactory.getInstance().createProperty(type, name, value, isFinal));
+                    }
                 }
             } else {
                 if (!PropertyFactory.getInstance().validParameterName(item)) {
@@ -266,6 +281,7 @@ public class Parser {
             throw new BadFormatException("Property does not exist");
         }
         String propertyType = this.getParameterType(name, FileParser.getInstance().global_properties);
+
         if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
             throw new BadFormatException("Property value is invalid");
         }

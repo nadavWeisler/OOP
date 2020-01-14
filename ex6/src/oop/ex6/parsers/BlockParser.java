@@ -33,15 +33,19 @@ public class BlockParser extends Parser {
      *                      is an if condition
      * @param conditionLine the given conditionLine for the block
      */
-    public BlockParser(boolean isWhile, String conditionLine, HashMap<String, HashMap<String, Property>> methodProperties)
+    public BlockParser(boolean isWhile, String conditionLine)
             throws BadFormatException {
+        this.local_properties.put("int", new HashMap<>());
+        this.local_properties.put("double", new HashMap<>());
+        this.local_properties.put("String", new HashMap<>());
+        this.local_properties.put("char", new HashMap<>());
+        this.local_properties.put("boolean", new HashMap<>());
         if (isWhile) {
             type = Block.blockType.WHILE_LOOP;
         } else {
             type = Block.blockType.IF_CONDITION;
         }
         this.conditionLine = conditionLine;
-        this.method_property = methodProperties;
         this.verifyCondition();
     }
 
@@ -143,7 +147,22 @@ public class BlockParser extends Parser {
 
     }
 
-    public void addPropertiesToBlock(String line) throws BadFormatException {
-        AssignValueToGlobalProperties(line);
+    public void addPropertiesToBlock(ArrayList<Property> properties) throws BadFormatException {
+        for (Property property : properties) {
+            if (!localPropertyExist(property.getName())) {
+                this.local_properties.get(property.getType()).put(property.getName(), property);
+            } else {
+                throw new BadFormatException("Property Already Exist");
+            }
+        }
+    }
+
+    public boolean propertiesExistInBlock(ArrayList<Property> newProperties) {
+        for (Property property : newProperties) {
+            if (this.localPropertyExist(property.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
