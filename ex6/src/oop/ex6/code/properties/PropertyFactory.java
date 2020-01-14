@@ -19,19 +19,18 @@ public class PropertyFactory {
     private final String DOUBLE_TYPE = "double";
     private final String CHAR_TYPE = "char";
     private final String BOOLEAN_TYPE = "boolean";
-    private final String EMPTY_STRING = "";
-    private final String BLANK_SPACE = " ";
+    private final String TRUE = "true";
+    private final String FALSE = "false";
+
     private final Pattern stringPattern = Pattern.compile("\".*\"");
     private final Pattern charPattern = Pattern.compile("'.'");
-    private final Pattern booleanPattern = Pattern.compile(("true|false|^(-?)(0|([1-9][0-9]*))(\\\\.[0-9]+)?$|[0-9]"));
+    private final String ILLEGAL_CODE = "Illegal code";
 
     // private constructor - singleton design
-    private PropertyFactory() {
-    }
+    private PropertyFactory() {}
 
     /**
      * Verifies if the given String one of the valid variable types
-     *
      * @param str the given string to verify
      * @return true if the String is a valid variable type else false
      */
@@ -45,7 +44,6 @@ public class PropertyFactory {
 
     /**
      * returns the single PropertyFactory instance - singleton design
-     *
      * @return PropertyFactory instance
      */
     public static PropertyFactory getInstance() {
@@ -54,7 +52,6 @@ public class PropertyFactory {
 
     /**
      * Verifies that the given string is a valid variable name
-     *
      * @param name the given string to verify
      * @return true if the string is a valid name else false
      */
@@ -76,7 +73,6 @@ public class PropertyFactory {
 
     /**
      * Verifies that the variable assignment is valid according to the variable type
-     *
      * @param type  the given variable type
      * @param value the given variable value to be assigned
      * @return true if the assignment is valid else false
@@ -107,7 +103,7 @@ public class PropertyFactory {
                 }
                 break;
             case BOOLEAN_TYPE:
-                if (!Utils.isDouble(value) && !value.equals("true") && !value.equals("false")) {
+                if (!Utils.isDouble(value) && !value.equals(TRUE) && !value.equals(FALSE)) {
                     return false;
                 }
         }
@@ -116,7 +112,6 @@ public class PropertyFactory {
 
     /**
      * Returns the given property value
-     *
      * @param property the given property
      * @return property value
      */
@@ -140,11 +135,10 @@ public class PropertyFactory {
     }
 
     /**
-     * TODO
-     *
-     * @param toType
-     * @param fromType
-     * @return
+     * Verifies that the assignment of the variable is legal from one variable to another
+     * @param toType The variable that wants to be assigned to
+     * @param fromType The variable that wants to be assigned from
+     * @return true if the assignment is valid, else false
      */
     public boolean validTypesTo(String toType, String fromType) {
         if (toType.equals(fromType)) {
@@ -160,11 +154,10 @@ public class PropertyFactory {
 
     /**
      * Creates a specific property
-     *
-     * @param propertyType  the created property type
-     * @param propertyName  the created property name
+     * @param propertyType the created property type
+     * @param propertyName the created property name
      * @param propertyValue the created property value
-     * @param isFinal       true if the property is declared as final else false
+     * @param isFinal true if the property is declared as final else false
      * @return the created property
      * @throws BadFormatException when the property deceleration is invalid
      */
@@ -172,7 +165,7 @@ public class PropertyFactory {
                                    String propertyValue, boolean isFinal) throws BadFormatException {
         if (!isPropertyType(propertyType) || !validParameterName(propertyName) ||
                 !validValue(propertyType, propertyValue)) {
-            throw new BadFormatException("Property fields are invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         if (propertyValue == null) {
             switch (propertyType) {
@@ -215,17 +208,17 @@ public class PropertyFactory {
     }
 
     /**
-     * TODO / מה ההבדל?
-     *
-     * @param propertyType
-     * @param propertyName
-     * @param isFinal
-     * @return
+     * Creates specific properties for the method (does not need assignment)
+     * @param propertyType the given property type
+     * @param propertyName the given property name
+     * @param isFinal indicates if the given property is a final variable
+     * @return Property object when the object is successfully created
+     * @throws BadFormatException when the property is not valid to create
      */
     public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal)
             throws BadFormatException {
         if (!isPropertyType(propertyType) || !validParameterName(propertyName)) {
-            throw new BadFormatException("Property fields are invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         switch (propertyType) {
             case STRING_TYPE:
@@ -248,93 +241,15 @@ public class PropertyFactory {
     }
 
     /**
-     * TODO
-     *
-     * @param oldProperty
-     * @param value
-     * @return
-     * @throws BadFormatException
+     * Sets the value for the given property
+     * @param property the given property to set the value to
+     * @param value the given value to set in the property
+     * @return the Property object with the new value
+     * @throws BadFormatException when the given value cannot be assigned to the existing property
      */
-    public Property updatePropertyFromString(Property oldProperty, String value) throws BadFormatException {
-        Property newProperty = oldProperty;
-        try {
-            switch (oldProperty.type) {
-                case STRING_TYPE:
-                    ((StringProperty) newProperty).setValue(value.substring(1, value.length() - 1));
-                    break;
-                case INT_TYPE:
-                    ((IntProperty) newProperty).setValue(Integer.parseInt(value));
-                    break;
-                case DOUBLE_TYPE:
-                    ((DoubleProperty) newProperty).setValue(Double.parseDouble(value));
-                    break;
-                case CHAR_TYPE:
-                    ((CharProperty) newProperty).setValue(value.charAt(1));
-                    break;
-                case BOOLEAN_TYPE:
-                    if (Utils.isDouble(value)) {
-                        ((BooleanProperty) newProperty).setValue(Double.parseDouble(value) != 0);
-                    } else {
-                        ((BooleanProperty) newProperty).setValue(Boolean.parseBoolean(value));
-                    }
-            }
-        } catch (Exception exp) {
-            throw new BadFormatException("Bad value");
-        }
-
-        return newProperty;
-    }
-
-    /**
-     * TODO
-     *
-     * @param toUpdate
-     * @param fromUpdate
-     * @return
-     * @throws BadFormatException
-     */
-    public Property updatePropertyFromOtherProperty(Property toUpdate, Property fromUpdate) throws BadFormatException {
-        Property newProperty = toUpdate;
-        if (!this.validTypesTo(toUpdate.getType(), fromUpdate.getType())) {
-            throw new BadFormatException("Invalid update");
-        }
-        try {
-            switch (toUpdate.getType()) {
-                case STRING_TYPE:
-                    ((StringProperty) newProperty).setValue(((StringProperty) fromUpdate).getValue());
-                    break;
-                case INT_TYPE:
-                    ((IntProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue());
-                    break;
-                case DOUBLE_TYPE:
-                    if (fromUpdate.getType().equals(INT_TYPE)) {
-                        ((DoubleProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue());
-                    } else {
-                        ((DoubleProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue());
-                    }
-                    break;
-                case CHAR_TYPE:
-                    ((CharProperty) newProperty).setValue(((CharProperty) fromUpdate).getValue());
-                    break;
-                case BOOLEAN_TYPE:
-                    if (fromUpdate.getType().equals(INT_TYPE)) {
-                        ((BooleanProperty) newProperty).setValue(((IntProperty) fromUpdate).getValue() != 0);
-                    } else if (fromUpdate.getType().equals(DOUBLE_TYPE)) {
-                        ((BooleanProperty) newProperty).setValue(((DoubleProperty) fromUpdate).getValue() != 0);
-                    } else {
-                        ((BooleanProperty) newProperty).setValue(((BooleanProperty) fromUpdate).getValue());
-                    }
-            }
-        } catch (Exception exp) {
-            throw new BadFormatException("Bad value");
-        }
-
-        return newProperty;
-    }
-
     public Property getUpdatedProperty(Property property, String value) throws BadFormatException {
         if(property.isFinal) {
-            throw new BadFormatException("Cannot update final property");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         Property ret = property;
         switch (ret.getType()) {

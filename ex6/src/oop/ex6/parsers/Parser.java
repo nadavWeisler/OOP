@@ -5,10 +5,8 @@ import oop.ex6.code.properties.Property;
 import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Super class for the specific parsers
@@ -16,33 +14,48 @@ import java.util.Properties;
 public class Parser {
 
     // Creates the finals to use in the parser
-    protected final String FINAL_CONSTANT = "final";
-    protected final String EMPTY_STRING = "";
-    protected final String BLANK_SPACE = " ";
-    protected final String COMMA = ",";
-    protected final String EQUALS = "=";
-    protected final String WHILE_CONSTANT = "while";
-    protected final String If_CONSTANT = "if";
-    protected final String VOID_CONSTANT = "void";
+    protected static final String FINAL_CONSTANT = "final";
+    protected static final String EMPTY_STRING = "";
+    protected static final String BLANK_SPACE = " ";
+    protected static final String COMMA = ",";
+    protected static final String EQUALS = "=";
+    protected static final String WHILE_CONSTANT = "while";
+    protected static final String If_CONSTANT = "if";
+    protected static final String VOID_CONSTANT = "void";
+    protected static final String ILLEGAL_CODE = "Illegal code";
+    protected static final String END_BRACKET = ";";
+    protected static final String OPEN_SECTION = "{";
+    protected static final String CLOSE_SECTION = "}";
+    protected static final String STRING_TYPE = "String";
+    protected static final String INT_TYPE = "int";
+    protected static final String DOUBLE_TYPE = "double";
+    protected static final String CHAR_TYPE = "char";
+    protected static final String BOOLEAN_TYPE = "boolean";
+    protected static final char CLOSE_BRACKET = ')';
+    protected static final char OPEN_BRACKET = '(';
+    protected static final String TRUE = "true";
+    protected static final String FALSE = "false";
+    protected static final String FINAL = "final";
+
+
     protected HashMap<String, HashMap<String, Property>> local_properties = new HashMap<>();
 
     /**
-     * TODO
-     *
-     * @param line
-     * @return
+     * Verifies if the given code line is a property creation line
+     * @param line the given line to verify
+     * @return true if the line is a property line , else false
      */
     protected boolean isPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            return PropertyFactory.getInstance().isPropertyType(splitLine[0]) || splitLine[0].equals(FINAL_CONSTANT);
+            return PropertyFactory.getInstance().isPropertyType(splitLine[0]) ||
+                    splitLine[0].equals(FINAL_CONSTANT);
         }
         return false;
     }
 
     /**
      * Verifies if the given code line is a while loop line
-     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a while loop else false
      */
@@ -50,7 +63,7 @@ public class Parser {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            return splitLine[0].startsWith(WHILE_CONSTANT + "(") ||
+            return splitLine[0].startsWith(WHILE_CONSTANT + OPEN_BRACKET) ||
                     splitLine[0].equals(WHILE_CONSTANT);
         }
         return false;
@@ -58,14 +71,13 @@ public class Parser {
 
     /**
      * Verifies if the given code line is a if condition line
-     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a if condition line else false
      */
     protected boolean isIfLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            return splitLine[0].startsWith(If_CONSTANT + "(") ||
+            return splitLine[0].startsWith(If_CONSTANT + OPEN_BRACKET) ||
                     splitLine[0].equals(If_CONSTANT);
         }
         return false;
@@ -73,7 +85,6 @@ public class Parser {
 
     /**
      * Verifies if the code line ends with the bracket '}'
-     *
      * @param line the given line to verify
      * @return true if the line end with the bracket '}' , else false
      */
@@ -82,12 +93,11 @@ public class Parser {
     }
 
     /**
-     * TODO
-     *
-     * @param line
-     * @param properties
-     * @return
-     * @throws BadFormatException
+     * Returns an array of the properties in the given code line
+     * @param line the given line to extract the properties from
+     * @param properties the existing properties to verify
+     * @return an array of properties in the code line
+     * @throws BadFormatException when the code line is illegal
      */
     protected ArrayList<Property> getPropertiesFromLine(String line,
                                                         ArrayList<HashMap<String, HashMap<String, Property>>>
@@ -103,7 +113,7 @@ public class Parser {
             isFinal = true;
             spaceIndex = line.substring(6).indexOf(BLANK_SPACE);
             if (spaceIndex == -1) {
-                throw new BadFormatException("BAD PROPERTY LINE");
+                throw new BadFormatException(ILLEGAL_CODE);
             }
             line = Utils.RemoveAllSpacesAtEnd(line.substring(6));
         }
@@ -114,7 +124,7 @@ public class Parser {
         if (PropertyFactory.getInstance().isPropertyType(currentString)) {
             type = currentString;
         } else {
-            throw new BadFormatException("BAD PROPERTY LINE");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
 
         line = Utils.RemoveAllSpacesAtEnd(line.substring(spaceIndex));
@@ -124,9 +134,9 @@ public class Parser {
         boolean ended = false;
         for (String item : splitLine) {
             item = Utils.RemoveAllSpacesAtEnd(item);
-            if (item.endsWith(";")) {
+            if (item.endsWith(END_BRACKET)) {
                 if (!Utils.RemoveAllSpacesAtEnd(splitLine[splitLine.length - 1]).equals(item)) {
-                    throw new BadFormatException("BAD PROPERTY LINE");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 } else {
                     item = item.substring(0, item.length() - 1);
                     ended = true;
@@ -135,25 +145,25 @@ public class Parser {
             if (item.contains(EQUALS)) {
                 String[] splitItem = item.split(EQUALS);
                 if (splitItem.length != 2) {
-                    throw new BadFormatException("BAD PROPERTY NAME");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
                 String name = Utils.RemoveAllSpacesAtEnd(splitItem[0]);
                 String value = Utils.RemoveAllSpacesAtEnd(splitItem[1]);
 
                 if (!PropertyFactory.getInstance().validParameterName(name)) {
-                    throw new BadFormatException("BAD PROPERTY NAME");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 } else {
                     for (HashMap<String, HashMap<String, Property>> properties_hash : properties) {
                         Property existProp = Utils.existInProperties(value, properties_hash);
                         if (existProp != null) {
                             value = PropertyFactory.getInstance().getValueFromProperty(existProp);
                             if (value == null && !existProp.isMethodProperty()) {
-                                throw new BadFormatException("Cannot add null argument");
+                                throw new BadFormatException(ILLEGAL_CODE);
                             }
                         }
                     }
                     if (!PropertyFactory.getInstance().validValue(type, value)) {
-                        throw new BadFormatException("BAD PROPERTY VALUE");
+                        throw new BadFormatException(ILLEGAL_CODE);
                     } else {
                         for (String waitItem : waitForValue) {
                             result.add(PropertyFactory.getInstance().createProperty(type, waitItem, value, isFinal));
@@ -163,7 +173,7 @@ public class Parser {
                 }
             } else {
                 if (!PropertyFactory.getInstance().validParameterName(item)) {
-                    throw new BadFormatException("BAD PROPERTY NAME");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 } else {
                     waitForValue.add(item);
                 }
@@ -171,13 +181,13 @@ public class Parser {
         }
 
         if (!ended) {
-            throw new BadFormatException("; missing");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
 
         if (waitForValue.size() > 0) {
             for (String name : waitForValue) {
                 if (isFinal) {
-                    throw new BadFormatException("Final Property Must Contain value");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
                 result.add(PropertyFactory.getInstance().createProperty(type, name,
                         null, false));
@@ -188,10 +198,9 @@ public class Parser {
     }
 
     /**
-     * TODO
-     *
-     * @param line
-     * @return
+     * Verifies if the code line is an assignment line for global properties
+     * @param line the given line to verify
+     * @return true if the line is an assignment to global properties, else false
      */
     protected boolean ifAssignGlobalPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
@@ -207,10 +216,9 @@ public class Parser {
     }
 
     /**
-     * TODO
-     *
-     * @param line
-     * @return
+     * Verifies if the code line is an assignment line for local properties
+     * @param line the given line to verify
+     * @return true if the line is an assignment to local properties, else false
      */
     protected boolean ifAssignLocalPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
@@ -227,7 +235,6 @@ public class Parser {
 
     /**
      * Verifies if the given property exist according to a given property name
-     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
@@ -242,7 +249,6 @@ public class Parser {
 
     /**
      * Verifies if the given property exist according to a given property name
-     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
@@ -255,28 +261,10 @@ public class Parser {
         return false;
     }
 
-    /**
-     * TODO
-     *
-     * @param name
-     * @param currentProperties
-     * @return
-     */
-    protected ArrayList<String> getPropertyTypeOptions(String name,
-                                                       HashMap<String, HashMap<String, Property>> currentProperties) {
-        ArrayList<String> options = new ArrayList<>();
-        for (String type : currentProperties.keySet()) {
-            if (currentProperties.get(type).containsKey(name)) {
-                options.add(type);
-            }
-        }
-        return options;
-    }
 
     /**
      * Returns the property type according to the property name
-     *
-     * @param name       the given property name to verify
+     * @param name the given property name to verify
      * @param properties all the existing properties to verify in
      * @return the given property type, if the property was not found then returns an empty string
      */
@@ -293,29 +281,28 @@ public class Parser {
     }
 
     /**
-     * TODO
-     *
-     * @param line
-     * @throws BadFormatException
+     * Assign a value to a local property
+     * @param line the code line with the assignment
+     * @throws BadFormatException when the assignment is invalid
      */
     protected void AssignValueToLocalProperties(String line) throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(EQUALS);
         if (splitLine.length != 2) {
-            throw new BadFormatException("Assign is invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         String value = Utils.RemoveAllSpacesAtEnd(splitLine[1]);
         String name = Utils.RemoveAllSpacesAtEnd(splitLine[0]);
 
         if (!this.localPropertyExist(name)) {
-            throw new BadFormatException("Property does not exist");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
-        if (value.endsWith(";")) {
+        if (value.endsWith(END_BRACKET)) {
             value = value.substring(0, value.length() - 1);
         }
         String propertyType = this.getParameterType(name, this.local_properties);
         if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
-            throw new BadFormatException("Property value is invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
 
         Property currentProperty = PropertyFactory.getInstance().getUpdatedProperty(
@@ -326,29 +313,28 @@ public class Parser {
 
 
     /**
-     * TODO
-     *
-     * @param line
-     * @throws BadFormatException
+     * Assign a value to a global property
+     * @param line the code line with the assignment
+     * @throws BadFormatException when the assignment is invalid
      */
     protected void AssignValueToGlobalProperties(String line) throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(EQUALS);
         if (splitLine.length != 2) {
-            throw new BadFormatException("Assign is invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         String value = Utils.RemoveAllSpacesAtEnd(splitLine[1]);
         String name = Utils.RemoveAllSpacesAtEnd(splitLine[0]);
 
         if (!this.globalPropertyExist(name)) {
-            throw new BadFormatException("Property does not exist");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
         String propertyType = this.getParameterType(name, FileParser.getInstance().global_properties);
-        if (value.endsWith(";")) {
+        if (value.endsWith(END_BRACKET)) {
             value = value.substring(0, value.length() - 1);
         }
         if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
-            throw new BadFormatException("Property value is invalid");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
 
         Property currentProperty = PropertyFactory.getInstance().getUpdatedProperty(

@@ -14,32 +14,46 @@ oop.ex6 package contains the following:
     # DoubleProperty - Extends Property and represents a specific double property
     # IntProperty - Extends Property and represents a specific int property
     # BooleanProperty - Extends Property and represents a specific boolean property
+  *** Method.java - Represent method section
 * exception package contains:
   # BadFormatException.java - extends Exception and represents all the code errors that is found in the given
     file, i.e the program should return the value 1
 * main package contains:
   # Sjavac.java - contains the main method of the program. Runs the program with the given argument
-  and returns the values: 0 - the code is legal ,1 - the code is illegal ,2 - I/O error to the given file.
-  The main method uses all the different classes.
+    and returns the values: 0 - the code is legal ,1 - the code is illegal ,2 - I/O error to the given file.
+    The main method uses all the different classes.
 * parsers package contains:
   # Parser - Super class that contains different method to use when parsing the text file into data sections
   # FileParser - Extends Parser and parse the text file that contains code lines, uses the singleton
-   design pattern
+    design pattern
   # MethodParser - Extends Parser and parse the methods from the original file , uses the singleton design
-  pattern, the parser is activated from the FileParser class
+    pattern, the parser is activated from the FileParser class
+  # BlockParser - Extends Parser and parse the if/while sections from the method , uses the singleton design
+    pattern, the parser is activated from the MethodParser class
 
 Utils.java -  A class that contains different method for the usage of all the classes
 
 =============================
 =          Design           =
 =============================
+The file parsing process id divided to smaller sections:
+FileParser parse the file as whole and then forwards the method code lines to parse separately in the
+MethodParser. The MethodParser parse the method as a whole and forwards the block sections to BlockParser.
+We chose that the Parser classes uses the singleton design pattern because it is only necessary to have one
+instance that parse each data section
+In addition PropertyFactory uses the singleton design pattern as well  - It is only necessary to have one
+instance that creates the specific properties types
 
+Each property (code variable) is represented in a different class, all of the specific properties extends
+the Property super class
 
 =============================
 =    Implementation details  =
 =============================
+We created BadFormatException and used the exception mechanism threw the entire code - refer to question 6.1
 
-
+Each class has different methods to help the class perform its purpose. Utils class contains methods that are
+useful for all the classes.
 =============================
 =    Answers to questions   =
 =============================
@@ -58,11 +72,35 @@ directly the file therefore they throw that error. The error is cached in the ma
 follows:
 - Create a new FloatProperty class that will represent the float property, the class structure will be similar
 to the other specific properties
-- Modify the PropertyFactory class and add the float variable to all the methods in the class
+- Modify the PropertyFactory class and add the float variable to all the methods in the class in order to be
+able to create a float property
 
-2) Feature number 1 - Different methods types ?
-   Feature number 2 - ?
+2) Feature number 1 - Classes
+   We would need to add a ClassParser class that extends the Parser super class. The hierarchy of the parsing
+   would change as follows:
+   FileParser > ClassParser > MethodParser > BlockParser. The main change will be that the FileParser will
+   parse the file as a whole and gather the classes code lines in order to forward them to the ClassParser.
+   Then the ClassParser will parse the class as a whole and gather the method code line to the MethodParser
+   as it is being today in the File Parser.
+   Of course it will be necessary to add different methods in the ClassParser in order to support the
+   definition of classes in the S-java
+
+   Feature number 2 - Different method types
+   We would need to create a MethodFactory class that is responsible to create a method object according to
+   the method type. The created method would be saved in a similar way as properties are today,
+   i.e in such a HashMap<String, HashMap<String, Method>>
+   (represents: <method type, HashMap<method name, Method object>>)
+   Then when a method is being called it will be searched in the hash map according to type and then the name
+   of the method.
 
 6.3:
 The main regular expression that we used are:
+1) In the BlockParser class - verifyConditionOperators method:
+   We used a set of regex to verify the if/while condition statement (for example: .*(\|\|\&\&).*+).
+    In our opinion a long regex is a risk for mistakes therefor we decided to split the regex to simplify
+    the code understandability and avoid bugs
+2)In the BlockParser class - verifyCondition method:
+  We used the regex  (if|while)\s?.*[(].*[)]\s?.*[{] in order to verify if the code line is an opening of a
+  new block of if or while
+
 

@@ -15,6 +15,21 @@ import java.util.regex.Pattern;
  */
 public class Utils {
 
+
+    // finals to use in the Utils
+    private static final String STRING_TYPE = "String";
+    private static final String INT_TYPE = "int";
+    private static final String DOUBLE_TYPE = "double";
+    private static final String CHAR_TYPE = "char";
+    private static final String BOOLEAN_TYPE = "boolean";
+    private static final String TRUE = "true";
+    private static final String FALSE = "false";
+    private static final String OPEN_BRACKET = "{";
+    private static final String CLOSE_BRACKET = "}";
+    private static final String END_BRACKET = ";";
+    private static final String ILLEGAL_CODE = "Illegal code";
+
+
     /**
      * Removes all blank spaces from a given String
      * @param str the given String
@@ -53,33 +68,6 @@ public class Utils {
         return true;
     }
 
-    /**
-     * Verifies if a given String is a char
-     * @param str the given string
-     * @return true if the string is a char, else false
-     */
-    public boolean isChar(String str) {
-        return (str.startsWith("'") && !str.endsWith("'")) ||
-                str.length() != 3;
-    }
-
-    /**
-     * Verifies if a given String is a String
-     * @param str the given string
-     * @return true if the string is a String, else false
-     */
-    public boolean isString(String str) {
-        return str.startsWith("\"") && !str.endsWith("\"");
-    }
-
-    /**
-     * Verifies if a given String is a boolean value
-     * @param str the given string
-     * @return true if the string is a boolean value, else false
-     */
-    public boolean isBoolean(String str) {
-        return str.equals("true") || str.equals("false");
-    }
 
     /**
      * Verifies that the given parameter name is valid according to the S-java definition
@@ -89,17 +77,17 @@ public class Utils {
      */
     public static void validParameterName(String name, boolean startWithLetter) throws BadFormatException {
         if (name.length() == 0) {
-            throw new BadFormatException("Empty name");
+            throw new BadFormatException(ILLEGAL_CODE);
         } else if (Pattern.matches(".*\\W+.*", name)) {
-            throw new BadFormatException("Invalid name character exists");
+            throw new BadFormatException(ILLEGAL_CODE);
         } else if (Pattern.matches("\\d.*", name)) { //Name start with digit
-            throw new BadFormatException("Parameter Name cannot start with a digit");
+            throw new BadFormatException(ILLEGAL_CODE);
         } else if (startWithLetter && !(Pattern.matches("[a-zA-Z].*", name))) {
-            throw new BadFormatException("Method name must start with letter");
+            throw new BadFormatException(ILLEGAL_CODE);
         } else if (name.contains("_")) { // if the name contains _ then it has to contain at least
             // one more letter or digit
             if (!Pattern.matches(".*[a-zA-Z0-9]+.*", name)) {
-                throw new BadFormatException("The parameter name contains only '_' characters");
+                throw new BadFormatException(ILLEGAL_CODE);
             }
         }
     }
@@ -111,43 +99,43 @@ public class Utils {
      * @throws BadFormatException when the type is invalid
      */
     public static void validParameterType(String type) throws BadFormatException {
-        if (!(type.equals("String") ||
-                type.equals("int") ||
-                type.equals("boolean") ||
-                type.equals("double") ||
-                type.equals("char"))) {
+        if (!(type.equals(STRING_TYPE) ||
+                type.equals(INT_TYPE) ||
+                type.equals(BOOLEAN_TYPE) ||
+                type.equals(DOUBLE_TYPE) ||
+                type.equals(CHAR_TYPE))) {
             throw new BadFormatException("Invalid parameter type");
         }
     }
 
     /**
      * Verifies that the value to be assigned into variable is legal according to the variable type
-     * @param type  the variable type
+     * @param type the variable type
      * @param value the value to be assigned into the variable
      * @throws BadFormatException if the value does not match the variable type requirements
      */
     public void validValue(String type, String value) throws BadFormatException {
         switch (type) {
-            case "String":
+            case STRING_TYPE:
                 if (!value.startsWith("\"") || value.endsWith("\"")) {
-                    throw new BadFormatException("String value is invalid");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
-            case "int":
+            case INT_TYPE:
                 if (this.isInteger(value)) {
-                    throw new BadFormatException("int value is invalid");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
-            case "double":
+            case DOUBLE_TYPE:
                 if (!this.isDouble(value)) {
-                    throw new BadFormatException("double value is invalid");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
-            case "char":
+            case CHAR_TYPE:
                 if ((!value.startsWith("'") || value.endsWith("'")) &&
                         value.length() == 3) {
-                    throw new BadFormatException("char value is invalid");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
-            case "boolean":
-                if (!(value.equals("true") || value.equals("false") || isDouble(value))) {
-                    throw new BadFormatException("Boolean value is invalid");
+            case BOOLEAN_TYPE:
+                if (!(value.equals(TRUE) || value.equals(FALSE) || isDouble(value))) {
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
         }
     }
@@ -159,8 +147,9 @@ public class Utils {
      */
     public static void hasCodeSuffix(String line) throws BadFormatException {
         String cleanLine = Utils.RemoveAllSpacesAtEnd(line);
-        if (!(cleanLine.endsWith("}") || cleanLine.endsWith(";") || cleanLine.endsWith("{"))) {
-            throw new BadFormatException("Code line has no valid suffix");
+        if (!(cleanLine.endsWith(CLOSE_BRACKET) || cleanLine.endsWith(END_BRACKET) ||
+                cleanLine.endsWith(OPEN_BRACKET))) {
+            throw new BadFormatException(ILLEGAL_CODE);
         }
     }
 
@@ -180,31 +169,6 @@ public class Utils {
         return result;
     }
 
-    /**
-     * TODO
-     * @param parameters
-     * @throws BadFormatException
-     */
-    public void validMethodParameters(String parameters) throws BadFormatException {
-        String[] splitParameters = parameters.split(",");
-        for (String parameter : splitParameters) {
-            String[] splitParam = parameter.split(" ");
-            if (splitParam[0].equals("final")) {
-                if (splitParam.length != 3) {
-                    throw new BadFormatException("Invalid method parameters");
-                }
-                splitParam = new String[]{
-                        splitParam[1],
-                        splitParam[2]
-                };
-            }
-            if (splitParam.length != 2) {
-                throw new BadFormatException("Invalid method parameters");
-            }
-            this.validParameterType(splitParam[0]);
-            this.validValue(splitParam[0], splitParam[1]);
-        }
-    }
 
     /**
      * Converts the text file into an array list of String, each element represent a code line of the file
@@ -233,15 +197,15 @@ public class Utils {
     }
 
     /**
-     * TODO
-     * @param name
-     * @param prop
-     * @return
+     * Verifies if the given name is an existing property name
+     * @param name the given name to verify
+     * @param prop the existing properties hash map th verify in
+     * @return Property object if exist, else return null
      */
     public static Property existInProperties(String name, HashMap<String, HashMap<String, Property>> prop) {
         for (String type : prop.keySet()) {
             for (String prop_name : prop.get(type).keySet()) {
-                if(prop_name.equals(name)) {
+                if (prop_name.equals(name)) {
                     return prop.get(type).get(name);
                 }
             }

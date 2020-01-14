@@ -10,7 +10,7 @@ import java.util.HashMap;
  */
 public class Method {
 
-    protected String methodLine;
+
     protected String methodName;
     protected HashMap<String, HashMap<String, Property>> properties;
     protected ArrayList<Method> executeMethods;

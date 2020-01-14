@@ -151,7 +151,7 @@ public class FileParser extends Parser {
                 for (Property property : newProperties) {
                     String currentType = property.getType();
                     if (this.global_properties.get(currentType).containsKey(property.getName())) {
-                        throw new BadFormatException("Property Already Exist");
+                        throw new BadFormatException(ILLEGAL_CODE);
                     } else {
                         this.global_properties.get(currentType).put(property.getName(), property);
                     }
@@ -163,20 +163,20 @@ public class FileParser extends Parser {
                 AssignValueToGlobalProperties(line);
             } else {
                 if (!(this.isEnd(line) && lineCount == fileList.size() - 1)) {
-                    throw new BadFormatException("Bad format line");
+                    throw new BadFormatException(ILLEGAL_CODE);
                 }
             }
         }
         //If file ended without close the method
         if (insideMethod) {
-            throw new BadFormatException("Method did not close");
+            throw new BadFormatException(ILLEGAL_CODE);
         }
 
         HashMap<String, Method> existingMethods = new HashMap<>();
         for (ArrayList<String> methodParser : methodParsers) {
             newMethod = MethodParser.getInstance().parseMethodLine(methodParser);
             if (this.methodExist(newMethod)) {
-                throw new BadFormatException("The method already exist");
+                throw new BadFormatException(ILLEGAL_CODE);
             } else {
                 existingMethods.put(newMethod.getMethodName(), newMethod);
             }
