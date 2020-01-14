@@ -57,18 +57,16 @@ public class PropertyFactory {
      */
     public boolean validParameterName(String name) {
         if (name.length() == 0) {
-            return false;
+            return true;
         } else if (Pattern.matches(".*\\W+.*", name)) {
-            return false;
+            return true;
         } else if (Pattern.matches("\\d.*", name)) { //Name start with diit
-            return false;
+            return true;
         } else if (name.contains("_")) { // if the name contains _ then it has to contain at least
             // one more letter or digit
-            if (!Pattern.matches(".*[a-zA-Z0-9]+.*", name)) {
-                return false;
-            }
+            return !Pattern.matches(".*[a-zA-Z0-9]+.*", name);
         }
-        return true;
+        return false;
     }
 
     /**
@@ -79,35 +77,35 @@ public class PropertyFactory {
      */
     public boolean validValue(String type, String value) {
         if (value == null) {
-            return true;
+            return false;
         }
         switch (type) {
             case STRING_TYPE:
                 if (!stringPattern.matcher(value).matches()) {
-                    return false;
+                    return true;
                 }
                 break;
             case DOUBLE_TYPE:
                 if (!Utils.isDouble(value)) {
-                    return false;
+                    return true;
                 }
                 break;
             case INT_TYPE:
                 if (Utils.isInteger(value)) {
-                    return false;
+                    return true;
                 }
                 break;
             case CHAR_TYPE:
                 if (!charPattern.matcher(value).matches()) {
-                    return false;
+                    return true;
                 }
                 break;
             case BOOLEAN_TYPE:
                 if (!Utils.isDouble(value) && !value.equals(TRUE) && !value.equals(FALSE)) {
-                    return false;
+                    return true;
                 }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -142,12 +140,12 @@ public class PropertyFactory {
      */
     public boolean validTypesTo(String toType, String fromType) {
         if (toType.equals(fromType)) {
-            return true;
+            return false;
         } else {
             if (toType.equals(this.BOOLEAN_TYPE)) {
-                return fromType.equals(DOUBLE_TYPE) || fromType.equals(INT_TYPE);
+                return !fromType.equals(DOUBLE_TYPE) && !fromType.equals(INT_TYPE);
             } else {
-                return toType.equals(this.DOUBLE_TYPE) && fromType.equals(this.INT_TYPE);
+                return !toType.equals(this.DOUBLE_TYPE) || !fromType.equals(this.INT_TYPE);
             }
         }
     }
@@ -163,8 +161,8 @@ public class PropertyFactory {
      */
     public Property createProperty(String propertyType, String propertyName,
                                    String propertyValue, boolean isFinal) throws BadFormatException {
-        if (!isPropertyType(propertyType) || !validParameterName(propertyName) ||
-                !validValue(propertyType, propertyValue)) {
+        if (!isPropertyType(propertyType) || validParameterName(propertyName) ||
+                validValue(propertyType, propertyValue)) {
             throw new BadFormatException(ILLEGAL_CODE);
         }
         if (propertyValue == null) {
@@ -217,7 +215,7 @@ public class PropertyFactory {
      */
     public Property createMethodProperty(String propertyType, String propertyName, boolean isFinal)
             throws BadFormatException {
-        if (!isPropertyType(propertyType) || !validParameterName(propertyName)) {
+        if (!isPropertyType(propertyType) || validParameterName(propertyName)) {
             throw new BadFormatException(ILLEGAL_CODE);
         }
         switch (propertyType) {
@@ -251,27 +249,26 @@ public class PropertyFactory {
         if(property.isFinal) {
             throw new BadFormatException(ILLEGAL_CODE);
         }
-        Property ret = property;
-        switch (ret.getType()) {
+        switch (property.getType()) {
             case STRING_TYPE:
-                ((StringProperty) ret).setValue(value.substring(1, value.length() - 1));
+                ((StringProperty) property).setValue(value.substring(1, value.length() - 1));
                 break;
             case INT_TYPE:
-                ((IntProperty) ret).setValue(Integer.parseInt(value));
+                ((IntProperty) property).setValue(Integer.parseInt(value));
                 break;
             case DOUBLE_TYPE:
-                ((DoubleProperty) ret).setValue(Double.parseDouble(value));
+                ((DoubleProperty) property).setValue(Double.parseDouble(value));
                 break;
             case CHAR_TYPE:
-                ((CharProperty) ret).setValue(value.charAt(1));
+                ((CharProperty) property).setValue(value.charAt(1));
                 break;
             case BOOLEAN_TYPE:
                 if (Utils.isDouble(value)) {
-                    ((BooleanProperty) ret).setValue(Double.parseDouble(value) != 0);
+                    ((BooleanProperty) property).setValue(Double.parseDouble(value) != 0);
                 } else {
-                    ((BooleanProperty) ret).setValue(Boolean.parseBoolean(value));
+                    ((BooleanProperty) property).setValue(Boolean.parseBoolean(value));
                 }
         }
-        return ret;
+        return property;
     }
 }

@@ -3,7 +3,6 @@ package oop.ex6.parsers;
 import oop.ex6.Utils;
 import oop.ex6.code.Method;
 import oop.ex6.code.properties.Property;
-import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.io.IOException;
@@ -15,13 +14,10 @@ import java.util.regex.Pattern;
  * Extends Parser and parse the text file that contains code lines, uses the singleton design pattern
  */
 public class FileParser extends Parser {
-
-    protected final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
-
-    protected HashMap<String, HashMap<String, Property>> global_properties = new HashMap<>();
-
+    private final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
     private static FileParser parser = new FileParser();
     private HashMap<String, Method> methods = new HashMap<>();
+    public HashMap<String, HashMap<String, Property>> global_properties = new HashMap<>();
 
     /**
      * Constructor of FileParser
@@ -49,7 +45,7 @@ public class FileParser extends Parser {
      * @param line the given line to verify
      * @return true if the code line is comment line, else false
      */
-    protected boolean isComment(String line) {
+    private boolean isComment(String line) {
         return COMMENT_PATTERN.matcher(line).matches();
     }
 
@@ -58,7 +54,7 @@ public class FileParser extends Parser {
      * @param line the given line to verify
      * @return true if the code line is empty line else, false
      */
-    protected boolean isEmpty(String line) {
+    private boolean isEmpty(String line) {
         return line.isBlank() || line.isEmpty();
     }
 
@@ -67,7 +63,7 @@ public class FileParser extends Parser {
      * @param line the given line to verify
      * @return true if the code line is a method deceleration line, else false
      */
-    public boolean isMethodLine(String line) {
+    private boolean isMethodLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
             return splitLine[0].equals(VOID_CONSTANT);

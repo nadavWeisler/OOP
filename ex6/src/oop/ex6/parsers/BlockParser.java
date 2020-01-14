@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
  * Extends Parser and parse the if/while code lines, uses the singleton design pattern
  */
 public class BlockParser extends Parser {
-
     public enum blockType {IF_CONDITION, WHILE_LOOP}
     private BlockParser.blockType type;
     private String conditionLine;
@@ -139,7 +138,7 @@ public class BlockParser extends Parser {
                     boolean exist = false;
                     currentProperty = Utils.existInProperties(parameter, this.local_properties);
                     if (currentProperty != null) {
-                        if (!PropertyFactory.getInstance().validTypesTo(BOOLEAN_TYPE,
+                        if (PropertyFactory.getInstance().validTypesTo(BOOLEAN_TYPE,
                                 currentProperty.getType()) ||
                                 PropertyFactory.getInstance().getValueFromProperty(currentProperty) == null) {
                             throw new BadFormatException(ILLEGAL_CODE);
@@ -150,7 +149,7 @@ public class BlockParser extends Parser {
                         for (int i = allProperties.size() - 1; i >= 0; i--) {
                             currentProperty = Utils.existInProperties(parameter, allProperties.get(i));
                             if (currentProperty != null) {
-                                if (!PropertyFactory.getInstance().validTypesTo(BOOLEAN_TYPE,
+                                if (PropertyFactory.getInstance().validTypesTo(BOOLEAN_TYPE,
                                         currentProperty.getType()) ||
                                         PropertyFactory.getInstance().getValueFromProperty(currentProperty) == null) {
                                     throw new BadFormatException(ILLEGAL_CODE);

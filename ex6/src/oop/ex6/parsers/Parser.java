@@ -12,7 +12,6 @@ import java.util.HashMap;
  * Super class for the specific parsers
  */
 public class Parser {
-
     // Creates the finals to use in the parser
     protected static final String FINAL_CONSTANT = "final";
     protected static final String EMPTY_STRING = "";
@@ -35,9 +34,6 @@ public class Parser {
     protected static final char OPEN_BRACKET = '(';
     protected static final String TRUE = "true";
     protected static final String FALSE = "false";
-    protected static final String FINAL = "final";
-
-
     protected HashMap<String, HashMap<String, Property>> local_properties = new HashMap<>();
 
     /**
@@ -150,7 +146,7 @@ public class Parser {
                 String name = Utils.RemoveAllSpacesAtEnd(splitItem[0]);
                 String value = Utils.RemoveAllSpacesAtEnd(splitItem[1]);
 
-                if (!PropertyFactory.getInstance().validParameterName(name)) {
+                if (PropertyFactory.getInstance().validParameterName(name)) {
                     throw new BadFormatException(ILLEGAL_CODE);
                 } else {
                     for (HashMap<String, HashMap<String, Property>> properties_hash : properties) {
@@ -162,7 +158,7 @@ public class Parser {
                             }
                         }
                     }
-                    if (!PropertyFactory.getInstance().validValue(type, value)) {
+                    if (PropertyFactory.getInstance().validValue(type, value)) {
                         throw new BadFormatException(ILLEGAL_CODE);
                     } else {
                         for (String waitItem : waitForValue) {
@@ -172,7 +168,7 @@ public class Parser {
                     }
                 }
             } else {
-                if (!PropertyFactory.getInstance().validParameterName(item)) {
+                if (PropertyFactory.getInstance().validParameterName(item)) {
                     throw new BadFormatException(ILLEGAL_CODE);
                 } else {
                     waitForValue.add(item);
@@ -238,7 +234,7 @@ public class Parser {
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
-    public boolean globalPropertyExist(String name) {
+    protected boolean globalPropertyExist(String name) {
         for (String type : FileParser.getInstance().global_properties.keySet()) {
             if (FileParser.getInstance().global_properties.get(type).containsKey(name)) {
                 return true;
@@ -252,7 +248,7 @@ public class Parser {
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
-    public boolean localPropertyExist(String name) {
+    protected boolean localPropertyExist(String name) {
         for (String type : this.local_properties.keySet()) {
             if (this.local_properties.get(type).containsKey(name)) {
                 return true;
@@ -260,7 +256,6 @@ public class Parser {
         }
         return false;
     }
-
 
     /**
      * Returns the property type according to the property name
@@ -301,7 +296,7 @@ public class Parser {
             value = value.substring(0, value.length() - 1);
         }
         String propertyType = this.getParameterType(name, this.local_properties);
-        if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
+        if (PropertyFactory.getInstance().validValue(propertyType, value)) {
             throw new BadFormatException(ILLEGAL_CODE);
         }
 
@@ -310,7 +305,6 @@ public class Parser {
 
         this.local_properties.get(propertyType).put(name, currentProperty);
     }
-
 
     /**
      * Assign a value to a global property
@@ -333,7 +327,7 @@ public class Parser {
         if (value.endsWith(END_BRACKET)) {
             value = value.substring(0, value.length() - 1);
         }
-        if (!PropertyFactory.getInstance().validValue(propertyType, value)) {
+        if (PropertyFactory.getInstance().validValue(propertyType, value)) {
             throw new BadFormatException(ILLEGAL_CODE);
         }
 
@@ -342,6 +336,4 @@ public class Parser {
 
         FileParser.getInstance().global_properties.get(propertyType).put(name, currentProperty);
     }
-
-
 }

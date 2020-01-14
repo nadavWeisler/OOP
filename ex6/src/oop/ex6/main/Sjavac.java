@@ -11,7 +11,6 @@ import java.io.IOException;
 public class Sjavac {
 
     public static void main(String[] args) {
-
         try {
             if(args.length != 1) { // The program arg is invalid
                 throw new IOException();

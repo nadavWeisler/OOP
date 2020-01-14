@@ -14,21 +14,16 @@ import java.util.regex.Pattern;
  * Utils class, contains different method for the usage of all the classes
  */
 public class Utils {
-
-
     // finals to use in the Utils
     private static final String STRING_TYPE = "String";
     private static final String INT_TYPE = "int";
     private static final String DOUBLE_TYPE = "double";
     private static final String CHAR_TYPE = "char";
     private static final String BOOLEAN_TYPE = "boolean";
-    private static final String TRUE = "true";
-    private static final String FALSE = "false";
     private static final String OPEN_BRACKET = "{";
     private static final String CLOSE_BRACKET = "}";
     private static final String END_BRACKET = ";";
     private static final String ILLEGAL_CODE = "Illegal code";
-
 
     /**
      * Removes all blank spaces from a given String
@@ -67,7 +62,6 @@ public class Utils {
         }
         return true;
     }
-
 
     /**
      * Verifies that the given parameter name is valid according to the S-java definition
@@ -109,38 +103,6 @@ public class Utils {
     }
 
     /**
-     * Verifies that the value to be assigned into variable is legal according to the variable type
-     * @param type the variable type
-     * @param value the value to be assigned into the variable
-     * @throws BadFormatException if the value does not match the variable type requirements
-     */
-    public void validValue(String type, String value) throws BadFormatException {
-        switch (type) {
-            case STRING_TYPE:
-                if (!value.startsWith("\"") || value.endsWith("\"")) {
-                    throw new BadFormatException(ILLEGAL_CODE);
-                }
-            case INT_TYPE:
-                if (this.isInteger(value)) {
-                    throw new BadFormatException(ILLEGAL_CODE);
-                }
-            case DOUBLE_TYPE:
-                if (!this.isDouble(value)) {
-                    throw new BadFormatException(ILLEGAL_CODE);
-                }
-            case CHAR_TYPE:
-                if ((!value.startsWith("'") || value.endsWith("'")) &&
-                        value.length() == 3) {
-                    throw new BadFormatException(ILLEGAL_CODE);
-                }
-            case BOOLEAN_TYPE:
-                if (!(value.equals(TRUE) || value.equals(FALSE) || isDouble(value))) {
-                    throw new BadFormatException(ILLEGAL_CODE);
-                }
-        }
-    }
-
-    /**
      * Verifies if the code line has one of the following suffix: '}','{',';'
      * @param line the given code line to verify
      * @throws BadFormatException when the code line does not end with one of the necessary suffix
@@ -169,7 +131,6 @@ public class Utils {
         return result;
     }
 
-
     /**
      * Converts the text file into an array list of String, each element represent a code line of the file
      * @param fileName the given file name to convert to an array list
@@ -177,7 +138,7 @@ public class Utils {
      * @throws IOException if the given file is invalid
      */
     public static ArrayList<String> fileToArrayList(String fileName) throws IOException {
-        ArrayList<String> result = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<>();
 
         BufferedReader br = new BufferedReader(new FileReader(fileName));
         while (br.ready()) {
@@ -212,6 +173,4 @@ public class Utils {
         }
         return null;
     }
-
-
 }
