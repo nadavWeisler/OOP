@@ -1,3 +1,0 @@
-boolean foo() {
-	return true;
-}

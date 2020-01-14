@@ -14,7 +14,6 @@ public class Method {
     protected String methodName;
     protected HashMap<String, HashMap<String, Property>> properties;
     protected ArrayList<Method> executeMethods;
-    protected ArrayList<Block> methodBlocks;
     protected ArrayList<String> parameterType;
 
     /**

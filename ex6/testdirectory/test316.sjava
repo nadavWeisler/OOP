@@ -1,5 +1,0 @@
-void foo() {
-while ("hello") {
-}
-return;
-}

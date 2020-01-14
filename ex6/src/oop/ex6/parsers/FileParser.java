@@ -104,7 +104,6 @@ public class FileParser extends Parser {
         for (String line : fileList) {
             lineCount++;
             line = Utils.RemoveAllSpacesAtEnd(line);
-           // System.out.println("Line: " + line);
             //Empty or Comment line
             if (this.isEmpty(line) || this.isComment(line)) {
                 continue;
@@ -115,7 +114,6 @@ public class FileParser extends Parser {
 
             //Inside a method
             if (insideMethod) {
-              //  System.out.println("Inside Method!");
                 methodList.add(line);
                 if (this.isIfLine(line)) {
                     conditionSwitch.add(switchCount);
@@ -124,8 +122,6 @@ public class FileParser extends Parser {
                     whileSwitch.add(switchCount);
                     switchCount++;
                 } else if (this.isEnd(line)) {
-                  //  System.out.println("Con switch: " + conditionSwitch.size());
-                  //  System.out.println("While switch: " + whileSwitch.size());
                     if (conditionSwitch.isEmpty()) {
                         if (whileSwitch.isEmpty()) {
                             insideMethod = false;
@@ -149,7 +145,6 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isPropertyLine(line)) {
-              //  System.out.println("Inside Property!");
                 ArrayList<HashMap<String, HashMap<String, Property>>> arr = new ArrayList<>();
                 arr.add(global_properties);
                 ArrayList<Property> newProperties = this.getPropertiesFromLine(line, arr);
@@ -162,14 +157,12 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isMethodLine(line)) {
-              //  System.out.println("Inside method line!");
                 methodList.add(line);
                 insideMethod = true;
             } else if (ifAssignGlobalPropertyLine(line)) {
                 AssignValueToGlobalProperties(line);
             } else {
                 if (!(this.isEnd(line) && lineCount == fileList.size() - 1)) {
-                  //  System.out.println(lineCount + "_" + fileList.size());
                     throw new BadFormatException("Bad format line");
                 }
             }

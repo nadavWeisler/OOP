@@ -1,6 +1,0 @@
-void foo() {
-boolean b = true;
-if (b) {
-}
-return;
-}

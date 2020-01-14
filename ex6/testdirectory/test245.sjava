@@ -1,4 +1,0 @@
-void foo() {
-char a = 0.5;
-return;
-}

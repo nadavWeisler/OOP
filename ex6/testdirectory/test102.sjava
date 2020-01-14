@@ -1,3 +1,0 @@
-double foo() {
-	return 0.0;
-}

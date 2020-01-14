@@ -1,5 +1,0 @@
-int foo() {
-	if (while(true)) {
-	}
-return 1;
-}

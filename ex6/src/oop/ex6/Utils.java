@@ -25,22 +25,6 @@ public class Utils {
     }
 
 
-    public static void printList(String[] lst) {
-        for (String line : lst) {
-            System.out.print(line + " ");
-        }
-    }
-
-//
-//    public static void printProperties(HashMap<String, HashMap<String, Property>> p) {
-//        for (String type : p.keySet()) {
-//            System.out.println("Type:" + type);
-//            for (String name : p.get(type).keySet()) {
-//                System.out.println("_" + name);
-//            }
-//        }
-//    }
-
     /**
      * Verifies if a given String is an integer
      * @param str the given string
@@ -50,9 +34,9 @@ public class Utils {
         try {
             Integer.parseInt(str);
         } catch (NumberFormatException | NullPointerException e) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -149,7 +133,7 @@ public class Utils {
                     throw new BadFormatException("String value is invalid");
                 }
             case "int":
-                if (!this.isInteger(value)) {
+                if (this.isInteger(value)) {
                     throw new BadFormatException("int value is invalid");
                 }
             case "double":

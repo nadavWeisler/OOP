@@ -97,7 +97,7 @@ public class PropertyFactory {
                 }
                 break;
             case INT_TYPE:
-                if (!Utils.isInteger(value)) {
+                if (Utils.isInteger(value)) {
                     return false;
                 }
                 break;

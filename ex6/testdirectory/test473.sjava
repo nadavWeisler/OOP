@@ -1,4 +1,0 @@
-void a() {
-int a;
-return;
-}

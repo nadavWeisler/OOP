@@ -1,4 +1,0 @@
-void foo() {
-String a = 0.5;
-return;
-}

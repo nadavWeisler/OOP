@@ -1,4 +1,0 @@
-void foo() {
-boolean a = 0;
-return;
-}

@@ -1,4 +1,0 @@
-void foo(final int a) {
-a = 5;
-return;
-}

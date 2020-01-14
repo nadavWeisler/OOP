@@ -1,4 +1,0 @@
-void foo() {
-double a = "hello";
-return;
-}

@@ -1,4 +1,0 @@
-int foo() {
-double b = 6.6;
-return b;
-}

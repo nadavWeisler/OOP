@@ -1,39 +1,43 @@
 package oop.ex6.parsers;
 
 import oop.ex6.Utils;
-import oop.ex6.code.Block;
 import oop.ex6.code.properties.Property;
+import oop.ex6.code.properties.PropertyFactory;
 import oop.ex6.exceptions.BadFormatException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+
 /**
  * Extends Parser and parse the if/while code lines, uses the singleton design pattern
  */
 public class BlockParser extends Parser {
     public enum blockType {IF_CONDITION, WHILE_LOOP}
 
-    private Block.blockType type;
+    private BlockParser.blockType type;
     private String conditionLine;
     private HashMap<String, HashMap<String, Property>> method_property = new HashMap<>();
     private String[] booleanTypes = new String[]{"boolean", "int", "double"};
 
     /**
      * Returns the block type, i.e if block or while block
+     *
      * @return
      */
-    public Block.blockType getType() {
+    public BlockParser.blockType getType() {
         return type;
     }
 
     /**
      * Constructor for Block
-     * @param isWhile defines the type of the block, if true then the block is a while loop, else the block
-     * is an if condition
+     *
+     * @param isWhile       defines the type of the block, if true then the block is a while loop, else the block
+     *                      is an if condition
      * @param conditionLine the given conditionLine for the block
      */
-    public BlockParser(boolean isWhile, String conditionLine)
+    public BlockParser(boolean isWhile, String conditionLine,
+                       ArrayList<HashMap<String, HashMap<String, Property>>> allProperties)
             throws BadFormatException {
         this.local_properties.put("int", new HashMap<>());
         this.local_properties.put("double", new HashMap<>());
@@ -41,16 +45,17 @@ public class BlockParser extends Parser {
         this.local_properties.put("char", new HashMap<>());
         this.local_properties.put("boolean", new HashMap<>());
         if (isWhile) {
-            type = Block.blockType.WHILE_LOOP;
+            type = BlockParser.blockType.WHILE_LOOP;
         } else {
-            type = Block.blockType.IF_CONDITION;
+            type = BlockParser.blockType.IF_CONDITION;
         }
         this.conditionLine = conditionLine;
-        this.verifyCondition();
+        this.verifyCondition(allProperties);
     }
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
+     *
      * @param line the given condition line
      * @return extracted condition text
      * @throws BadFormatException if there is no '()" for the condition
@@ -63,6 +68,7 @@ public class BlockParser extends Parser {
                         return line.substring(i + 1, j); // returns the condition itself
                     }
                 }
+
                 // The condition does not end with a closing bracket
                 throw new BadFormatException("The block condition is invalid");
             }
@@ -73,6 +79,7 @@ public class BlockParser extends Parser {
 
     /**
      * Verifies the operators in the condition
+     *
      * @param condition thr given condition line to verify
      * @throws BadFormatException when found that the operator '&&' or '||' in an invalid way
      */
@@ -107,14 +114,17 @@ public class BlockParser extends Parser {
 
     /**
      * Verifies the block condition is valid
+     *
      * @throws BadFormatException when the block condition is invalid
      */
-    private void verifyCondition() throws BadFormatException {
+    private void verifyCondition(ArrayList<HashMap<String, HashMap<String, Property>>> allProperties)
+            throws BadFormatException {
 
         String conditionLine = this.conditionLine.replace(" ", "");
 
         // verifies that the condition line has the expected format
-        if (Pattern.matches("(if|while)[(].*[)]\\s?[{]", conditionLine)) {
+        conditionLine = conditionLine.replace(" ", "");
+        if (Pattern.matches("(if|while)\\s?.*[(].*[)]\\s?.*[{]", conditionLine)) {
             String condition = getCondition(conditionLine);
 
             verifyConditionOperators(condition);
@@ -124,17 +134,35 @@ public class BlockParser extends Parser {
             String[] conditionParameters = condition.split("&&");
 
             for (String parameter : conditionParameters) {
-                // if the parameter is not a number
-                if (!(Utils.isDouble(parameter) || Utils.isInteger(parameter))) {
-                    // if the parameter is no the saved words 'true' 'false'
-                    if (!(parameter.equals("true") || parameter.equals("false")) && !Utils.isDouble(parameter)) {
-                        // if the parameter does not exist as a boolean,int or double
-//                        if (!(FileParser.getInstance().propertyExistWithSomeTypes(booleanTypes, parameter) ||
-//                                methodPropertyExistWithSomeTypes(booleanTypes, parameter) ||
-//                                FileParser.getInstance().globalPropertyExistWithSomeTypes(
-//                                        booleanTypes, parameter))) {
-//                            throw new BadFormatException("The block condition is invalid");
-//                        }
+                parameter = Utils.RemoveAllSpacesAtEnd(parameter);
+                // if the parameter is no the saved words 'true' 'false'
+                Property currentProperty;
+                if (!(parameter.equals("true") || parameter.equals("false")) && !Utils.isDouble(parameter)) {
+                    boolean exist = false;
+                    currentProperty = Utils.existInProperties(parameter, this.local_properties);
+                    if (currentProperty != null) {
+                        if (!PropertyFactory.getInstance().validTypesTo("boolean",
+                                currentProperty.getType()) ||
+                                PropertyFactory.getInstance().getValueFromProperty(currentProperty) == null) {
+                            throw new BadFormatException("The block condition is invalid");
+                        }
+                        exist = true;
+                    }
+                    if (!exist) {
+                        for (int i = allProperties.size() - 1; i >= 0; i--) {
+                            currentProperty = Utils.existInProperties(parameter, allProperties.get(i));
+                            if (currentProperty != null) {
+                                if (!PropertyFactory.getInstance().validTypesTo("boolean",
+                                        currentProperty.getType()) ||
+                                        PropertyFactory.getInstance().getValueFromProperty(currentProperty) == null) {
+                                    throw new BadFormatException("The block condition is invalid");
+                                }
+                                exist = true;
+                            }
+                        }
+                    }
+                    if (!exist) {
+                        throw new BadFormatException("The block condition is invalid");
                     }
                 }
             }
@@ -146,6 +174,7 @@ public class BlockParser extends Parser {
 
     /**
      * TODO
+     *
      * @param properties
      * @throws BadFormatException
      */
@@ -161,6 +190,7 @@ public class BlockParser extends Parser {
 
     /**
      * TODO
+     *
      * @param newProperties
      * @return
      */

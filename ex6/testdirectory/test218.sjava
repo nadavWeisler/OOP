@@ -1,4 +1,0 @@
-void foo() {
-final boolean a;
-return;
-}

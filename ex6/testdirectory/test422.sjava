@@ -1,3 +1,0 @@
-void foo(in t a) {
-return;
-}
