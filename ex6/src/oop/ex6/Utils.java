@@ -17,7 +17,6 @@ public class Utils {
 
     /**
      * Removes all blank spaces from a given String
-     *
      * @param str the given String
      * @return String without blank spaces
      */
@@ -32,18 +31,18 @@ public class Utils {
         }
     }
 
-    public static void printProperties(HashMap<String, HashMap<String, Property>> p) {
-        for (String type : p.keySet()) {
-            System.out.println("Type:" + type);
-            for (String name : p.get(type).keySet()) {
-                System.out.println("_" + name);
-            }
-        }
-    }
+//
+//    public static void printProperties(HashMap<String, HashMap<String, Property>> p) {
+//        for (String type : p.keySet()) {
+//            System.out.println("Type:" + type);
+//            for (String name : p.get(type).keySet()) {
+//                System.out.println("_" + name);
+//            }
+//        }
+//    }
 
     /**
      * Verifies if a given String is an integer
-     *
      * @param str the given string
      * @return true if the string is an integer, else false
      */
@@ -58,7 +57,6 @@ public class Utils {
 
     /**
      * Verifies if a given String is a double
-     *
      * @param str the given string
      * @return true if the string is a double, else false
      */
@@ -73,7 +71,6 @@ public class Utils {
 
     /**
      * Verifies if a given String is a char
-     *
      * @param str the given string
      * @return true if the string is a char, else false
      */
@@ -84,7 +81,6 @@ public class Utils {
 
     /**
      * Verifies if a given String is a String
-     *
      * @param str the given string
      * @return true if the string is a String, else false
      */
@@ -94,7 +90,6 @@ public class Utils {
 
     /**
      * Verifies if a given String is a boolean value
-     *
      * @param str the given string
      * @return true if the string is a boolean value, else false
      */
@@ -104,8 +99,7 @@ public class Utils {
 
     /**
      * Verifies that the given parameter name is valid according to the S-java definition
-     *
-     * @param name            the given parameter name to verify
+     * @param name the given parameter name to verify
      * @param startWithLetter indicates if the name must start with a letter
      * @throws BadFormatException when the name is invalid
      */
@@ -129,7 +123,6 @@ public class Utils {
     /**
      * Verifies that the given parameter type is valid, i.e it is one of the following:
      * String, char, boolean, int, double
-     *
      * @param type the given String to verify
      * @throws BadFormatException when the type is invalid
      */
@@ -145,7 +138,6 @@ public class Utils {
 
     /**
      * Verifies that the value to be assigned into variable is legal according to the variable type
-     *
      * @param type  the variable type
      * @param value the value to be assigned into the variable
      * @throws BadFormatException if the value does not match the variable type requirements
@@ -178,7 +170,6 @@ public class Utils {
 
     /**
      * Verifies if the code line has one of the following suffix: '}','{',';'
-     *
      * @param line the given code line to verify
      * @throws BadFormatException when the code line does not end with one of the necessary suffix
      */
@@ -191,7 +182,6 @@ public class Utils {
 
     /**
      * Clears the code line array list from empty code lines
-     *
      * @param strings the code lines array list
      * @return code lines array list without emty code lines
      */
@@ -208,7 +198,6 @@ public class Utils {
 
     /**
      * TODO
-     *
      * @param parameters
      * @throws BadFormatException
      */
@@ -235,7 +224,6 @@ public class Utils {
 
     /**
      * Converts the text file into an array list of String, each element represent a code line of the file
-     *
      * @param fileName the given file name to convert to an array list
      * @return an array list of String code lines from the file
      * @throws IOException if the given file is invalid
@@ -251,10 +239,21 @@ public class Utils {
         return result;
     }
 
+    /**
+     * Returns a String with only one blank space between words
+     * @param str the given string to perform the action on
+     * @return a String with only one blank spaces between words
+     */
     public static String getOnlyOneBlank(String str) {
         return str.replace("  ", " ");
     }
 
+    /**
+     * TODO
+     * @param name
+     * @param prop
+     * @return
+     */
     public static Property existInProperties(String name, HashMap<String, HashMap<String, Property>> prop) {
         for (String type : prop.keySet()) {
             for (String prop_name : prop.get(type).keySet()) {

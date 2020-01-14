@@ -249,7 +249,7 @@ public abstract class OldParser {
             }
             result.put(currentType, newProperties);
         }
-        Utils.printProperties(result);
+        //Utils.printProperties(result);
         return result;
     }
 

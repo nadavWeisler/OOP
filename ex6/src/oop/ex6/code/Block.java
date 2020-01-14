@@ -24,7 +24,6 @@ public class Block extends OldParser {
 
     /**
      * Returns the block type, i.e if block or while block
-     *
      * @return
      */
     public blockType getType() {
@@ -32,11 +31,11 @@ public class Block extends OldParser {
     }
 
     /**
-     * Constructor for Block
-     *
-     * @param isWhile       defines the type of the block, if true then the block is a while loop, else the block
-     *                      is an if condition
-     * @param conditionLine the given conditionLine for the block
+     * TODO
+     * @param isWhile
+     * @param conditionLine
+     * @param methodProperties
+     * @throws BadFormatException
      */
     public Block(boolean isWhile, String conditionLine, HashMap<String, HashMap<String, Property>> methodProperties)
             throws BadFormatException {
@@ -52,7 +51,6 @@ public class Block extends OldParser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
-     *
      * @param line the given condition line
      * @return extracted condition text
      * @throws BadFormatException if there is no '()" for the condition
@@ -75,7 +73,6 @@ public class Block extends OldParser {
 
     /**
      * Verifies the operators in the condition
-     *
      * @param condition thr given condition line to verify
      * @throws BadFormatException when found that the operator '&&' or '||' in an invalid way
      */
@@ -110,7 +107,6 @@ public class Block extends OldParser {
 
     /**
      * Verifies the block condition is valid
-     *
      * @throws BadFormatException when the block condition is invalid
      */
     private void verifyCondition() throws BadFormatException {
@@ -148,6 +144,12 @@ public class Block extends OldParser {
 
     }
 
+    /**
+     * TODO
+     * @param propertyType
+     * @param name
+     * @return
+     */
     private boolean methodPropertyExistWithType(String propertyType, String name) {
         if (this.method_property.containsKey(propertyType)) {
             Set<String> propertiesKeySet = this.method_property.keySet();
@@ -156,6 +158,12 @@ public class Block extends OldParser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param types
+     * @param name
+     * @return
+     */
     public boolean methodPropertyExistWithSomeTypes(String[] types, String name) {
         for (String type : types) {
             if (methodPropertyExistWithType(type, name)) {
@@ -165,6 +173,11 @@ public class Block extends OldParser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param toAdd
+     * @throws BadFormatException
+     */
     public void addPropertiesToBlock(HashMap<String, HashMap<String, Property>> toAdd) throws BadFormatException {
         addProperties(toAdd);
     }

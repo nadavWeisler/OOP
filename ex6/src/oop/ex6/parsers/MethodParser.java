@@ -10,18 +10,28 @@ import oop.ex6.exceptions.BadFormatException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Extends Parser and parse the method code lines, uses the singleton design pattern
+ */
 public class MethodParser extends Parser {
+
     private static final String BAD_METHOD_LINE = "The method line is invalid";
     private HashMap<String, HashMap<String, Property>> method_arguments = new HashMap<>();
     private static MethodParser parser = new MethodParser();
 
-
+    /**
+     * Constructor of MethodParser
+     */
     private MethodParser() {
+
+        // Initiates the method arguments types
         this.method_arguments.put("int", new HashMap<>());
         this.method_arguments.put("double", new HashMap<>());
         this.method_arguments.put("String", new HashMap<>());
         this.method_arguments.put("char", new HashMap<>());
         this.method_arguments.put("boolean", new HashMap<>());
+
+        // Initiates the block arguments types
         this.local_properties.put("int", new HashMap<>());
         this.local_properties.put("double", new HashMap<>());
         this.local_properties.put("String", new HashMap<>());
@@ -29,10 +39,19 @@ public class MethodParser extends Parser {
         this.local_properties.put("boolean", new HashMap<>());
     }
 
+    /**
+     * Returns the single MethodParser instance - singleton design pattern
+     * @return MethodParser instance
+     */
     public static MethodParser getInstance() {
         return parser;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     */
     protected boolean ifAssignMethodPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -46,6 +65,11 @@ public class MethodParser extends Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param property
+     * @return
+     */
     public boolean methodPropertyExist(Property property) {
         for (String type : method_arguments.keySet()) {
             if (method_arguments.get(type).containsKey(property.getName()) ||
@@ -58,7 +82,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method is defined with equal parameter name
-     *
      * @throws BadFormatException if the method has at least two parameters with the same name
      */
     private void sameMethodParametersName(ArrayList<String> parameters) throws BadFormatException {
@@ -85,7 +108,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the method name and saves it in the methodName data member
-     *
      * @throws BadFormatException when there is no '(' that opens the method parameter section
      */
     private String[] extractMethodDetails(String methodLine) throws BadFormatException {
@@ -117,7 +139,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies the method parameter type and name is according to syntax
-     *
      * @param type the given parameter type to verify
      * @param name the given parameter name to verify
      * @throws BadFormatException if the type or name are invalid
@@ -130,7 +151,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the method line is valid
-     *
      * @throws BadFormatException if a syntax error is found
      */
     private void verifyMethodLine(String methodName, String methodParams) throws BadFormatException {
@@ -176,7 +196,6 @@ public class MethodParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
-     *
      * @return extracted method parameter text
      * @throws BadFormatException if there is no '()" for the condition
      */
@@ -201,7 +220,6 @@ public class MethodParser extends Parser {
 
     /**
      * extract the method parameter types according to the order in the method deceleration
-     *
      * @return an array of string that represents the parameter types of the method
      * @throws BadFormatException when the the parameters line is invalid
      */
@@ -222,7 +240,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given code line is a call to an existing method
-     *
      * @param line the given code line to verify
      * @return true if the code line is a valid method call, else false
      * @throws BadFormatException if the code line is an invalid existing method call
@@ -275,7 +292,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given code line is a call to an existing method
-     *
      * @param line the given code line to verify
      * @return true if the code line is a valid method call, else false
      * @throws BadFormatException if the code line is an invalid existing method call
@@ -298,7 +314,7 @@ public class MethodParser extends Parser {
             String currentMethodParameters = getMethodParameters(line);
             String[] currentParameterArray = currentMethodParameters.split(",");
 
-            System.out.println(currentParameterArray.length + "_" + methodParameters.size());
+           // System.out.println(currentParameterArray.length + "_" + methodParameters.size());
             if (currentParameterArray.length != methodParameters.size()) {
                 throw new BadFormatException("The method number of variables is not ok");
             }
@@ -353,6 +369,13 @@ public class MethodParser extends Parser {
         return true;
     }
 
+    /**
+     * Parse the method code lines and verifies its validity according to the S-java definition
+     * @param methodLines the given code lines of the method to verify
+     * @param existingMethods the existing methods in the code
+     * @return Method object if the method code lines are valid
+     * @throws BadFormatException when the method code lines are invalid
+     */
     public Method parseMethod(ArrayList<String> methodLines, HashMap<String, Method> existingMethods)
             throws BadFormatException {
         String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
@@ -443,6 +466,12 @@ public class MethodParser extends Parser {
         return newMethod;
     }
 
+    /**
+     * Verifies that the method deceleration code line is valid
+     * @param methodLines the given method code lines to verify
+     * @return Method object if the deceleration line is valid
+     * @throws BadFormatException when the method deceleration line is invalid
+     */
     public Method parseMethodLine(ArrayList<String> methodLines) throws BadFormatException {
         String line = Utils.RemoveAllSpacesAtEnd(methodLines.get(0));
         String[] methodDetails = extractMethodDetails(line);
@@ -451,6 +480,13 @@ public class MethodParser extends Parser {
         return new Method(methodParamType, methodDetails[0]);
     }
 
+    /**
+     * Verifies if the given method code line is a return statement line
+     * @param methodLines the given method code lines to verify
+     * @param lineIndex the given code line to verify that it is a return statement line in the method
+     * @return true if the code line is a valid return statement line, else false
+     * @throws BadFormatException when the code line is recognized as a return statement line but is invalid
+     */
     private boolean isReturn(ArrayList<String> methodLines, int lineIndex) throws BadFormatException {
         String returnLine = Utils.RemoveAllSpacesAtEnd(methodLines.get(lineIndex));
         if (returnLine.equals("return;")) {
@@ -472,6 +508,11 @@ public class MethodParser extends Parser {
 
     }
 
+    /**
+     * TODO
+     * @param line
+     * @throws BadFormatException
+     */
     private void AssignValueToMethodProperties(String line) throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(EQUALS);
@@ -496,7 +537,6 @@ public class MethodParser extends Parser {
 
     /**
      * Verifies if the given property exist according to a given property name
-     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
@@ -509,6 +549,11 @@ public class MethodParser extends Parser {
         return false;
     }
 
+    /**
+     * Returns all the blocks properties
+     * @param allBlocks the given blocks to extract their properties
+     * @return an all the blocks properties
+     */
     private ArrayList<HashMap<String, HashMap<String, Property>>> getAllBlocksProperty(
             ArrayList<BlockParser> allBlocks) {
         ArrayList<HashMap<String, HashMap<String, Property>>> ret = new ArrayList<>();

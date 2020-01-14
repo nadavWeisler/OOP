@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+/**
+ * Extends Parser and parse the text file that contains code lines, uses the singleton design pattern
+ */
 public class FileParser extends Parser {
 
     protected final Pattern COMMENT_PATTERN = Pattern.compile("//.*");
@@ -20,7 +23,12 @@ public class FileParser extends Parser {
     private static FileParser parser = new FileParser();
     private HashMap<String, Method> methods = new HashMap<>();
 
+    /**
+     * Constructor of FileParser
+     */
     private FileParser() {
+
+        // Initiates the properties type in the has map
         this.global_properties.put("int", new HashMap<>());
         this.global_properties.put("double", new HashMap<>());
         this.global_properties.put("String", new HashMap<>());
@@ -28,13 +36,16 @@ public class FileParser extends Parser {
         this.global_properties.put("boolean", new HashMap<>());
     }
 
+    /**
+     * Returns FileParser single instance - singleton desigm pattern
+     * @return FileParser instance
+     */
     public static FileParser getInstance() {
         return parser;
     }
 
     /**
      * Verifies if the code line is a comment line
-     *
      * @param line the given line to verify
      * @return true if the code line is comment line, else false
      */
@@ -44,7 +55,6 @@ public class FileParser extends Parser {
 
     /**
      * Verifies if the code line is an empty line
-     *
      * @param line the given line to verify
      * @return true if the code line is empty line else, false
      */
@@ -54,7 +64,6 @@ public class FileParser extends Parser {
 
     /**
      * Verifies if the code line is a method deceleration line
-     *
      * @param line the given line to verify
      * @return true if the code line is a method deceleration line, else false
      */
@@ -68,7 +77,6 @@ public class FileParser extends Parser {
 
     /**
      * Verifies if the given method already exist in the program
-     *
      * @param method the given method to verify
      * @return true if the method exist, else false
      */
@@ -76,6 +84,12 @@ public class FileParser extends Parser {
         return this.methods.containsKey(method.getMethodName());
     }
 
+    /**
+     * Parse the file into data section and verifies its validity according to the S-java definition
+     * @param fileName the given file to verify
+     * @throws IOException when the file is not found
+     * @throws BadFormatException  when the file code lines are invalid
+     */
     public void ParseFile(String fileName) throws IOException, BadFormatException {
         boolean insideMethod = false;
         ArrayList<Integer> conditionSwitch = new ArrayList<>();
@@ -90,7 +104,7 @@ public class FileParser extends Parser {
         for (String line : fileList) {
             lineCount++;
             line = Utils.RemoveAllSpacesAtEnd(line);
-            System.out.println("Line: " + line);
+           // System.out.println("Line: " + line);
             //Empty or Comment line
             if (this.isEmpty(line) || this.isComment(line)) {
                 continue;
@@ -101,7 +115,7 @@ public class FileParser extends Parser {
 
             //Inside a method
             if (insideMethod) {
-                System.out.println("Inside Method!");
+              //  System.out.println("Inside Method!");
                 methodList.add(line);
                 if (this.isIfLine(line)) {
                     conditionSwitch.add(switchCount);
@@ -110,8 +124,8 @@ public class FileParser extends Parser {
                     whileSwitch.add(switchCount);
                     switchCount++;
                 } else if (this.isEnd(line)) {
-                    System.out.println("Con switch: " + conditionSwitch.size());
-                    System.out.println("While switch: " + whileSwitch.size());
+                  //  System.out.println("Con switch: " + conditionSwitch.size());
+                  //  System.out.println("While switch: " + whileSwitch.size());
                     if (conditionSwitch.isEmpty()) {
                         if (whileSwitch.isEmpty()) {
                             insideMethod = false;
@@ -135,7 +149,7 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isPropertyLine(line)) {
-                System.out.println("Inside Property!");
+              //  System.out.println("Inside Property!");
                 ArrayList<HashMap<String, HashMap<String, Property>>> arr = new ArrayList<>();
                 arr.add(global_properties);
                 ArrayList<Property> newProperties = this.getPropertiesFromLine(line, arr);
@@ -148,14 +162,14 @@ public class FileParser extends Parser {
                     }
                 }
             } else if (isMethodLine(line)) {
-                System.out.println("Inside method line!");
+              //  System.out.println("Inside method line!");
                 methodList.add(line);
                 insideMethod = true;
             } else if (ifAssignGlobalPropertyLine(line)) {
                 AssignValueToGlobalProperties(line);
             } else {
                 if (!(this.isEnd(line) && lineCount == fileList.size() - 1)) {
-                    System.out.println(lineCount + "_" + fileList.size());
+                  //  System.out.println(lineCount + "_" + fileList.size());
                     throw new BadFormatException("Bad format line");
                 }
             }

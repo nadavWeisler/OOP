@@ -6,13 +6,14 @@ nina.kollman
 =============================
 oop.ex6 package contains the following:
 * code package contains:
- # Property - Super class that represent a variable
- # PropertyFactory - A class that creates all different properties types, uses the Singleton design pattern
- # StringProperty - Extends Property and represents a specific String property
- # CharProperty - Extends Property and represents a specific Char property
- # DoubleProperty - Extends Property and represents a specific double property
- # IntProperty - Extends Property and represents a specific int property
- # BooleanProperty - Extends Property and represents a specific boolean property
+ ** Properties package contains:
+    # Property - Super class that represent a variable
+    # PropertyFactory - A class that creates all different properties types, uses the Singleton design pattern
+    # StringProperty - Extends Property and represents a specific String property
+    # CharProperty - Extends Property and represents a specific Char property
+    # DoubleProperty - Extends Property and represents a specific double property
+    # IntProperty - Extends Property and represents a specific int property
+    # BooleanProperty - Extends Property and represents a specific boolean property
 * exception package contains:
   # BadFormatException.java - extends Exception and represents all the code errors that is found in the given
     file, i.e the program should return the value 1

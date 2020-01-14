@@ -10,7 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
+/**
+ * Super class for the specific parsers
+ */
 public class Parser {
+
+    // Creates the finals to use in the parser
     protected final String FINAL_CONSTANT = "final";
     protected final String EMPTY_STRING = "";
     protected final String BLANK_SPACE = " ";
@@ -23,7 +28,6 @@ public class Parser {
 
     /**
      * TODO
-     *
      * @param line
      * @return
      */
@@ -37,7 +41,6 @@ public class Parser {
 
     /**
      * Verifies if the given code line is a while loop line
-     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a while loop else false
      */
@@ -45,7 +48,7 @@ public class Parser {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
-            System.out.println(splitLine[0]);
+           //System.out.println(splitLine[0]);
             return splitLine[0].startsWith(WHILE_CONSTANT + "(") ||
                     splitLine[0].equals(WHILE_CONSTANT);
         }
@@ -54,7 +57,6 @@ public class Parser {
 
     /**
      * Verifies if the given code line is a if condition line
-     *
      * @param line the given code line to verify
      * @return true if the code line is a start of a if condition line else false
      */
@@ -69,7 +71,6 @@ public class Parser {
 
     /**
      * Verifies if the code line ends with the bracket '}'
-     *
      * @param line the given line to verify
      * @return true if the line end with the bracket '}' , else false
      */
@@ -77,6 +78,13 @@ public class Parser {
         return line.replace(" ", "").equals("}");
     }
 
+    /**
+     * TODO
+     * @param line
+     * @param properties
+     * @return
+     * @throws BadFormatException
+     */
     protected ArrayList<Property> getPropertiesFromLine(String line,
                                                         ArrayList<HashMap<String, HashMap<String, Property>>>
                                                                 properties)
@@ -167,6 +175,11 @@ public class Parser {
         return result;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     */
     protected boolean ifAssignGlobalPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -180,6 +193,11 @@ public class Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @return
+     */
     protected boolean ifAssignLocalPropertyLine(String line) {
         String[] splitLine = line.split(BLANK_SPACE);
         if (splitLine.length > 0) {
@@ -195,7 +213,6 @@ public class Parser {
 
     /**
      * Verifies if the given property exist according to a given property name
-     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
@@ -210,7 +227,6 @@ public class Parser {
 
     /**
      * Verifies if the given property exist according to a given property name
-     *
      * @param name the given property name to verify
      * @return true if the property exist else false
      */
@@ -223,6 +239,12 @@ public class Parser {
         return false;
     }
 
+    /**
+     * TODO
+     * @param name
+     * @param currentProperties
+     * @return
+     */
     protected ArrayList<String> getPropertyTypeOptions(String name,
                                                        HashMap<String, HashMap<String, Property>> currentProperties) {
         ArrayList<String> options = new ArrayList<>();
@@ -234,6 +256,12 @@ public class Parser {
         return options;
     }
 
+    /**
+     * Returns the property type according to the property name
+     * @param name the given property name to verify
+     * @param properties all the existing properties to verify in
+     * @return the given property type, if the property was not found then returns an empty string
+     */
     protected String getParameterType(String name,
                                       HashMap<String, HashMap<String, Property>> properties) {
         for (String type : properties.keySet()) {
@@ -246,6 +274,11 @@ public class Parser {
         return EMPTY_STRING;
     }
 
+    /**
+     * TODO
+     * @param line
+     * @throws BadFormatException
+     */
     protected void AssignValueToLocalProperties(String line) throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(EQUALS);
@@ -269,6 +302,11 @@ public class Parser {
     }
 
 
+    /**
+     * TODO
+     * @param line
+     * @throws BadFormatException
+     */
     protected void AssignValueToGlobalProperties(String line) throws BadFormatException {
         line = Utils.RemoveAllSpacesAtEnd(line);
         String[] splitLine = line.split(EQUALS);

@@ -8,7 +8,9 @@ import oop.ex6.exceptions.BadFormatException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-
+/**
+ * Extends Parser and parse the if/while code lines, uses the singleton design pattern
+ */
 public class BlockParser extends Parser {
     public enum blockType {IF_CONDITION, WHILE_LOOP}
 
@@ -19,7 +21,6 @@ public class BlockParser extends Parser {
 
     /**
      * Returns the block type, i.e if block or while block
-     *
      * @return
      */
     public Block.blockType getType() {
@@ -28,9 +29,8 @@ public class BlockParser extends Parser {
 
     /**
      * Constructor for Block
-     *
-     * @param isWhile       defines the type of the block, if true then the block is a while loop, else the block
-     *                      is an if condition
+     * @param isWhile defines the type of the block, if true then the block is a while loop, else the block
+     * is an if condition
      * @param conditionLine the given conditionLine for the block
      */
     public BlockParser(boolean isWhile, String conditionLine)
@@ -51,7 +51,6 @@ public class BlockParser extends Parser {
 
     /**
      * Extracts the condition text from the condition line (example: if(condition){)
-     *
      * @param line the given condition line
      * @return extracted condition text
      * @throws BadFormatException if there is no '()" for the condition
@@ -74,7 +73,6 @@ public class BlockParser extends Parser {
 
     /**
      * Verifies the operators in the condition
-     *
      * @param condition thr given condition line to verify
      * @throws BadFormatException when found that the operator '&&' or '||' in an invalid way
      */
@@ -109,7 +107,6 @@ public class BlockParser extends Parser {
 
     /**
      * Verifies the block condition is valid
-     *
      * @throws BadFormatException when the block condition is invalid
      */
     private void verifyCondition() throws BadFormatException {
@@ -147,6 +144,11 @@ public class BlockParser extends Parser {
 
     }
 
+    /**
+     * TODO
+     * @param properties
+     * @throws BadFormatException
+     */
     public void addPropertiesToBlock(ArrayList<Property> properties) throws BadFormatException {
         for (Property property : properties) {
             if (!localPropertyExist(property.getName())) {
@@ -157,6 +159,11 @@ public class BlockParser extends Parser {
         }
     }
 
+    /**
+     * TODO
+     * @param newProperties
+     * @return
+     */
     public boolean propertiesExistInBlock(ArrayList<Property> newProperties) {
         for (Property property : newProperties) {
             if (this.localPropertyExist(property.getName())) {
